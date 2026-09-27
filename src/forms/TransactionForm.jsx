@@ -10,7 +10,7 @@ const UNITS = ['bags', 'kg', 'liters', 'cavans', 'sacks', 'pcs', 'days']
 const DEFAULT_UNIT = { fertilizer: 'bags', seeds: 'kg', pesticide: 'liters', harvest_sale: 'cavans', labor: 'days' }
 
 export default function TransactionForm({ tx, preset, onClose }) {
-  const { state, save, remove, notify, ask } = useStore()
+  const { state, save, remove, notify, ask, celebrate } = useStore()
   const editing = !!tx
   const startCat = tx?.category || preset?.category || 'fertilizer'
   const [kind, setKind] = useState(getCategory(startCat).group === 'income' ? 'income' : 'expense')
@@ -54,6 +54,7 @@ export default function TransactionForm({ tx, preset, onClose }) {
       note: form.note.trim(),
     })
     notify(editing ? 'Record updated' : kind === 'income' ? 'Income saved 🌾' : 'Expense saved')
+    if (!editing && kind === 'income') celebrate()
     onClose()
   }
 

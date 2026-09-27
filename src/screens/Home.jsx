@@ -59,7 +59,9 @@ export default function Home() {
         <section className="section">
           <SectionHead title="This season" action="View" onAction={() => nav.open('season', { season })} />
           <button className="card play-card" onClick={() => nav.open('season', { season })} style={{ padding: 14 }}>
-            <span className="thumb" aria-hidden="true">{getCrop(season.crop).emoji}</span>
+            <span className="thumb" aria-hidden="true">
+              <span className={season.status === 'active' ? 'sway-emoji' : ''}>{getCrop(season.crop).emoji}</span>
+            </span>
             <span className="grow">
               <span className="title">{season.name}</span>
               <span className="small muted">
@@ -84,12 +86,13 @@ export default function Home() {
       <section className="section">
         <SectionHead title={season ? 'Season money' : 'All-time money'} sub={season ? season.name : undefined} />
         <div className="stats-grid">
-          <Stat label="Production cost" value={peso(t.production)} hint="Seeds, abono, labor…" />
-          <Stat label="Tools & equipment" value={peso(t.tools)} hint="Bought, rented, repairs" />
-          <Stat label="Income" value={peso(t.income)} hint="Harvest sales" />
+          <Stat label="Production cost" amount={t.production} format={peso} hint="Seeds, abono, labor…" />
+          <Stat label="Tools & equipment" amount={t.tools} format={peso} hint="Bought, rented, repairs" />
+          <Stat label="Income" amount={t.income} format={peso} hint="Harvest sales" />
           <Stat
             label={t.profit >= 0 ? 'Profit' : 'Profit so far'}
-            value={peso(t.profit)}
+            amount={t.profit}
+            format={peso}
             tone={t.profit >= 0 ? 'pos' : 'neg'}
             hint={t.profit < 0 && season?.status === 'active' ? 'Normal before harvest' : 'Income − all costs'}
           />

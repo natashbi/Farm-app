@@ -146,9 +146,7 @@ img { max-width: 100%; display: block; }
   display: flex;
   flex-direction: column;
   gap: 20px;
-  animation: fade 0.25s ease;
 }
-@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 /* ---------- Bottom navigation ---------- */
 .nav {
@@ -735,6 +733,164 @@ table.data tr.best td { font-weight: 600; }
 .settings-list small { display: block; color: var(--muted); font-size: 12.5px; }
 .settings-list .danger { color: var(--bad); }
 .settings-list input[type='file'] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+
+/* ======================================================================
+   Motion
+   Entrances use `backwards` fill so press/hover transforms still work
+   after they finish. Everything is switched off for reduced motion below.
+   ====================================================================== */
+:root { --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1); --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* Tab change: sections rise in one after another, from the side you moved toward. */
+.app { --from-x: 18px; }
+.app[data-dir='left'] { --from-x: -18px; }
+.screen > * { animation: enter 0.45s var(--ease-out) backwards; }
+.screen > *:nth-child(2) { animation-delay: 50ms; }
+.screen > *:nth-child(3) { animation-delay: 100ms; }
+.screen > *:nth-child(4) { animation-delay: 150ms; }
+.screen > *:nth-child(5) { animation-delay: 200ms; }
+.screen > *:nth-child(6) { animation-delay: 250ms; }
+.screen > *:nth-child(7) { animation-delay: 300ms; }
+.screen > *:nth-child(n + 8) { animation-delay: 340ms; }
+@keyframes enter { from { opacity: 0; transform: translate(var(--from-x), 12px); } }
+
+/* List rows and tiles follow a beat later. (Not chips: their pressed-state pop would replay it.) */
+.list > .row, .tiles > .tile, .stats-grid > .stat, .stack > .callout, .stack > .play-card, .stack > .card.play-card {
+  animation: rise 0.4s var(--ease-out) backwards;
+  animation-delay: 160ms;
+}
+:is(.list, .tiles, .stats-grid, .stack) > :nth-child(2) { animation-delay: 200ms; }
+:is(.list, .tiles, .stats-grid, .stack) > :nth-child(3) { animation-delay: 240ms; }
+:is(.list, .tiles, .stats-grid, .stack) > :nth-child(4) { animation-delay: 280ms; }
+:is(.list, .tiles, .stats-grid, .stack) > :nth-child(5) { animation-delay: 320ms; }
+:is(.list, .tiles, .stats-grid, .stack) > :nth-child(6) { animation-delay: 360ms; }
+:is(.list, .tiles, .stats-grid, .stack) > :nth-child(n + 7) { animation-delay: 400ms; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+
+/* Tap feedback */
+.row, .chip, .tile, .cat-btn, .option, .play-card, .icon-btn, .avatar-btn, .add-mini, .pill-btn, .segmented button, .nav button {
+  transition: transform 0.14s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.row:active, .play-card:active, .tile:active { transform: scale(0.975); }
+.chip:active, .cat-btn:active, .option:active, .add-mini:active, .pill-btn:active, .icon-btn:active, .avatar-btn:active { transform: scale(0.93); }
+.tile .art svg { transition: transform 0.4s var(--ease-out); }
+@media (hover: hover) {
+  .row:hover, .play-card.card:hover { transform: translateY(-2px); }
+  .tile:hover .art svg { transform: scale(1.06); }
+  .btn.primary:hover { filter: brightness(1.05); }
+}
+
+/* Picked chips, categories and quiz answers pop. */
+.chip[aria-pressed='true'], .cat-btn[aria-pressed='true'] { animation: pick 0.3s var(--ease-spring); }
+.option { position: relative; }
+.option[aria-pressed='true'] { animation: pick 0.3s var(--ease-spring); }
+.option[aria-pressed='true']::after {
+  content: '✓';
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--green);
+  background: var(--orange);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  animation: pop 0.3s var(--ease-spring) backwards;
+}
+@keyframes pick { 0% { transform: scale(0.94); } 60% { transform: scale(1.05); } 100% { transform: scale(1); } }
+@keyframes pop { from { transform: scale(0); opacity: 0; } }
+.quiz .find:not([disabled]) { animation: glow 2.2s ease-in-out infinite; }
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--olive) 0%, transparent); }
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--olive) 30%, transparent); }
+}
+.step-in { display: flex; flex-direction: column; gap: 16px; animation: stepIn 0.35s var(--ease-out) backwards; }
+@keyframes stepIn { from { opacity: 0; transform: translateX(28px); } }
+.step-in > article.result { animation: rise 0.45s var(--ease-out) backwards; }
+.step-in > article.result:nth-of-type(2) { animation-delay: 90ms; }
+.step-in > article.result:nth-of-type(3) { animation-delay: 180ms; }
+.step-in > article.result:nth-of-type(n + 4) { animation-delay: 240ms; }
+.steps-dots span { transition: background-color 0.3s ease; }
+
+/* Bottom navigation */
+.nav .nav-icon { transition: background-color 0.25s ease; }
+.nav button[aria-current='page'] .nav-icon { background: var(--orange-soft); animation: navPop 0.4s var(--ease-spring); }
+@keyframes navPop { 0% { transform: scale(0.7); } 60% { transform: scale(1.15) translateY(-2px); } 100% { transform: none; } }
+
+/* Sheets slide away when closed. */
+.sheet.closing { animation: slideDown 0.2s ease-in forwards; pointer-events: none; }
+.sheet-backdrop.closing { animation: fadeOut 0.2s ease-in forwards; pointer-events: none; }
+@keyframes slideDown { to { transform: translate(-50%, 48px); opacity: 0; } }
+@keyframes fadeOut { to { opacity: 0; } }
+.dialog { animation: dialogIn 0.26s var(--ease-spring); }
+@keyframes dialogIn { from { transform: scale(0.88); opacity: 0; } }
+.toast { animation: toastIn 0.35s var(--ease-spring); }
+
+/* Bars and meters fill from the left. */
+.progress > span { transform-origin: left center; animation: growX 0.9s var(--ease-out) 0.25s backwards; transition: width 0.6s var(--ease-out); }
+.hbar .fill { transform-origin: left center; animation: growX 0.8s var(--ease-out) backwards; transition: width 0.6s var(--ease-out); }
+.hbar:nth-child(2) .fill { animation-delay: 60ms; }
+.hbar:nth-child(3) .fill { animation-delay: 120ms; }
+.hbar:nth-child(4) .fill { animation-delay: 180ms; }
+.hbar:nth-child(5) .fill { animation-delay: 240ms; }
+.hbar:nth-child(n + 6) .fill { animation-delay: 300ms; }
+@keyframes growX { from { transform: scaleX(0); } }
+
+/* Scatter chart: band fades in, dots pop in order, labels last. */
+.chart-wrap .band { animation: fadeIn 0.6s ease 0.1s backwards; }
+.chart-wrap .dot { transform-box: fill-box; transform-origin: center; animation: pop 0.45s var(--ease-spring) backwards; animation-delay: calc(var(--i) * 110ms + 250ms); }
+.chart-wrap .data-label { animation: fadeIn 0.4s ease 0.8s backwards; }
+
+/* Illustrations breathe a little. */
+.anim-bob { animation: bob 3.2s ease-in-out infinite; }
+.anim-bob-slow { animation: bob 4.4s ease-in-out -1.2s infinite; }
+.anim-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 3.6s ease-in-out infinite; }
+.anim-sway-late { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 3.6s ease-in-out -1.8s infinite; }
+.anim-scan { animation: scan 5s ease-in-out infinite; }
+.anim-crawl { animation: crawl 6s ease-in-out infinite; }
+.anim-spin { transform-box: fill-box; transform-origin: center; animation: spin 8s linear infinite; }
+.anim-glow { transform-box: fill-box; transform-origin: center; animation: sunGlow 4s ease-in-out infinite; }
+.anim-drift { animation: drift 9s ease-in-out infinite; }
+.anim-bar { transform-box: fill-box; transform-origin: 50% 100%; animation: growY 0.9s var(--ease-spring) backwards; }
+.anim-bar:nth-of-type(2) { animation-delay: 0.12s; }
+.anim-bar:nth-of-type(3) { animation-delay: 0.24s; }
+.anim-bar:nth-of-type(4) { animation-delay: 0.36s; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+@keyframes scan { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(-14px, -10px); } 60% { transform: translate(-4px, 8px); } }
+@keyframes crawl { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(16px, -12px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes sunGlow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@keyframes drift { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(18px); } }
+@keyframes growY { from { transform: scaleY(0); } }
+.sway-emoji { display: inline-block; transform-origin: 50% 90%; animation: sway 3s ease-in-out infinite; }
+.empty svg.art { animation: bob 3.4s ease-in-out infinite; }
+.onboard > * { animation: rise 0.5s var(--ease-out) backwards; }
+.onboard > :nth-child(2) { animation-delay: 120ms; }
+.onboard > :nth-child(3) { animation-delay: 180ms; }
+.onboard > :nth-child(4) { animation-delay: 240ms; }
+.onboard > :nth-child(n + 5) { animation-delay: 300ms; }
+
+/* Celebration burst */
+.celebrate { position: fixed; left: 50%; top: 42%; z-index: 85; pointer-events: none; }
+.celebrate span {
+  position: absolute;
+  font-size: 22px;
+  left: -11px;
+  top: -11px;
+  animation: burst 1.2s cubic-bezier(0.15, 0.7, 0.3, 1) var(--d) forwards;
+  opacity: 0;
+}
+@keyframes burst {
+  0% { transform: translate(0, 0) scale(0.3) rotate(0); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate(var(--x), calc(var(--y) + 60px)) scale(1) rotate(var(--r)); opacity: 0; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

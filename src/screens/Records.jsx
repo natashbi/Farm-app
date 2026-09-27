@@ -8,6 +8,7 @@ import { useStore } from '../store.jsx'
 import { HeroRecordsArt } from '../components/Art.jsx'
 import { FertilizerScatter } from '../components/Charts.jsx'
 import { Chip, Empty, Progress, SectionHead, useNav } from '../components/ui.jsx'
+import { AnimatedNumber } from '../components/motion.jsx'
 
 const TONE_ICON = { warn: AlertTriangle, tip: Lightbulb, good: CheckCircle2, info: Info }
 
@@ -68,7 +69,7 @@ export default function Records() {
           <>
             <p style={{ maxWidth: '64%' }}>Best fertilizer amount for {getCrop(crop).label}</p>
             <div className="big-number" style={{ position: 'relative', zIndex: 1 }}>
-              ≈ {num(round1(best.fert))} <span style={{ fontSize: 20, fontWeight: 500 }}>bags{perHaTxt}</span>
+              ≈ <AnimatedNumber value={round1(best.fert)} format={(n) => num(n)} /> <span style={{ fontSize: 20, fontWeight: 500 }}>bags{perHaTxt}</span>
             </div>
             {perHa && active && Number(active.area) > 0 && (
               <p style={{ color: 'var(--on-green)' }}>
@@ -205,7 +206,9 @@ function SeasonCard({ season, stats, ledgerBags, onClick }) {
   const done = season.status === 'completed'
   return (
     <button className="card play-card" onClick={onClick} style={{ padding: 14 }}>
-      <span className="thumb" aria-hidden="true">{crop.emoji}</span>
+      <span className="thumb" aria-hidden="true">
+        <span className={done ? '' : 'sway-emoji'}>{crop.emoji}</span>
+      </span>
       <span className="grow">
         <span className="hstack between">
           <span className="title">{season.name}</span>

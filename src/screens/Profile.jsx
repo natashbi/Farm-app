@@ -6,6 +6,7 @@ import { pesoCompact, todayISO } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { FarmerAvatar } from '../components/Art.jsx'
 import { Field, Progress, SectionHead, Segmented, Sheet, useNav } from '../components/ui.jsx'
+import { AnimatedNumber } from '../components/motion.jsx'
 
 // Save a file to the phone. When the app runs inside a Claude artifact viewer,
 // downloads go through the viewer's own save prompt.
@@ -138,10 +139,10 @@ export default function Profile() {
       </section>
 
       <section className="stats-row">
-        <div><strong>{seasons.length}</strong><span>Seasons</span></div>
-        <div><strong>{transactions.length}</strong><span>Records</span></div>
-        <div><strong>{anomalies.length}</strong><span>Problems</span></div>
-        <div><strong>{solved}</strong><span>Solved</span></div>
+        <div><strong><AnimatedNumber value={seasons.length} /></strong><span>Seasons</span></div>
+        <div><strong><AnimatedNumber value={transactions.length} /></strong><span>Records</span></div>
+        <div><strong><AnimatedNumber value={anomalies.length} /></strong><span>Problems</span></div>
+        <div><strong><AnimatedNumber value={solved} /></strong><span>Solved</span></div>
       </section>
 
       <div className="field-row">
@@ -293,7 +294,7 @@ export function Onboarding() {
   return (
     <main className="onboard">
       <div className="hero" style={{ minHeight: 220, alignItems: 'center', textAlign: 'center' }}>
-        <FarmerAvatar size={120} />
+        <FarmerAvatar size={120} className="anim-bob" />
         <h2 style={{ maxWidth: 'none', fontSize: 26 }}>Welcome to Sakahan</h2>
         <p style={{ maxWidth: 'none' }}>Your farm notebook for budget, crop problems and past harvests.</p>
       </div>
