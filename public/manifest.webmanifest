@@ -1,0 +1,13 @@
+{
+  "name": "Sakahan Farm Budget",
+  "short_name": "Sakahan",
+  "description": "Record farm expenses, tools, profits, crop problems and past harvests.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F0DC",
+  "theme_color": "#2E4A40",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
