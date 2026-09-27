@@ -7,7 +7,18 @@ import { useStore } from '../store.jsx'
 import { FarmerAvatar } from '../components/Art.jsx'
 import { Field, Progress, SectionHead, Segmented, Sheet, useNav } from '../components/ui.jsx'
 
-function download(filename, text, type) {
+// Save a file to the phone. When the app runs inside a Claude artifact viewer,
+// downloads go through the viewer's own save prompt.
+async function download(filename, text, type) {
+  const downloads = window.claude?.use ? await window.claude.use('downloads').catch(() => null) : null
+  if (downloads) {
+    try {
+      await downloads.save({ filename, data: text })
+      return 'saved'
+    } catch (err) {
+      return err?.code === 'declined' ? 'declined' : 'failed'
+    }
+  }
   const url = URL.createObjectURL(new Blob([text], { type }))
   const a = document.createElement('a')
   a.href = url
@@ -16,6 +27,7 @@ function download(filename, text, type) {
   a.click()
   a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
+  return 'saved'
 }
 
 function toCSV(state) {
@@ -26,7 +38,8 @@ function toCSV(state) {
     const cat = getCategory(tx.category)
     rows.push([tx.date, cat.group === 'income' ? 'Income' : 'Expense', cat.label, tx.item, tx.qty, tx.unit, tx.amount, seasons[tx.seasonId] || '', tx.note])
   }
-  return rows.map((r) => r.map(esc).join(',')).join('\n')
+  // BOM so Excel reads ñ and ₱ correctly.
+  return '\ufeff' + rows.map((r) => r.map(esc).join(',')).join('\n')
 }
 
 // A page host may already set data-theme; "Auto" goes back to whatever it set.
@@ -59,6 +72,14 @@ export default function Profile() {
   const solved = anomalies.filter((a) => a.status === 'resolved').length
   const mainCrop = seasons[0] ? getCrop(seasons[0].crop) : null
   const latest = [...seasons].sort((a, b) => (b.startDate || '').localeCompare(a.startDate || '')).slice(0, 3)
+
+  const report = (result, done) => {
+    if (result === 'saved') notify(done)
+    else if (result === 'failed') notify('Saving files is not allowed here. Use “Copy backup text” instead.', 'bad')
+  }
+  const saveBackup = async () =>
+    report(await download(`sakahan-backup-${todayISO()}.json`, JSON.stringify(state, null, 2), 'application/json'), 'Backup downloaded')
+  const saveCSV = async () => report(await download(`sakahan-budget-${todayISO()}.csv`, toCSV(state), 'text/csv'), 'Spreadsheet downloaded')
 
   const copyBackup = async () => {
     try {
@@ -125,13 +146,7 @@ export default function Profile() {
 
       <div className="field-row">
         <button className="btn primary" onClick={() => nav.open('profileForm')}>Edit profile</button>
-        <button
-          className="btn primary"
-          onClick={() => {
-            download(`sakahan-backup-${todayISO()}.json`, JSON.stringify(state, null, 2), 'application/json')
-            notify('Backup downloaded')
-          }}
-        >
+        <button className="btn primary" onClick={saveBackup}>
           Backup
         </button>
       </div>
@@ -186,7 +201,7 @@ export default function Profile() {
       <section className="section">
         <SectionHead title="Your data" sub="Saved only on this phone — back it up often" />
         <div className="settings-list">
-          <button onClick={() => { download(`sakahan-backup-${todayISO()}.json`, JSON.stringify(state, null, 2), 'application/json'); notify('Backup downloaded') }}>
+          <button onClick={saveBackup}>
             <Download size={20} />
             <span className="grow">Download backup<small>Keep it in Google Drive or send it to yourself</small></span>
             <ChevronRight size={18} />
@@ -202,7 +217,7 @@ export default function Profile() {
             <ChevronRight size={18} />
             <input type="file" accept="application/json,.json" onChange={onImport} aria-label="Restore from backup" />
           </label>
-          <button onClick={() => { download(`sakahan-budget-${todayISO()}.csv`, toCSV(state), 'text/csv'); notify('Spreadsheet downloaded') }}>
+          <button onClick={saveCSV}>
             <FileSpreadsheet size={20} />
             <span className="grow">Export budget to Excel (CSV)<small>For the cooperative, bank or loan papers</small></span>
             <ChevronRight size={18} />
