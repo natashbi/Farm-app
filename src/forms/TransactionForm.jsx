@@ -10,7 +10,7 @@ const UNITS = ['bags', 'kg', 'liters', 'cavans', 'sacks', 'pcs', 'days']
 const DEFAULT_UNIT = { fertilizer: 'bags', seeds: 'kg', pesticide: 'liters', harvest_sale: 'cavans', labor: 'days' }
 
 export default function TransactionForm({ tx, preset, onClose }) {
-  const { state, save, remove, notify } = useStore()
+  const { state, save, remove, notify, ask } = useStore()
   const editing = !!tx
   const startCat = tx?.category || preset?.category || 'fertilizer'
   const [kind, setKind] = useState(getCategory(startCat).group === 'income' ? 'income' : 'expense')
@@ -57,8 +57,8 @@ export default function TransactionForm({ tx, preset, onClose }) {
     onClose()
   }
 
-  const del = () => {
-    if (!window.confirm('Delete this record?')) return
+  const del = async () => {
+    if (!(await ask({ title: 'Delete this record?', confirmLabel: 'Delete', danger: true }))) return
     remove('transactions', tx.id)
     notify('Record deleted')
     onClose()

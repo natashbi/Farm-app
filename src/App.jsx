@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Home as HomeIcon, Stethoscope, UserRound, Wallet } from 'lucide-react'
 import { useStore } from './store.jsx'
-import { NavContext, Toast } from './components/ui.jsx'
+import { ConfirmDialog, NavContext, Toast } from './components/ui.jsx'
 import Home from './screens/Home.jsx'
 import Budget from './screens/Budget.jsx'
 import Doctor from './screens/Doctor.jsx'
@@ -31,7 +31,7 @@ const SHEETS = {
 let sheetSeq = 0
 
 export default function App() {
-  const { state, toast } = useStore()
+  const { state, toast, dialog } = useStore()
   const [tab, setTabState] = useState('home')
   const [stack, setStack] = useState([])
   const pendingBack = useRef(0)
@@ -116,6 +116,7 @@ export default function App() {
           const SheetComp = SHEETS[s.type]
           return <SheetComp key={s.key} {...s.props} onClose={close} />
         })}
+        <ConfirmDialog dialog={dialog} />
         <Toast toast={toast} />
       </div>
     </NavContext.Provider>

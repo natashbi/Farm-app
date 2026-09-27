@@ -667,6 +667,31 @@ table.data tr.best td { font-weight: 600; }
 .big-number { font-size: 40px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; }
 .divider { height: 1px; background: var(--line); margin: 4px 0; }
 .photo-thumb { width: 100%; border-radius: 16px; max-height: 240px; object-fit: cover; }
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(15, 21, 18, 0.5);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  animation: fadeIn 0.15s ease;
+}
+.dialog {
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 24px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+.dialog h2 { font-size: 19px; font-weight: 600; text-wrap: balance; }
+.dialog p { color: var(--ink-2); font-size: 14.5px; }
+.btn.danger-fill { background: var(--bad); color: #fff; box-shadow: 0 3px 0 color-mix(in srgb, var(--bad) 60%, #000); }
 .toast {
   position: fixed;
   z-index: 80;

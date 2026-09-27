@@ -279,7 +279,7 @@ export function DiagnoseSheet({ onClose, preset }) {
 }
 
 export function AnomalyDetail({ anomaly, onClose }) {
-  const { state, save, remove, notify } = useStore()
+  const { state, save, remove, notify, ask } = useStore()
   const live = state.anomalies.find((a) => a.id === anomaly.id) || anomaly
   const record = useRecordPurchase(live.seasonId)
   const results = diagnose(live.crop, live.symptoms || []).slice(0, 3)
@@ -291,8 +291,8 @@ export function AnomalyDetail({ anomaly, onClose }) {
     save('anomalies', { ...live, status: solved ? 'open' : 'resolved', resolvedAt: solved ? '' : todayISO() })
     notify(solved ? 'Marked as still a problem' : 'Great! Marked as solved ✅')
   }
-  const del = () => {
-    if (!window.confirm('Delete this problem from your log?')) return
+  const del = async () => {
+    if (!(await ask({ title: 'Delete this problem from your log?', confirmLabel: 'Delete', danger: true }))) return
     remove('anomalies', live.id)
     onClose()
   }
