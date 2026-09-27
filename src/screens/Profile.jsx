@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, Database, Download, FileSpreadsheet, Moon, Settings, Sparkles, Trash2, Upload } from 'lucide-react'
+import { ChevronRight, Copy, Database, Download, FileSpreadsheet, Moon, Settings, Sparkles, Trash2, Upload } from 'lucide-react'
 import { getCategory, getCrop } from '../data/categories.js'
 import { seasonStats } from '../lib/calc.js'
 import { pesoCompact, todayISO } from '../lib/format.js'
@@ -29,14 +29,18 @@ function toCSV(state) {
   return rows.map((r) => r.map(esc).join(',')).join('\n')
 }
 
+// A page host may already set data-theme; "Auto" goes back to whatever it set.
+const hostTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-theme') : null
+
 export function applyTheme(theme) {
   try {
     localStorage.setItem('sakahan-theme', theme)
   } catch {
     /* private mode — theme just won't be remembered */
   }
-  if (theme === 'auto') document.documentElement.removeAttribute('data-theme')
-  else document.documentElement.setAttribute('data-theme', theme)
+  const value = theme === 'auto' ? hostTheme : theme
+  if (value) document.documentElement.setAttribute('data-theme', value)
+  else document.documentElement.removeAttribute('data-theme')
 }
 
 export function savedTheme() {
@@ -48,7 +52,7 @@ export function savedTheme() {
 }
 
 export default function Profile() {
-  const { state, replaceAll, reset, loadSample, notify } = useStore()
+  const { state, replaceAll, reset, loadSample, notify, ask } = useStore()
   const nav = useNav()
   const [theme, setTheme] = useState(savedTheme)
   const { profile, seasons, transactions, anomalies } = state
@@ -56,15 +60,34 @@ export default function Profile() {
   const mainCrop = seasons[0] ? getCrop(seasons[0].crop) : null
   const latest = [...seasons].sort((a, b) => (b.startDate || '').localeCompare(a.startDate || '')).slice(0, 3)
 
+  const copyBackup = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(state))
+      notify('Backup copied — paste it somewhere safe')
+    } catch {
+      notify('Copy is not allowed here. Use Download backup instead.', 'bad')
+    }
+  }
+
   const onImport = (e) => {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
     const reader = new FileReader()
-    reader.onload = () => {
+    reader.onload = async () => {
+      let data
       try {
-        const data = JSON.parse(reader.result)
-        if (!window.confirm('Replace all data on this phone with this backup?')) return
+        data = JSON.parse(reader.result)
+      } catch {
+        return notify('That file is not a Sakahan backup.', 'bad')
+      }
+      const ok = await ask({
+        title: 'Restore this backup?',
+        message: 'All records on this phone will be replaced with the ones in the backup file.',
+        confirmLabel: 'Restore',
+      })
+      if (!ok) return
+      try {
         replaceAll(data)
         notify('Backup restored ✅')
       } catch {
@@ -168,6 +191,11 @@ export default function Profile() {
             <span className="grow">Download backup<small>Keep it in Google Drive or send it to yourself</small></span>
             <ChevronRight size={18} />
           </button>
+          <button onClick={copyBackup}>
+            <Copy size={20} />
+            <span className="grow">Copy backup text<small>Paste it in Messenger or Notes to keep it safe</small></span>
+            <ChevronRight size={18} />
+          </button>
           <label>
             <Upload size={20} />
             <span className="grow">Restore from backup<small>Move your records to a new phone</small></span>
@@ -185,8 +213,14 @@ export default function Profile() {
             <ChevronRight size={18} />
           </button>
           <button
-            onClick={() => {
-              if (window.confirm('Delete ALL records, seasons and problems on this phone? This cannot be undone.')) {
+            onClick={async () => {
+              const ok = await ask({
+                title: 'Delete all data?',
+                message: 'Every record, season and crop problem on this phone will be erased. Download a backup first if you may need them.',
+                confirmLabel: 'Delete everything',
+                danger: true,
+              })
+              if (ok) {
                 reset()
                 notify('All data deleted')
               }

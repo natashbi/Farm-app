@@ -141,6 +141,37 @@ export function TxRow({ tx, season, onClick }) {
   )
 }
 
+export function ConfirmDialog({ dialog }) {
+  useEffect(() => {
+    if (!dialog) return
+    // Capture phase so Escape closes only the dialog, not the sheet behind it.
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return
+      e.stopPropagation()
+      dialog.answer(false)
+    }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [dialog])
+  if (!dialog) return null
+  return (
+    <div className="dialog-backdrop" onClick={() => dialog.answer(false)}>
+      <div className="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dialog-title" onClick={(e) => e.stopPropagation()}>
+        <h2 id="dialog-title">{dialog.title}</h2>
+        {dialog.message && <p>{dialog.message}</p>}
+        <div className="field-row">
+          <button className="btn ghost" onClick={() => dialog.answer(false)} autoFocus>
+            Cancel
+          </button>
+          <button className={`btn ${dialog.danger ? 'danger-fill' : 'primary'}`} onClick={() => dialog.answer(true)}>
+            {dialog.confirmLabel || 'OK'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function Toast({ toast }) {
   if (!toast) return null
   return (

@@ -7,7 +7,7 @@ import { useStore } from '../store.jsx'
 import { Chip, Field, Segmented, Sheet } from '../components/ui.jsx'
 
 export default function SeasonForm({ season, onClose }) {
-  const { state, save, remove, notify } = useStore()
+  const { state, save, remove, notify, ask } = useStore()
   const editing = !!season
   const [f, setF] = useState(() => ({
     name: season?.name || '',
@@ -61,8 +61,14 @@ export default function SeasonForm({ season, onClose }) {
     onClose()
   }
 
-  const del = () => {
-    if (!window.confirm('Delete this season? Budget records stay but are no longer linked to it.')) return
+  const del = async () => {
+    const ok = await ask({
+      title: 'Delete this season?',
+      message: 'Budget records stay, but they will no longer be linked to this season.',
+      confirmLabel: 'Delete',
+      danger: true,
+    })
+    if (!ok) return
     remove('seasons', season.id)
     notify('Season deleted')
     onClose()
