@@ -32,22 +32,28 @@ export function HeroBudgetArt(props) {
         ₱
       </text>
       {/* sprout */}
-      <path d="M104 52V26" stroke="#9aae3f" strokeWidth="5" strokeLinecap="round" />
-      <path d="M104 34c0-14 12-22 26-22 0 14-12 22-26 22z" fill="#9aae3f" />
-      <path d="M104 40c0-12-10-18-22-18 0 12 10 18 22 18z" fill="#b8c957" />
+      <g className="anim-sway">
+        <path d="M104 52V26" stroke="#9aae3f" strokeWidth="5" strokeLinecap="round" />
+        <path d="M104 34c0-14 12-22 26-22 0 14-12 22-26 22z" fill="#9aae3f" />
+        <path d="M104 40c0-12-10-18-22-18 0 12 10 18 22 18z" fill="#b8c957" />
+      </g>
       {/* coins */}
-      <g>
+      <g className="anim-bob-slow">
         <ellipse cx="160" cy="150" rx="22" ry="7" fill="#c9922a" />
         <rect x="138" y="132" width="44" height="18" fill="#f6c945" />
         <ellipse cx="160" cy="132" rx="22" ry="7" fill="#ffd966" />
         <ellipse cx="160" cy="132" rx="12" ry="3.5" fill="none" stroke="#c9922a" strokeWidth="2" />
       </g>
-      <circle cx="168" cy="94" r="16" fill="#f26a1b" />
-      <text x="168" y="100" textAnchor="middle" fontSize="16" fontWeight="700" fill="#fff" fontFamily="Arial, sans-serif">
-        ₱
-      </text>
-      <circle cx="46" cy="120" r="10" fill="#f6c945" />
-      <circle cx="46" cy="120" r="5" fill="none" stroke="#c9922a" strokeWidth="2" />
+      <g className="anim-bob">
+        <circle cx="168" cy="94" r="16" fill="#f26a1b" />
+        <text x="168" y="100" textAnchor="middle" fontSize="16" fontWeight="700" fill="#fff" fontFamily="Arial, sans-serif">
+          ₱
+        </text>
+      </g>
+      <g className="anim-bob-slow">
+        <circle cx="46" cy="120" r="10" fill="#f6c945" />
+        <circle cx="46" cy="120" r="5" fill="none" stroke="#c9922a" strokeWidth="2" />
+      </g>
     </svg>
   )
 }
@@ -57,20 +63,24 @@ export function HeroDoctorArt(props) {
     <svg viewBox="0 0 200 170" aria-hidden="true" {...props}>
       <ellipse cx="110" cy="160" rx="80" ry="10" fill="#000" opacity="0.12" />
       {/* plant */}
-      <path d="M100 160V70" stroke="#9aae3f" strokeWidth="6" strokeLinecap="round" />
-      <path d="M100 100c0-26 20-40 46-40 0 26-20 40-46 40z" fill="#9aae3f" />
-      <path d="M100 118c0-22-18-34-40-34 0 22 18 34 40 34z" fill="#b8c957" />
-      <path d="M100 76c0-20 12-34 30-40 2 20-10 34-30 40z" fill="#b8c957" />
-      <circle cx="126" cy="80" r="4" fill="#c2410c" />
-      <circle cx="116" cy="88" r="3" fill="#c2410c" />
-      <circle cx="72" cy="100" r="3.5" fill="#f6c945" />
+      <g className="anim-sway">
+        <path d="M100 160V70" stroke="#9aae3f" strokeWidth="6" strokeLinecap="round" />
+        <path d="M100 100c0-26 20-40 46-40 0 26-20 40-46 40z" fill="#9aae3f" />
+        <path d="M100 118c0-22-18-34-40-34 0 22 18 34 40 34z" fill="#b8c957" />
+        <path d="M100 76c0-20 12-34 30-40 2 20-10 34-30 40z" fill="#b8c957" />
+        <circle cx="126" cy="80" r="4" fill="#c2410c" />
+        <circle cx="116" cy="88" r="3" fill="#c2410c" />
+        <circle cx="72" cy="100" r="3.5" fill="#f6c945" />
+      </g>
       {/* pot */}
       <path d="M72 140h56l-6 24H78z" fill="#f26a1b" />
       <rect x="68" y="134" width="64" height="10" rx="4" fill="#c9520e" />
       {/* magnifier */}
-      <circle cx="150" cy="112" r="22" fill="#f4f0dc" fillOpacity="0.25" stroke="#f4f0dc" strokeWidth="7" />
-      <path d="M166 128l18 18" stroke="#f6c945" strokeWidth="10" strokeLinecap="round" />
-      <path d="M142 104c3-4 8-6 12-5" stroke="#fff" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
+      <g className="anim-scan">
+        <circle cx="150" cy="112" r="22" fill="#f4f0dc" fillOpacity="0.25" stroke="#f4f0dc" strokeWidth="7" />
+        <path d="M166 128l18 18" stroke="#f6c945" strokeWidth="10" strokeLinecap="round" />
+        <path d="M142 104c3-4 8-6 12-5" stroke="#fff" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
+      </g>
     </svg>
   )
 }
@@ -81,15 +91,21 @@ export function HeroRecordsArt(props) {
       <ellipse cx="110" cy="160" rx="80" ry="10" fill="#000" opacity="0.12" />
       <rect x="50" y="30" width="110" height="130" rx="10" fill="#f4f0dc" />
       <rect x="50" y="30" width="16" height="130" rx="6" fill="#e2d9b3" />
-      <rect x="80" y="110" width="14" height="36" rx="3" fill="#9aae3f" />
-      <rect x="100" y="84" width="14" height="62" rx="3" fill="#f26a1b" />
-      <rect x="120" y="100" width="14" height="46" rx="3" fill="#9aae3f" />
-      <rect x="140" y="120" width="10" height="26" rx="3" fill="#b8c957" />
+      <g>
+        <rect className="anim-bar" x="80" y="110" width="14" height="36" rx="3" fill="#9aae3f" />
+        <rect className="anim-bar" x="100" y="84" width="14" height="62" rx="3" fill="#f26a1b" />
+        <rect className="anim-bar" x="120" y="100" width="14" height="46" rx="3" fill="#9aae3f" />
+        <rect className="anim-bar" x="140" y="120" width="10" height="26" rx="3" fill="#b8c957" />
+      </g>
       <path d="M78 50h60M78 62h44" stroke="#c9c09a" strokeWidth="5" strokeLinecap="round" />
-      <path d="M107 84V70" stroke="#2e4a40" strokeWidth="3" />
-      <path d="M107 72c0-8 6-12 13-12 0 8-6 12-13 12z" fill="#b8c957" />
-      <circle cx="170" cy="46" r="14" fill="#f6c945" />
-      <path d="M170 38v16M162 46h16" stroke="#c9922a" strokeWidth="3" strokeLinecap="round" />
+      <g className="anim-sway">
+        <path d="M107 84V70" stroke="#2e4a40" strokeWidth="3" />
+        <path d="M107 72c0-8 6-12 13-12 0 8-6 12-13 12z" fill="#b8c957" />
+      </g>
+      <g className="anim-spin">
+        <circle cx="170" cy="46" r="14" fill="#f6c945" />
+        <path d="M170 38v16M162 46h16" stroke="#c9922a" strokeWidth="3" strokeLinecap="round" />
+      </g>
     </svg>
   )
 }
@@ -98,16 +114,18 @@ export function PaddyScene(props) {
   return (
     <svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true" {...props}>
       <rect width="160" height="120" fill="#cfe3a4" />
-      <circle cx="126" cy="28" r="14" fill="#f6c945" />
+      <circle className="anim-glow" cx="126" cy="28" r="14" fill="#f6c945" />
       <path d="M0 58c30-12 60-12 90-4s50 6 70-2v68H0z" fill="#9aae3f" />
       <path d="M0 76c40-10 80-8 160 2v42H0z" fill="#7c9440" />
       <path d="M0 96c50-8 100-6 160 0v24H0z" fill="#2e4a40" />
       {[14, 34, 54, 74, 94, 114, 134, 150].map((x, i) => (
         <g key={x} transform={`translate(${x} ${84 + (i % 2) * 4})`}>
-          <path d="M0 10V-4M0 10l-5-12M0 10l5-12" stroke="#b8c957" strokeWidth="2" strokeLinecap="round" />
+          <g className={i % 2 ? 'anim-sway-late' : 'anim-sway'}>
+            <path d="M0 10V-4M0 10l-5-12M0 10l5-12" stroke="#b8c957" strokeWidth="2" strokeLinecap="round" />
+          </g>
         </g>
       ))}
-      <path d="M20 40c4-3 8-3 12 0M36 34c3-2 6-2 9 0" stroke="#2e4a40" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+      <path className="anim-drift" d="M20 40c4-3 8-3 12 0M36 34c3-2 6-2 9 0" stroke="#2e4a40" strokeWidth="1.8" fill="none" strokeLinecap="round" />
     </svg>
   )
 }
@@ -120,15 +138,19 @@ export function BugLeafScene(props) {
       <path d="M20 110C60 80 100 50 140 20" stroke="#7c9440" strokeWidth="3" fill="none" />
       <circle cx="80" cy="64" r="7" fill="#f4f0dc" />
       <circle cx="104" cy="44" r="5" fill="#f4f0dc" />
-      <g transform="translate(58 78)">
-        <ellipse rx="12" ry="8" fill="#c2410c" />
-        <path d="M0-8V8" stroke="#1f2a24" strokeWidth="1.5" />
-        <circle cx="-4" cy="-3" r="1.8" fill="#1f2a24" />
-        <circle cx="4" cy="2" r="1.8" fill="#1f2a24" />
-        <circle cx="-12" cy="0" r="4" fill="#1f2a24" />
+      <g className="anim-crawl">
+        <g transform="translate(58 78)">
+          <ellipse rx="12" ry="8" fill="#c2410c" />
+          <path d="M0-8V8" stroke="#1f2a24" strokeWidth="1.5" />
+          <circle cx="-4" cy="-3" r="1.8" fill="#1f2a24" />
+          <circle cx="4" cy="2" r="1.8" fill="#1f2a24" />
+          <circle cx="-12" cy="0" r="4" fill="#1f2a24" />
+        </g>
       </g>
-      <circle cx="128" cy="92" r="18" fill="none" stroke="#2e4a40" strokeWidth="5" />
-      <path d="M140 104l12 12" stroke="#2e4a40" strokeWidth="6" strokeLinecap="round" />
+      <g className="anim-bob">
+        <circle cx="128" cy="92" r="18" fill="none" stroke="#2e4a40" strokeWidth="5" />
+        <path d="M140 104l12 12" stroke="#2e4a40" strokeWidth="6" strokeLinecap="round" />
+      </g>
     </svg>
   )
 }

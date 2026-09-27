@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Home as HomeIcon, Stethoscope, UserRound, Wallet } from 'lucide-react'
 import { useStore } from './store.jsx'
-import { ConfirmDialog, NavContext, Toast } from './components/ui.jsx'
+import { ConfirmDialog, NavContext, SheetClosing, Toast } from './components/ui.jsx'
+import { Celebration, prefersReducedMotion } from './components/motion.jsx'
 import Home from './screens/Home.jsx'
 import Budget from './screens/Budget.jsx'
 import Doctor from './screens/Doctor.jsx'
@@ -31,21 +32,41 @@ const SHEETS = {
 let sheetSeq = 0
 
 export default function App() {
-  const { state, toast, dialog } = useStore()
+  const { state, toast, dialog, burst } = useStore()
   const [tab, setTabState] = useState('home')
+  // Which side the new tab slides in from.
+  const [dir, setDir] = useState('right')
   const [stack, setStack] = useState([])
   const pendingBack = useRef(0)
+  const closingKeys = useRef(new Set())
+  const stackRef = useRef(stack)
+  stackRef.current = stack
+
+  // Let the top sheet slide away, then remove it.
+  const dismissTop = useCallback(() => {
+    const top = [...stackRef.current].reverse().find((x) => !closingKeys.current.has(x.key))
+    if (!top) return
+    closingKeys.current.add(top.key)
+    setStack((s) => s.map((x) => (x.key === top.key ? { ...x, closing: true } : x)))
+    setTimeout(
+      () => {
+        closingKeys.current.delete(top.key)
+        setStack((s) => s.filter((x) => x.key !== top.key))
+      },
+      prefersReducedMotion() ? 0 : 200,
+    )
+  }, [])
 
   // Each open sheet adds a browser history entry so the phone's Back button
   // closes the sheet instead of leaving the app.
   useEffect(() => {
     const onPop = () => {
       if (pendingBack.current > 0) pendingBack.current -= 1
-      setStack((s) => s.slice(0, -1))
+      dismissTop()
     }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
-  }, [])
+  }, [dismissTop])
 
   useEffect(() => {
     document.body.style.overflow = stack.length ? 'hidden' : ''
@@ -72,12 +93,16 @@ export default function App() {
     setTimeout(() => {
       if (pendingBack.current > 0) {
         pendingBack.current -= 1
-        setStack((s) => s.slice(0, -1))
+        dismissTop()
       }
     }, 400)
-  }, [])
+  }, [dismissTop])
 
+  const tabRef = useRef(tab)
+  tabRef.current = tab
   const setTab = useCallback((id) => {
+    const order = TABS.map((t) => t.id)
+    setDir(order.indexOf(id) < order.indexOf(tabRef.current) ? 'left' : 'right')
     setTabState(id)
     window.scrollTo({ top: 0 })
   }, [])
@@ -86,7 +111,7 @@ export default function App() {
 
   if (!state.profile.onboarded) {
     return (
-      <div className="app">
+      <div className="app" data-dir="right">
         <Onboarding />
         <Toast toast={toast} />
       </div>
@@ -97,7 +122,7 @@ export default function App() {
 
   return (
     <NavContext.Provider value={nav}>
-      <div className="app">
+      <div className="app" data-dir={dir}>
         <Screen key={tab} />
         <nav className="nav" aria-label="Main">
           {TABS.map((t) => {
@@ -114,9 +139,14 @@ export default function App() {
         </nav>
         {stack.map((s) => {
           const SheetComp = SHEETS[s.type]
-          return <SheetComp key={s.key} {...s.props} onClose={close} />
+          return (
+            <SheetClosing.Provider key={s.key} value={!!s.closing}>
+              <SheetComp {...s.props} onClose={close} />
+            </SheetClosing.Provider>
+          )
         })}
         <ConfirmDialog dialog={dialog} />
+        <Celebration burst={burst} />
         <Toast toast={toast} />
       </div>
     </NavContext.Provider>

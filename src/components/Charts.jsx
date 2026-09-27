@@ -71,6 +71,7 @@ export function FertilizerScatter({ analysis, xLabel, yLabel }) {
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Fertilizer versus harvest for ${points.length} seasons`}>
         {goodRange && (
           <rect
+            className="band"
             x={x(goodRange[0]) - 6}
             y={pad.t}
             width={Math.max(12, x(goodRange[1]) - x(goodRange[0]) + 12)}
@@ -98,11 +99,13 @@ export function FertilizerScatter({ analysis, xLabel, yLabel }) {
         <text className="axis-title" x={12} y={(pad.t + H - pad.b) / 2} textAnchor="middle" transform={`rotate(-90 12 ${(pad.t + H - pad.b) / 2})`}>
           {yLabel}
         </text>
-        {points.map((p) => {
+        {points.map((p, i) => {
           const isBest = p === best
           return (
             <g key={p.season.id}>
               <circle
+                className="dot"
+                style={{ '--i': i }}
                 cx={x(p.fert)}
                 cy={y(p.yield)}
                 r={isBest ? 7 : 5.5}

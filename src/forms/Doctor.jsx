@@ -168,118 +168,120 @@ export function DiagnoseSheet({ onClose, preset }) {
         ) : null
       }
     >
-      {step === 1 && (
-        <div className="quiz">
-          <div className="steps-dots" aria-hidden="true"><span className="on" /><span /><span /></div>
-          <span className="kicker">Step 1 of 3</span>
-          <h3>Which crop has a problem?</h3>
-          <div className="options">
-            {CROPS.map((c) => (
-              <button
-                key={c.id}
-                className="option"
-                aria-pressed={crop === c.id}
-                onClick={() => {
-                  setCrop(c.id)
-                  setPicked([])
-                  setStep(2)
-                }}
-              >
-                <span className="big" aria-hidden="true">{c.emoji}</span>
-                {c.label}
-                <small>{c.tl}</small>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="quiz">
-          <div className="steps-dots" aria-hidden="true"><span className="on" /><span className="on" /><span /></div>
-          <span className="kicker">Step 2 of 3 · {getCrop(crop).emoji} {getCrop(crop).label}</span>
-          <h3>What do you see on your crop? Pick all that apply.</h3>
-          {SYMPTOM_GROUPS.map((g) => {
-            const list = symptoms.filter((s) => s.group === g.id)
-            if (!list.length) return null
-            return (
-              <div key={g.id} className="stack">
-                <div className="group-label">
-                  <span aria-hidden="true">{g.emoji}</span> {g.label} · {g.tl}
-                </div>
-                <div className="options">
-                  {list.map((s) => (
-                    <button key={s.id} className="option" aria-pressed={picked.includes(s.id)} onClick={() => toggle(s.id)}>
-                      {s.label}
-                      <small>{s.tl}</small>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-          <button className="find" disabled={!picked.length} onClick={() => setStep(3)}>
-            <Lightbulb size={18} /> Find answers {picked.length ? `(${picked.length})` : ''}
-          </button>
-        </div>
-      )}
-
-      {step === 3 && (
-        <>
-          {results.length === 0 ? (
-            <div className="callout warn">
-              <Info size={18} />
-              <span>No match found for these signs. Take a photo and show it to your Municipal Agriculture Office.</span>
+      <div className="step-in" key={step}>
+        {step === 1 && (
+          <div className="quiz">
+            <div className="steps-dots" aria-hidden="true"><span className="on" /><span /><span /></div>
+            <span className="kicker">Step 1 of 3</span>
+            <h3>Which crop has a problem?</h3>
+            <div className="options">
+              {CROPS.map((c) => (
+                <button
+                  key={c.id}
+                  className="option"
+                  aria-pressed={crop === c.id}
+                  onClick={() => {
+                    setCrop(c.id)
+                    setPicked([])
+                    setStep(2)
+                  }}
+                >
+                  <span className="big" aria-hidden="true">{c.emoji}</span>
+                  {c.label}
+                  <small>{c.tl}</small>
+                </button>
+              ))}
             </div>
-          ) : (
-            <p className="small muted">
-              {getCrop(crop).emoji} {getCrop(crop).label} · {picked.length} sign{picked.length > 1 ? 's' : ''} picked. Most likely first — tap{' '}
-              <strong>Record</strong> to add a purchase to your budget.
-            </p>
-          )}
-          {shown.map((r) => (
-            <ConditionCard key={r.condition.id} {...r} onRecord={record} />
-          ))}
-          {results.length > 3 && !showAll && (
-            <button className="btn ghost" onClick={() => setShowAll(true)}>
-              Show {results.length - 3} more possible causes
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="quiz">
+            <div className="steps-dots" aria-hidden="true"><span className="on" /><span className="on" /><span /></div>
+            <span className="kicker">Step 2 of 3 · {getCrop(crop).emoji} {getCrop(crop).label}</span>
+            <h3>What do you see on your crop? Pick all that apply.</h3>
+            {SYMPTOM_GROUPS.map((g) => {
+              const list = symptoms.filter((s) => s.group === g.id)
+              if (!list.length) return null
+              return (
+                <div key={g.id} className="stack">
+                  <div className="group-label">
+                    <span aria-hidden="true">{g.emoji}</span> {g.label} · {g.tl}
+                  </div>
+                  <div className="options">
+                    {list.map((s) => (
+                      <button key={s.id} className="option" aria-pressed={picked.includes(s.id)} onClick={() => toggle(s.id)}>
+                        {s.label}
+                        <small>{s.tl}</small>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+            <button className="find" disabled={!picked.length} onClick={() => setStep(3)}>
+              <Lightbulb size={18} /> Find answers {picked.length ? `(${picked.length})` : ''}
             </button>
-          )}
-          <Disclaimer />
-
-          <div className="card stack">
-            <h3 style={{ fontSize: 16, fontWeight: 600 }}>Save this for your records</h3>
-            <fieldset className="field">
-              <legend>How bad is it?</legend>
-              <Segmented label="Severity" value={severity} onChange={setSeverity} options={SEVERITY} />
-            </fieldset>
-            <Field label="Season">
-              <select className="input" value={seasonId} onChange={(e) => setSeasonId(e.target.value)}>
-                <option value="">No season</option>
-                {state.seasons.map((s) => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Notes (optional)">
-              <textarea className="input" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Where in the field, since when…" />
-            </Field>
-            <div className="field">
-              <span>Photo (optional)</span>
-              <label className="photo-drop">
-                {photo ? <img src={photo} alt="Crop problem" /> : <span className="hstack"><Camera size={20} /> Take or choose a photo</span>}
-                <input type="file" accept="image/*" capture="environment" onChange={onPhoto} aria-label="Add photo" />
-              </label>
-            </div>
           </div>
-        </>
-      )}
+        )}
+
+        {step === 3 && (
+          <>
+            {results.length === 0 ? (
+              <div className="callout warn">
+                <Info size={18} />
+                <span>No match found for these signs. Take a photo and show it to your Municipal Agriculture Office.</span>
+              </div>
+            ) : (
+              <p className="small muted">
+                {getCrop(crop).emoji} {getCrop(crop).label} · {picked.length} sign{picked.length > 1 ? 's' : ''} picked. Most likely first — tap{' '}
+                <strong>Record</strong> to add a purchase to your budget.
+              </p>
+            )}
+            {shown.map((r) => (
+              <ConditionCard key={r.condition.id} {...r} onRecord={record} />
+            ))}
+            {results.length > 3 && !showAll && (
+              <button className="btn ghost" onClick={() => setShowAll(true)}>
+                Show {results.length - 3} more possible causes
+              </button>
+            )}
+            <Disclaimer />
+
+            <div className="card stack">
+              <h3 style={{ fontSize: 16, fontWeight: 600 }}>Save this for your records</h3>
+              <fieldset className="field">
+                <legend>How bad is it?</legend>
+                <Segmented label="Severity" value={severity} onChange={setSeverity} options={SEVERITY} />
+              </fieldset>
+              <Field label="Season">
+                <select className="input" value={seasonId} onChange={(e) => setSeasonId(e.target.value)}>
+                  <option value="">No season</option>
+                  {state.seasons.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Notes (optional)">
+                <textarea className="input" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Where in the field, since when…" />
+              </Field>
+              <div className="field">
+                <span>Photo (optional)</span>
+                <label className="photo-drop">
+                  {photo ? <img src={photo} alt="Crop problem" /> : <span className="hstack"><Camera size={20} /> Take or choose a photo</span>}
+                  <input type="file" accept="image/*" capture="environment" onChange={onPhoto} aria-label="Add photo" />
+                </label>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </Sheet>
   )
 }
 
 export function AnomalyDetail({ anomaly, onClose }) {
-  const { state, save, remove, notify, ask } = useStore()
+  const { state, save, remove, notify, ask, celebrate } = useStore()
   const live = state.anomalies.find((a) => a.id === anomaly.id) || anomaly
   const record = useRecordPurchase(live.seasonId)
   const results = diagnose(live.crop, live.symptoms || []).slice(0, 3)
@@ -290,6 +292,7 @@ export function AnomalyDetail({ anomaly, onClose }) {
   const toggle = () => {
     save('anomalies', { ...live, status: solved ? 'open' : 'resolved', resolvedAt: solved ? '' : todayISO() })
     notify(solved ? 'Marked as still a problem' : 'Great! Marked as solved ✅')
+    if (!solved) celebrate()
   }
   const del = async () => {
     if (!(await ask({ title: 'Delete this problem from your log?', confirmLabel: 'Delete', danger: true }))) return

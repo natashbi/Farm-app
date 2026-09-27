@@ -37,8 +37,8 @@ export default function Doctor() {
       </section>
 
       <div className="stats-grid">
-        <Stat label="Open problems" value={open.length} tone={open.length ? 'neg' : ''} hint="Still to fix" />
-        <Stat label="Solved" value={all.length - open.length} tone="pos" hint="Nice work!" />
+        <Stat label="Open problems" amount={open.length} tone={open.length ? 'neg' : ''} hint="Still to fix" />
+        <Stat label="Solved" amount={all.length - open.length} tone="pos" hint="Nice work!" />
       </div>
 
       <section className="section">

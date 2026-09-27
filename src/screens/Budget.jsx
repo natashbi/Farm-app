@@ -5,6 +5,7 @@ import { forSeason, sortByDateDesc, totals } from '../lib/calc.js'
 import { peso } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { Chip, Empty, Segmented, TxRow, useNav } from '../components/ui.jsx'
+import { AnimatedNumber } from '../components/motion.jsx'
 
 export default function Budget() {
   const { state } = useStore()
@@ -61,7 +62,9 @@ export default function Budget() {
       <section className="hero" style={{ minHeight: 0, gap: 14 }}>
         <div>
           <p style={{ maxWidth: 'none' }}>{t.profit >= 0 ? 'Profit' : 'Loss so far'} · Tubo</p>
-          <div className="big-number">{peso(t.profit)}</div>
+          <div className="big-number">
+            <AnimatedNumber value={t.profit} format={peso} />
+          </div>
         </div>
         <div className="stats-row" style={{ textAlign: 'left' }}>
           {[
@@ -71,7 +74,9 @@ export default function Budget() {
           ].map(([label, v]) => (
             <div key={label} style={{ borderColor: 'var(--green-3)', paddingLeft: 10 }}>
               <span style={{ color: 'var(--on-green-2)' }}>{label}</span>
-              <strong style={{ fontSize: 16 }}>{peso(v)}</strong>
+              <strong style={{ fontSize: 16 }}>
+                <AnimatedNumber value={v} format={peso} />
+              </strong>
             </div>
           ))}
         </div>

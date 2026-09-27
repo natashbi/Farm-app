@@ -81,7 +81,15 @@ export function StoreProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, undefined, load)
   const [toast, setToast] = useState(null)
   const [dialog, setDialog] = useState(null)
+  const [burst, setBurst] = useState(null)
   const timer = useRef()
+  const burstTimer = useRef()
+
+  const celebrate = useCallback(() => {
+    clearTimeout(burstTimer.current)
+    setBurst({ key: Date.now() })
+    burstTimer.current = setTimeout(() => setBurst(null), 1400)
+  }, [])
 
   // In-app "Are you sure?" dialog. Resolves true when the farmer confirms.
   const ask = useCallback(
@@ -126,11 +134,12 @@ export function StoreProvider({ children }) {
       loadSample: () => dispatch({ type: 'sample' }),
       notify,
       ask,
+      celebrate,
     }),
-    [notify, ask],
+    [notify, ask, celebrate],
   )
 
-  const value = useMemo(() => ({ state, ...actions, toast, dialog }), [state, actions, toast, dialog])
+  const value = useMemo(() => ({ state, ...actions, toast, dialog, burst }), [state, actions, toast, dialog, burst])
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
 }
 

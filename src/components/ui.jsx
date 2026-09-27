@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef } from 'react'
 import { ArrowLeft, X } from 'lucide-react'
 import { EmptyFieldArt } from './Art.jsx'
+import { AnimatedNumber } from './motion.jsx'
 import { getCategory } from '../data/categories.js'
 import { fmtDate, peso } from '../lib/format.js'
 
@@ -8,8 +9,11 @@ import { fmtDate, peso } from '../lib/format.js'
 // back button can close.
 export const NavContext = createContext(null)
 export const useNav = () => useContext(NavContext)
+// True while a sheet plays its closing animation.
+export const SheetClosing = createContext(false)
 
 export function Sheet({ title, onClose, onBack, children, footer, action, closeIcon = 'back', scrollKey }) {
+  const closing = useContext(SheetClosing)
   const body = useRef(null)
   useEffect(() => {
     body.current?.scrollTo?.(0, 0)
@@ -21,8 +25,8 @@ export function Sheet({ title, onClose, onBack, children, footer, action, closeI
   }, [onClose])
   return (
     <>
-      <div className="sheet-backdrop" onClick={onClose} />
-      <section className="sheet" role="dialog" aria-modal="true" aria-label={title}>
+      <div className={`sheet-backdrop ${closing ? 'closing' : ''}`} onClick={onClose} />
+      <section className={`sheet ${closing ? 'closing' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
         <header className="sheet-head">
           <button className="icon-btn plain" onClick={onBack || onClose} aria-label={onBack ? 'Back' : 'Close'}>
             {closeIcon === 'x' ? <X size={22} /> : <ArrowLeft size={22} />}
@@ -86,14 +90,15 @@ export function SectionHead({ title, sub, action, onAction }) {
   )
 }
 
-export function Stat({ label, value, hint, tone, dot }) {
+// `amount` + `format` count up; plain `value` is shown as is.
+export function Stat({ label, value, amount, format, hint, tone, dot }) {
   return (
     <div className={`stat ${tone || ''}`}>
       <span className="label">
         {dot && <i className="dot" style={{ background: dot }} />}
         {label}
       </span>
-      <span className="value">{value}</span>
+      <span className="value">{amount !== undefined ? <AnimatedNumber value={amount} format={format} /> : value}</span>
       {hint && <span className="hint">{hint}</span>}
     </div>
   )
