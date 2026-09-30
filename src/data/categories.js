@@ -30,18 +30,20 @@ export function getCategory(id) {
   return byId[id] || { id, label: id, tl: '', emoji: '🧾', group: 'production' }
 }
 
+// `days` = typical days from planting to harvest, used to estimate the harvest
+// date when the farmer has not set one. Farmers can change it per planting.
 export const CROPS = [
-  { id: 'rice', label: 'Rice', tl: 'Palay', emoji: '🌾' },
-  { id: 'corn', label: 'Corn', tl: 'Mais', emoji: '🌽' },
-  { id: 'vegetables', label: 'Vegetables', tl: 'Gulay', emoji: '🥬' },
-  { id: 'root', label: 'Root crops', tl: 'Kamote / Kamoteng kahoy', emoji: '🍠' },
-  { id: 'fruit', label: 'Fruit trees', tl: 'Prutas / Saging', emoji: '🍌' },
+  { id: 'rice', label: 'Rice', tl: 'Palay', emoji: '🌾', days: 115 },
+  { id: 'corn', label: 'Corn', tl: 'Mais', emoji: '🌽', days: 110 },
+  { id: 'vegetables', label: 'Vegetables', tl: 'Gulay', emoji: '🥬', days: 75 },
+  { id: 'root', label: 'Root crops', tl: 'Kamote / Kamoteng kahoy', emoji: '🍠', days: 120 },
+  { id: 'fruit', label: 'Fruit trees', tl: 'Prutas / Saging', emoji: '🍌', days: 300 },
 ]
 
 const cropById = Object.fromEntries(CROPS.map((c) => [c.id, c]))
 
 export function getCrop(id) {
-  return cropById[id] || { id, label: id || 'Crop', tl: '', emoji: '🌿' }
+  return cropById[id] || { id, label: id || 'Crop', tl: '', emoji: '🌿', days: 100 }
 }
 
 export const HARVEST_UNITS = ['cavans', 'sacks', 'kg', 'tons', 'pieces']

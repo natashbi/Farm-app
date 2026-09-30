@@ -124,7 +124,7 @@ export function Empty({ title, children, action }) {
   )
 }
 
-export function TxRow({ tx, season, onClick }) {
+export function TxRow({ tx, where, onClick }) {
   const cat = getCategory(tx.category)
   const income = cat.group === 'income'
   return (
@@ -135,7 +135,7 @@ export function TxRow({ tx, season, onClick }) {
         <span className="meta" style={{ display: 'block' }}>
           {cat.label}
           {tx.qty ? ` · ${tx.qty} ${tx.unit || ''}` : ''} · {fmtDate(tx.date, { month: 'short', day: 'numeric' })}
-          {season ? ` · ${season.name}` : ''}
+          {where ? ` · ${where}` : ''}
         </span>
       </span>
       <span className={`amount ${income ? 'in' : 'out'}`}>
