@@ -1,16 +1,16 @@
 import { useState } from 'react'
-import { ChevronRight, Copy, Database, Download, FileSpreadsheet, Moon, Settings, Sparkles, Trash2, Upload } from 'lucide-react'
-import { getCategory, getCrop } from '../data/categories.js'
-import { seasonStats } from '../lib/calc.js'
-import { pesoCompact, todayISO } from '../lib/format.js'
+import { ChevronRight, Copy, Database, Download, FileSpreadsheet, KeyRound, Lock, LockOpen, MapPin, Moon, Plus, Settings, Sparkles, Stethoscope, Trash2, Upload } from 'lucide-react'
+import { getCrop } from '../data/categories.js'
+import { num, todayISO } from '../lib/format.js'
+import { buildReport, reportCSV, scopeRecords } from '../lib/report.js'
 import { useStore } from '../store.jsx'
 import { FarmerAvatar } from '../components/Art.jsx'
-import { Field, Progress, SectionHead, Segmented, Sheet, useNav } from '../components/ui.jsx'
+import { Field, SectionHead, Segmented, Sheet, useNav } from '../components/ui.jsx'
 import { AnimatedNumber } from '../components/motion.jsx'
 
 // Save a file to the phone. When the app runs inside a Claude artifact viewer,
 // downloads go through the viewer's own save prompt.
-async function download(filename, text, type) {
+export async function saveFile(filename, text, type) {
   const downloads = window.claude?.use ? await window.claude.use('downloads').catch(() => null) : null
   if (downloads) {
     try {
@@ -29,18 +29,6 @@ async function download(filename, text, type) {
   a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
   return 'saved'
-}
-
-function toCSV(state) {
-  const seasons = Object.fromEntries(state.seasons.map((s) => [s.id, s.name]))
-  const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
-  const rows = [['Date', 'Type', 'Category', 'Item', 'Quantity', 'Unit', 'Amount (PHP)', 'Season', 'Notes']]
-  for (const tx of [...state.transactions].sort((a, b) => (a.date || '').localeCompare(b.date || ''))) {
-    const cat = getCategory(tx.category)
-    rows.push([tx.date, cat.group === 'income' ? 'Income' : 'Expense', cat.label, tx.item, tx.qty, tx.unit, tx.amount, seasons[tx.seasonId] || '', tx.note])
-  }
-  // BOM so Excel reads ñ and ₱ correctly.
-  return '\ufeff' + rows.map((r) => r.map(esc).join(',')).join('\n')
 }
 
 // A page host may already set data-theme; "Auto" goes back to whatever it set.
@@ -66,21 +54,24 @@ export function savedTheme() {
 }
 
 export default function Profile() {
-  const { state, replaceAll, reset, loadSample, notify, ask } = useStore()
+  const { state, replaceAll, reset, loadSample, notify, ask, lock } = useStore()
   const nav = useNav()
   const [theme, setTheme] = useState(savedTheme)
-  const { profile, seasons, transactions, anomalies } = state
-  const solved = anomalies.filter((a) => a.status === 'resolved').length
+  const { profile, seasons, transactions, harvests, fields } = state
   const mainCrop = seasons[0] ? getCrop(seasons[0].crop) : null
-  const latest = [...seasons].sort((a, b) => (b.startDate || '').localeCompare(a.startDate || '')).slice(0, 3)
+  const totalArea = fields.reduce((sum, f) => sum + (Number(f.area) || 0), 0)
 
   const report = (result, done) => {
     if (result === 'saved') notify(done)
     else if (result === 'failed') notify('Saving files is not allowed here. Use “Copy backup text” instead.', 'bad')
   }
   const saveBackup = async () =>
-    report(await download(`sakahan-backup-${todayISO()}.json`, JSON.stringify(state, null, 2), 'application/json'), 'Backup downloaded')
-  const saveCSV = async () => report(await download(`sakahan-budget-${todayISO()}.csv`, toCSV(state), 'text/csv'), 'Spreadsheet downloaded')
+    report(await saveFile(`sakahan-backup-${todayISO()}.json`, JSON.stringify(state, null, 2), 'application/json'), 'Backup downloaded')
+  const saveCSV = async () => {
+    const scope = scopeRecords(state)
+    const csv = reportCSV(state, buildReport(state, scope), scope, `${profile.farm || 'Farm'} — all records`)
+    report(await saveFile(`sakahan-records-${todayISO()}.csv`, csv, 'text/csv'), 'Spreadsheet downloaded')
+  }
 
   const copyBackup = async () => {
     try {
@@ -139,10 +130,10 @@ export default function Profile() {
       </section>
 
       <section className="stats-row">
-        <div><strong><AnimatedNumber value={seasons.length} /></strong><span>Seasons</span></div>
-        <div><strong><AnimatedNumber value={transactions.length} /></strong><span>Records</span></div>
-        <div><strong><AnimatedNumber value={anomalies.length} /></strong><span>Problems</span></div>
-        <div><strong><AnimatedNumber value={solved} /></strong><span>Solved</span></div>
+        <div><strong><AnimatedNumber value={fields.length} /></strong><span>Fields</span></div>
+        <div><strong><AnimatedNumber value={seasons.length} /></strong><span>Plantings</span></div>
+        <div><strong><AnimatedNumber value={harvests.length} /></strong><span>Harvests</span></div>
+        <div><strong><AnimatedNumber value={transactions.length} /></strong><span>Expenses</span></div>
       </section>
 
       <div className="field-row">
@@ -152,35 +143,84 @@ export default function Profile() {
         </button>
       </div>
 
-      {latest.length > 0 && (
-        <section className="section">
-          <SectionHead title="Latest seasons" action="View all" onAction={() => nav.setTab('records')} />
-          <div className="stack" style={{ gap: 14 }}>
-            {latest.map((s) => {
-              const st = seasonStats(s, transactions)
+      <section className="section">
+        <SectionHead
+          title="Farm fields"
+          sub={fields.length ? `${fields.length} field${fields.length === 1 ? '' : 's'} · ${num(totalArea)} ha` : 'Add each lote you farm'}
+          action="+ Add"
+          onAction={() => nav.open('field')}
+        />
+        {fields.length ? (
+          <div className="list">
+            {fields.map((f) => {
+              const plantings = seasons.filter((s) => s.fieldId === f.id)
+              const growing = plantings.find((s) => s.status === 'active')
               return (
-                <div key={s.id} className="play-card">
-                  <span className="thumb" aria-hidden="true">{getCrop(s.crop).emoji}</span>
-                  <span className="grow">
-                    <span className="title">{s.name}</span>
-                    {Number(s.budget) > 0 ? (
-                      <span className="progress-line">
-                        <Progress value={st.budgetUsed} />
-                        <span>{pesoCompact(st.cost)} / {pesoCompact(s.budget)}</span>
-                      </span>
-                    ) : (
-                      <span className="small muted">Spent {pesoCompact(st.cost)}</span>
-                    )}
-                    <button className="chip" style={{ alignSelf: 'flex-start', minHeight: 30, padding: '3px 12px', fontSize: 13 }} onClick={() => nav.open('season', { season: s })}>
-                      {s.status === 'active' ? 'Continue' : 'Open'}
-                    </button>
+                <button key={f.id} className="row" onClick={() => nav.open('field', { field: f })}>
+                  <span className="bubble" aria-hidden="true">
+                    <MapPin size={20} />
                   </span>
-                </div>
+                  <span className="grow">
+                    <span className="title" style={{ display: 'block' }}>
+                      {f.name} · {num(f.area)} ha
+                    </span>
+                    <span className="meta" style={{ display: 'block' }}>
+                      {f.location || 'No location'} · {plantings.length} planting{plantings.length === 1 ? '' : 's'}
+                    </span>
+                  </span>
+                  {growing && <span className="badge orange">{getCrop(growing.crop).emoji} Growing</span>}
+                </button>
               )
             })}
           </div>
-        </section>
-      )}
+        ) : (
+          <button className="btn ghost" onClick={() => nav.open('field')}>
+            <Plus size={18} /> Add a field
+          </button>
+        )}
+      </section>
+
+      <section className="section">
+        <SectionHead title="Security" sub="Keep others from opening your records on this phone" />
+        <div className="settings-list">
+          {profile.pinHash ? (
+            <>
+              <button onClick={() => lock()}>
+                <Lock size={20} />
+                <span className="grow">Lock now<small>App lock is on — PIN needed to open</small></span>
+                <ChevronRight size={18} />
+              </button>
+              <button onClick={() => nav.open('pin', { mode: 'set' })}>
+                <KeyRound size={20} />
+                <span className="grow">Change PIN</span>
+                <ChevronRight size={18} />
+              </button>
+              <button onClick={() => nav.open('pin', { mode: 'remove' })}>
+                <LockOpen size={20} />
+                <span className="grow">Turn off app lock</span>
+                <ChevronRight size={18} />
+              </button>
+            </>
+          ) : (
+            <button onClick={() => nav.open('pin', { mode: 'set' })}>
+              <Lock size={20} />
+              <span className="grow">Set up app lock (PIN)<small>Ask for a 4-digit PIN every time the app opens</small></span>
+              <ChevronRight size={18} />
+            </button>
+          )}
+        </div>
+      </section>
+
+      <section className="section">
+        <SectionHead title="Extra tools" />
+        <div className="settings-list">
+          <button onClick={() => nav.setTab('doctor')}>
+            <Stethoscope size={20} />
+            <span className="grow">Crop Doctor<small>Find the cause of crop problems and the fertilizer or tools to fix them</small></span>
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      </section>
 
       <section className="section">
         <SectionHead title="Appearance" />
@@ -220,7 +260,7 @@ export default function Profile() {
           </label>
           <button onClick={saveCSV}>
             <FileSpreadsheet size={20} />
-            <span className="grow">Export budget to Excel (CSV)<small>For the cooperative, bank or loan papers</small></span>
+            <span className="grow">Export all records to Excel (CSV)<small>Expenses, income, plantings and harvests — for the cooperative or DA</small></span>
             <ChevronRight size={18} />
           </button>
           <button onClick={() => { loadSample(); notify('Sample data added') }}>
@@ -232,7 +272,7 @@ export default function Profile() {
             onClick={async () => {
               const ok = await ask({
                 title: 'Delete all data?',
-                message: 'Every record, season and crop problem on this phone will be erased. Download a backup first if you may need them.',
+                message: 'Every field, planting, harvest, expense and crop problem on this phone will be erased. Download a backup first if you may need them.',
                 confirmLabel: 'Delete everything',
                 danger: true,
               })
@@ -275,8 +315,8 @@ export function ProfileForm({ onClose }) {
         <Field label="Your name">
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Juan dela Cruz" />
         </Field>
-        <Field label="Farm name or location (optional)">
-          <input className="input" value={farm} onChange={(e) => setFarm(e.target.value)} placeholder="e.g. Brgy. San Isidro, Nueva Ecija" />
+        <Field label="Farm location (optional)">
+          <input className="input" value={farm} onChange={(e) => setFarm(e.target.value)} placeholder="e.g. Zaragoza, Nueva Ecija" />
         </Field>
       </form>
     </Sheet>
@@ -296,13 +336,13 @@ export function Onboarding() {
       <div className="hero" style={{ minHeight: 220, alignItems: 'center', textAlign: 'center' }}>
         <FarmerAvatar size={120} className="anim-bob" />
         <h2 style={{ maxWidth: 'none', fontSize: 26 }}>Welcome to Sakahan</h2>
-        <p style={{ maxWidth: 'none' }}>Your farm notebook for budget, crop problems and past harvests.</p>
+        <p style={{ maxWidth: 'none' }}>Farm Expense and Harvest Record App — record expenses, harvests and income for every field in one place.</p>
       </div>
       <Field label="What's your name?">
         <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Juan" autoFocus />
       </Field>
-      <Field label="Farm name or barangay (optional)">
-        <input className="input" value={farm} onChange={(e) => setFarm(e.target.value)} placeholder="e.g. Brgy. San Isidro" />
+      <Field label="Farm location (optional)">
+        <input className="input" value={farm} onChange={(e) => setFarm(e.target.value)} placeholder="e.g. Zaragoza, Nueva Ecija" />
       </Field>
       <button className="btn primary block" onClick={() => start(false)}>Start my farm records</button>
       <button className="btn ghost block" onClick={() => start(true)}>Try with sample data first</button>

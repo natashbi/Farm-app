@@ -4,13 +4,18 @@ import { uid } from './lib/format.js'
 
 const KEY = 'sakahan-farm-budget-v1'
 
+// seasons = plantings: one crop cycle on one field (planting → harvest).
 export const EMPTY = {
-  version: 1,
-  profile: { name: '', farm: '', onboarded: false },
-  transactions: [],
+  version: 2,
+  profile: { name: '', farm: '', onboarded: false, pinHash: '', pinSalt: '' },
+  fields: [],
   seasons: [],
+  harvests: [],
+  transactions: [],
   anomalies: [],
 }
+
+const COLLECTIONS = ['fields', 'seasons', 'harvests', 'transactions', 'anomalies']
 
 function load() {
   try {
@@ -27,11 +32,9 @@ export function normalize(data) {
   if (!data || typeof data !== 'object') throw new Error('Not a Sakahan backup file')
   const list = (v) => (Array.isArray(v) ? v.filter((x) => x && typeof x === 'object' && x.id) : [])
   return {
-    version: 1,
+    version: 2,
     profile: { ...EMPTY.profile, ...(data.profile || {}) },
-    transactions: list(data.transactions),
-    seasons: list(data.seasons),
-    anomalies: list(data.anomalies),
+    ...Object.fromEntries(COLLECTIONS.map((k) => [k, list(data[k])])),
   }
 }
 
@@ -49,10 +52,16 @@ function reducer(state, action) {
       return { ...state, [action.kind]: upsert(state[action.kind], action.item) }
     case 'remove': {
       const next = { ...state, [action.kind]: state[action.kind].filter((x) => x.id !== action.id) }
-      // Budget records keep existing when their season is deleted, just unlinked.
+      // Records stay when their planting or field is deleted, just unlinked.
       if (action.kind === 'seasons') {
-        next.transactions = state.transactions.map((t) => (t.seasonId === action.id ? { ...t, seasonId: '' } : t))
-        next.anomalies = state.anomalies.map((a) => (a.seasonId === action.id ? { ...a, seasonId: '' } : a))
+        for (const k of ['transactions', 'anomalies', 'harvests']) {
+          next[k] = state[k].map((t) => (t.seasonId === action.id ? { ...t, seasonId: '' } : t))
+        }
+      }
+      if (action.kind === 'fields') {
+        for (const k of ['seasons', 'harvests']) {
+          next[k] = state[k].map((t) => (t.fieldId === action.id ? { ...t, fieldId: '' } : t))
+        }
       }
       return next
     }
@@ -62,13 +71,11 @@ function reducer(state, action) {
       return action.data
     case 'sample': {
       const sample = makeSampleData()
-      return {
-        ...state,
-        profile: { ...state.profile, onboarded: true },
-        seasons: [...sample.seasons, ...state.seasons.filter((s) => !sample.seasons.some((x) => x.id === s.id))],
-        transactions: [...sample.transactions, ...state.transactions.filter((s) => !sample.transactions.some((x) => x.id === s.id))],
-        anomalies: [...sample.anomalies, ...state.anomalies.filter((s) => !sample.anomalies.some((x) => x.id === s.id))],
+      const merged = { ...state, profile: { ...state.profile, onboarded: true, farm: state.profile.farm || sample.farm } }
+      for (const k of COLLECTIONS) {
+        merged[k] = [...sample[k], ...state[k].filter((s) => !sample[k].some((x) => x.id === s.id))]
       }
+      return merged
     }
     default:
       return state
@@ -82,6 +89,9 @@ export function StoreProvider({ children }) {
   const [toast, setToast] = useState(null)
   const [dialog, setDialog] = useState(null)
   const [burst, setBurst] = useState(null)
+  // App lock: records stay hidden until the PIN is entered (only for this visit).
+  // Starts unlocked when no PIN is set, so turning the lock on doesn't lock you out mid-visit.
+  const [unlocked, setUnlocked] = useState(() => !state.profile.pinHash)
   const timer = useRef()
   const burstTimer = useRef()
 
@@ -135,11 +145,14 @@ export function StoreProvider({ children }) {
       notify,
       ask,
       celebrate,
+      unlock: () => setUnlocked(true),
+      lock: () => setUnlocked(false),
     }),
     [notify, ask, celebrate],
   )
 
-  const value = useMemo(() => ({ state, ...actions, toast, dialog, burst }), [state, actions, toast, dialog, burst])
+  const locked = !!state.profile.pinHash && !unlocked
+  const value = useMemo(() => ({ state, ...actions, toast, dialog, burst, locked }), [state, actions, toast, dialog, burst, locked])
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
 }
 

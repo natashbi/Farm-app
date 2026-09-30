@@ -1,28 +1,39 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { BookOpen, Home as HomeIcon, Stethoscope, UserRound, Wallet } from 'lucide-react'
+import { ClipboardList, Home as HomeIcon, UserRound, Wallet, Wheat } from 'lucide-react'
 import { useStore } from './store.jsx'
 import { ConfirmDialog, NavContext, SheetClosing, Toast } from './components/ui.jsx'
 import { Celebration, prefersReducedMotion } from './components/motion.jsx'
 import Home from './screens/Home.jsx'
 import Budget from './screens/Budget.jsx'
 import Doctor from './screens/Doctor.jsx'
-import Records from './screens/Records.jsx'
+import Harvest from './screens/Harvest.jsx'
+import Reports from './screens/Reports.jsx'
 import Profile, { Onboarding, ProfileForm } from './screens/Profile.jsx'
 import TransactionForm from './forms/TransactionForm.jsx'
 import SeasonForm from './forms/SeasonForm.jsx'
+import FieldForm from './forms/FieldForm.jsx'
+import HarvestForm from './forms/HarvestForm.jsx'
+import PinForm from './forms/PinForm.jsx'
 import { AnomalyDetail, ConditionSheet, DiagnoseSheet } from './forms/Doctor.jsx'
+import { LockScreen } from './components/Lock.jsx'
 
+// The five main modules of the Farm Expense and Harvest Record App.
 const TABS = [
   { id: 'home', label: 'Home', icon: HomeIcon, screen: Home },
-  { id: 'budget', label: 'Budget', icon: Wallet, screen: Budget },
-  { id: 'doctor', label: 'Doctor', icon: Stethoscope, screen: Doctor },
-  { id: 'records', label: 'Records', icon: BookOpen, screen: Records },
+  { id: 'budget', label: 'Expenses', icon: Wallet, screen: Budget },
+  { id: 'harvest', label: 'Harvest', icon: Wheat, screen: Harvest },
+  { id: 'reports', label: 'Reports', icon: ClipboardList, screen: Reports },
   { id: 'profile', label: 'Profile', icon: UserRound, screen: Profile },
 ]
+// Extra screens opened from inside the app (not in the bottom bar).
+const EXTRA_SCREENS = { doctor: Doctor }
 
 const SHEETS = {
   tx: TransactionForm,
   season: SeasonForm,
+  field: FieldForm,
+  harvest: HarvestForm,
+  pin: PinForm,
   diagnose: DiagnoseSheet,
   anomaly: AnomalyDetail,
   condition: ConditionSheet,
@@ -32,8 +43,9 @@ const SHEETS = {
 let sheetSeq = 0
 
 export default function App() {
-  const { state, toast, dialog, burst } = useStore()
+  const { state, toast, dialog, burst, locked } = useStore()
   const [tab, setTabState] = useState('home')
+  const [params, setParams] = useState(null)
   // Which side the new tab slides in from.
   const [dir, setDir] = useState('right')
   const [stack, setStack] = useState([])
@@ -100,14 +112,24 @@ export default function App() {
 
   const tabRef = useRef(tab)
   tabRef.current = tab
-  const setTab = useCallback((id) => {
+  const setTab = useCallback((id, tabParams = null) => {
     const order = TABS.map((t) => t.id)
     setDir(order.indexOf(id) < order.indexOf(tabRef.current) ? 'left' : 'right')
+    setParams(tabParams)
     setTabState(id)
     window.scrollTo({ top: 0 })
   }, [])
 
   const nav = useMemo(() => ({ tab, setTab, open, close }), [tab, setTab, open, close])
+
+  if (locked) {
+    return (
+      <div className="app" data-dir="right">
+        <LockScreen />
+        <Toast toast={toast} />
+      </div>
+    )
+  }
 
   if (!state.profile.onboarded) {
     return (
@@ -118,12 +140,12 @@ export default function App() {
     )
   }
 
-  const Screen = TABS.find((t) => t.id === tab).screen
+  const Screen = TABS.find((t) => t.id === tab)?.screen || EXTRA_SCREENS[tab] || Home
 
   return (
     <NavContext.Provider value={nav}>
       <div className="app" data-dir={dir}>
-        <Screen key={tab} />
+        <Screen key={`${tab}-${params?.view || ''}`} params={params} />
         <nav className="nav" aria-label="Main">
           {TABS.map((t) => {
             const Icon = t.icon

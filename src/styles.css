@@ -756,16 +756,16 @@ table.data tr.best td { font-weight: 600; }
 @keyframes enter { from { opacity: 0; transform: translate(var(--from-x), 12px); } }
 
 /* List rows and tiles follow a beat later. (Not chips: their pressed-state pop would replay it.) */
-.list > .row, .tiles > .tile, .stats-grid > .stat, .stack > .callout, .stack > .play-card, .stack > .card.play-card {
+.list > .row, .tiles > .tile, .stats-grid > .stat, .stack > .callout, .stack > .play-card, .stack > .card.play-card, .stack > .card.planting, .timeline > .tl-item {
   animation: rise 0.4s var(--ease-out) backwards;
   animation-delay: 160ms;
 }
-:is(.list, .tiles, .stats-grid, .stack) > :nth-child(2) { animation-delay: 200ms; }
-:is(.list, .tiles, .stats-grid, .stack) > :nth-child(3) { animation-delay: 240ms; }
-:is(.list, .tiles, .stats-grid, .stack) > :nth-child(4) { animation-delay: 280ms; }
-:is(.list, .tiles, .stats-grid, .stack) > :nth-child(5) { animation-delay: 320ms; }
-:is(.list, .tiles, .stats-grid, .stack) > :nth-child(6) { animation-delay: 360ms; }
-:is(.list, .tiles, .stats-grid, .stack) > :nth-child(n + 7) { animation-delay: 400ms; }
+:is(.list, .tiles, .stats-grid, .stack, .timeline) > :nth-child(2) { animation-delay: 200ms; }
+:is(.list, .tiles, .stats-grid, .stack, .timeline) > :nth-child(3) { animation-delay: 240ms; }
+:is(.list, .tiles, .stats-grid, .stack, .timeline) > :nth-child(4) { animation-delay: 280ms; }
+:is(.list, .tiles, .stats-grid, .stack, .timeline) > :nth-child(5) { animation-delay: 320ms; }
+:is(.list, .tiles, .stats-grid, .stack, .timeline) > :nth-child(6) { animation-delay: 360ms; }
+:is(.list, .tiles, .stats-grid, .stack, .timeline) > :nth-child(n + 7) { animation-delay: 400ms; }
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
 
 /* Tap feedback */
@@ -890,6 +890,63 @@ table.data tr.best td { font-weight: 600; }
   0% { transform: translate(0, 0) scale(0.3) rotate(0); opacity: 1; }
   70% { opacity: 1; }
   100% { transform: translate(var(--x), calc(var(--y) + 60px)) scale(1) rotate(var(--r)); opacity: 0; }
+}
+
+
+/* ---------- Plantings: date monitor ---------- */
+.card.planting { display: flex; flex-direction: column; gap: 12px; padding: 14px; }
+.monitor { display: flex; flex-direction: column; gap: 8px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.monitor-line { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); }
+.monitor .btn { align-self: flex-start; }
+.card.planting .progress-line { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.card.planting .progress-line .progress { flex: 1; }
+.check-row { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; cursor: pointer; }
+.check-row input { width: 22px; height: 22px; margin: 1px 0 0; accent-color: var(--green); flex: none; }
+.check-row small { display: block; color: var(--muted); font-size: 12.5px; }
+.check-row:has(input:disabled) { opacity: 0.6; cursor: default; }
+select.input:disabled, input.input:disabled { opacity: 0.7; }
+
+/* ---------- Activity timeline ---------- */
+.timeline { display: flex; flex-direction: column; position: relative; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 6px 4px; }
+.tl-item { display: flex; align-items: center; gap: 12px; border: 0; background: transparent; text-align: left; padding: 10px 12px; width: 100%; position: relative; }
+.tl-item + .tl-item::before { content: ''; position: absolute; left: 12px; right: 12px; top: 0; border-top: 1px solid var(--line); }
+.tl-item .grow { flex: 1; min-width: 0; }
+.tl-item .title { display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-item .meta { display: block; font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-item .amount { font-weight: 600; white-space: nowrap; font-size: 14px; }
+.tl-dot { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; font-size: 18px; background: var(--surface-2); flex: none; }
+.tl-dot.harvest, .tl-dot.income { background: var(--good-soft); }
+.tl-dot.planting { background: color-mix(in srgb, var(--olive) 22%, var(--surface)); }
+.tl-dot.problem { background: var(--warn-soft); }
+
+/* ---------- App lock ---------- */
+.lock { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 32px 20px; text-align: center; }
+.lock h1 { font-size: 22px; font-weight: 600; }
+.link-btn { border: 0; background: none; color: var(--ink-2); text-decoration: underline; padding: 10px; font-size: 14px; }
+.pinpad { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 300px; margin: 8px auto 0; }
+.pin-dots { display: flex; gap: 16px; padding: 8px 0; }
+.pin-dots span { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--ink-2); transition: background-color 0.15s ease, transform 0.15s ease; }
+.pin-dots span.on { background: var(--green); border-color: var(--green); transform: scale(1.1); }
+.pin-dots.shake { animation: shake 0.4s ease; }
+@keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.pin-error { min-height: 20px; color: var(--bad); font-size: 13.5px; }
+.pin-keys { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px 22px; justify-content: center; }
+.pin-keys button { width: 72px; height: 72px; border-radius: 50%; border: 0; background: var(--surface); box-shadow: var(--shadow); font-size: 26px; font-weight: 500; display: grid; place-items: center; transition: transform 0.1s ease, background-color 0.15s ease; }
+.pin-keys button:active { transform: scale(0.92); background: var(--surface-2); }
+.pin-keys button.plain { background: transparent; box-shadow: none; }
+
+/* ---------- Printing a report (Print / Save as PDF) ---------- */
+@media print {
+  :root { --bg: #fff; --surface: #fff; --shadow: none; }
+  body { background: #fff !important; }
+  .app { max-width: none; margin: 0; box-shadow: none; border-radius: 0; }
+  .nav, .no-print, .toast, .icon-btn, .celebrate, .sheet, .sheet-backdrop { display: none !important; }
+  .screen { padding: 0; gap: 14px; }
+  .screen > *, .list > *, .timeline > *, .stats-grid > * { animation: none !important; }
+  .card, .stat, .timeline { border: 1px solid #ccc; box-shadow: none; break-inside: avoid; }
+  .report-hero { background: #fff !important; color: #000 !important; border: 1px solid #ccc; }
+  .report-hero p, .report-hero span { color: #333 !important; }
+  .tl-item { break-inside: avoid; }
 }
 
 @media (prefers-reduced-motion: reduce) {

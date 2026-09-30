@@ -1,7 +1,7 @@
 {
-  "name": "Sakahan Farm Budget",
+  "name": "Sakahan – Farm Expense & Harvest Records",
   "short_name": "Sakahan",
-  "description": "Record farm expenses, tools, profits, crop problems and past harvests.",
+  "description": "Farm Expense and Harvest Record App: record expenses, harvests and income for every field.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

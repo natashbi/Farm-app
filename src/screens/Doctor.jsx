@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { CONDITIONS, PROBLEM_TYPES, getCondition, getSymptom } from '../data/cropDoctor.js'
 import { getCrop } from '../data/categories.js'
 import { sortByDateDesc } from '../lib/calc.js'
@@ -21,6 +22,9 @@ export default function Doctor() {
   return (
     <main className="screen">
       <header className="topbar">
+        <button className="icon-btn plain" onClick={() => nav.setTab('home')} aria-label="Back to Home">
+          <ArrowLeft size={22} />
+        </button>
         <div className="grow">
           <h1>Crop Doctor</h1>
           <p>Doktor ng pananim</p>

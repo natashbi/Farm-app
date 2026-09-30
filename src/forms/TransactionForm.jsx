@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { CATEGORIES, getCategory } from '../data/categories.js'
-import { activeSeason } from '../lib/calc.js'
+import { activeSeason, seasonLabel } from '../lib/calc.js'
 import { todayISO, toNumber } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { Field, Segmented, Sheet } from '../components/ui.jsx'
@@ -66,6 +66,7 @@ export default function TransactionForm({ tx, preset, onClose }) {
   }
 
   const seasons = [...state.seasons].sort((a, b) => (b.startDate || '').localeCompare(a.startDate || ''))
+  const fieldsById = Object.fromEntries(state.fields.map((x) => [x.id, x]))
 
   return (
     <Sheet
@@ -151,21 +152,20 @@ export default function TransactionForm({ tx, preset, onClose }) {
           </Field>
         </div>
 
-        <div className="field-row">
-          <Field label="Date">
-            <input className="input" type="date" value={form.date} onChange={set('date')} />
-          </Field>
-          <Field label="Season">
-            <select className="input" value={form.seasonId} onChange={set('seasonId')}>
-              <option value="">No season</option>
-              {seasons.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
+        <Field label="Date">
+          <input className="input" type="date" value={form.date} onChange={set('date')} />
+        </Field>
+        <Field label="Planting (field · season)" hint="Farm-wide costs like tools can stay without a field.">
+          <select className="input" value={form.seasonId} onChange={set('seasonId')}>
+            <option value="">Farm-wide (no field)</option>
+            {seasons.map((s) => (
+              <option key={s.id} value={s.id}>
+                {seasonLabel(s, fieldsById)}
+                {s.status === 'active' ? ' (growing)' : ''}
+              </option>
+            ))}
+          </select>
+        </Field>
 
         <Field label="Notes (optional)">
           <textarea className="input" value={form.note} onChange={set('note')} placeholder="Supplier, who worked, etc." />

@@ -37,7 +37,7 @@ function niceMax(v) {
  * every other season is de-emphasized gray. The shaded band is the range of
  * fertilizer that gave a harvest within 10% of the best.
  */
-export function FertilizerScatter({ analysis, xLabel, yLabel }) {
+export function FertilizerScatter({ analysis, xLabel, yLabel, labelOf = (season) => season.name }) {
   const [active, setActive] = useState(null)
   const { points, best, goodRange, unit } = analysis
   const W = 340
@@ -55,7 +55,8 @@ export function FertilizerScatter({ analysis, xLabel, yLabel }) {
 
   // Labels sit above their dot (below when near the top), kept inside the plot.
   const label = (p, text) => {
-    const px = Math.min(Math.max(x(p.fert), pad.l + 60), W - pad.r - 60)
+    const half = text.length * 3.4
+    const px = Math.min(Math.max(x(p.fert), pad.l + half), W - pad.r - half)
     const py = y(p.yield) < pad.t + 24 ? y(p.yield) + 22 : y(p.yield) - 13
     return (
       <text key={`l-${p.season.id}`} className="data-label" x={px} y={py} textAnchor="middle">
@@ -120,7 +121,7 @@ export function FertilizerScatter({ analysis, xLabel, yLabel }) {
                 fill="transparent"
                 tabIndex={0}
                 role="button"
-                aria-label={`${p.season.name}: ${num(p.fert)} bags, ${num(p.yield)} ${unit}`}
+                aria-label={`${labelOf(p.season)}: ${num(p.fert)} bags, ${num(p.yield)} ${unit}`}
                 onMouseEnter={() => setActive(p.season.id)}
                 onMouseLeave={() => setActive(null)}
                 onFocus={() => setActive(p.season.id)}
@@ -131,12 +132,12 @@ export function FertilizerScatter({ analysis, xLabel, yLabel }) {
             </g>
           )
         })}
-        {best && label(best, `Best · ${best.season.name}`)}
-        {latest !== best && !tooClose && label(latest, `Latest · ${latest.season.name}`)}
+        {best && label(best, `Best · ${labelOf(best.season)}`)}
+        {latest !== best && !tooClose && label(latest, `Latest · ${labelOf(latest.season)}`)}
       </svg>
       {act && (
         <div className="chart-tip" style={{ left: `${(x(act.fert) / W) * 100}%`, top: `${(y(act.yield) / H) * 100}%` }}>
-          <strong>{act.season.name}</strong>
+          <strong>{labelOf(act.season)}</strong>
           <br />
           {num(act.fert)} bags → {num(act.yield)} {unit}
           {act.profit !== null && (

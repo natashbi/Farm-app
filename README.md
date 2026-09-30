@@ -1,20 +1,26 @@
-# Sakahan — Farm Budget App 🌾
+# Sakahan — Farm Expense and Harvest Record App 🌾
 
-A mobile-first React app for farmers to:
+A mobile-first app that helps **large-scale farmers** (developed for farms in Zaragoza, Nueva Ecija) record,
+organize and monitor farm expenses, harvests and income — replacing notebooks and loose sheets.
 
-- **Budget** — record production costs (seeds, abono, labor, land prep, irrigation, fuel, rent, hauling), **tools & equipment** (bought, rented, repairs) and **income** (harvest sales). See production cost, tools cost and profit per season or all-time.
-- **Crop Doctor** — pick your crop and the signs you see (yellow leaves, spots, holes, wilting, snails…). The app lists the likely causes with the **fertilizer / treatment**, **tools needed** and **step-by-step fix**, and one tap records the purchase in your budget. Problems are saved in a log you can mark as solved. 24 built-in guides for rice, corn, vegetables, root crops and fruit trees.
-- **Harvest records** — save each past season: fertilizer bags used, harvest, cost and sales. The app compares seasons (per hectare when field sizes differ) and tells you the fertilizer amount that gave your best harvest.
-  Example: 10 bags → 150 cavans vs 20 bags → 100 cavans ⇒ *"More fertilizer did not mean more harvest — go back to about 10 bags."*
+| Module | What it does |
+| --- | --- |
+| **Home** | Farm summary (fields, hectares), plantings growing now with days to harvest, this season's money, recent activity |
+| **Expenses** | Record expenses (seeds, fertilizer, pesticide, labor, land prep, irrigation, fuel, rent, hauling, tools bought/rented/repairs) and income; totals and profit computed automatically; filter by season and field |
+| **Harvest** | *Plantings* — crop, field, planting date and expected harvest date with a days-after-planting monitor. *Harvest log* — each harvest batch with date, crop and quantity (optionally recorded as a sale). *Compare* — compares seasons to find the fertilizer amount that gave the best harvest |
+| **Reports** | Summary report per season and field: expenses, income, net profit, harvest, yield per hectare, cost per cavan, field performance, plantings, expenses by category, activity log; export to Excel (CSV) or print / save as PDF |
+| **Profile** | Farm fields (lote), app lock with a 4-digit PIN, backup / restore, export, appearance |
 
-Everything is saved on the phone (no account, works offline). Back up / restore your data as a file and export the budget to Excel (CSV) from the Profile tab.
+Extra tool: **Crop Doctor** (Profile → Extra tools) suggests fertilizer, tools and steps for common crop problems.
+
+Everything is saved on the phone (works offline, no account). Back up / restore from the Profile tab.
 
 ## Run it
 
 ```bash
 npm install
 npm run dev        # open the printed link on your computer or phone (same Wi-Fi: npm run dev -- --host)
-npm test           # unit tests for the budget math, season comparison and Crop Doctor
+npm test           # unit tests: expense math, harvest logs, date monitor, reports, PIN hashing, Crop Doctor
 npm run build      # production build in dist/
 npm run build:single  # one self-contained HTML file in dist-single/ (easy to share)
 ```
@@ -31,13 +37,15 @@ choose **Add to Home screen** to install it like an app.
 src/
   App.jsx               tabs, bottom nav, full-screen sheets (phone Back button closes them)
   store.jsx             data + saving to phone storage
-  data/categories.js    budget categories & crops (English + Tagalog)
+  data/categories.js    expense categories & crops (English + Tagalog, days to harvest)
   data/cropDoctor.js    crop problem knowledge base + diagnose()
-  data/sample.js        demo data
-  lib/calc.js           totals, season cost/income/profit
+  data/sample.js        demo farm: 3 fields in Zaragoza, Nueva Ecija
+  lib/calc.js           totals, planting cost/income/profit, harvest logs, planting-date monitor
+  lib/report.js         report filters, summary, field performance, activity log, CSV export
   lib/analysis.js       past-season comparison & fertilizer recommendation
-  screens/              Home, Budget, Doctor, Records, Profile
-  forms/                add/edit record, season, Crop Doctor flow
+  lib/sha256.js         PIN hashing for the app lock
+  screens/              Home, Budget (Expenses), Harvest, Reports, Profile, Doctor
+  forms/                expense/income, planting, field, harvest log, PIN, Crop Doctor flow
   components/           UI pieces, charts, illustrations
 ```
 

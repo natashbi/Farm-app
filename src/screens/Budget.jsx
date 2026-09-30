@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { getCategory } from '../data/categories.js'
-import { forSeason, sortByDateDesc, totals } from '../lib/calc.js'
+import { seasonLabel, sortByDateDesc, totals } from '../lib/calc.js'
+import { scopeRecords, seasonNames } from '../lib/report.js'
 import { peso } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { Chip, Empty, Segmented, TxRow, useNav } from '../components/ui.jsx'
@@ -10,12 +11,14 @@ import { AnimatedNumber } from '../components/motion.jsx'
 export default function Budget() {
   const { state } = useStore()
   const nav = useNav()
-  const [seasonId, setSeasonId] = useState('all')
+  const [season, setSeason] = useState('all')
+  const [field, setField] = useState('all')
   const [group, setGroup] = useState('all')
 
-  const seasons = [...state.seasons].sort((a, b) => (b.startDate || '').localeCompare(a.startDate || ''))
-  const seasonsById = Object.fromEntries(seasons.map((s) => [s.id, s]))
-  const scoped = forSeason(state.transactions, seasonId)
+  const names = seasonNames(state.seasons)
+  const seasonsById = Object.fromEntries(state.seasons.map((s) => [s.id, s]))
+  const fieldsById = Object.fromEntries(state.fields.map((f) => [f.id, f]))
+  const scoped = scopeRecords(state, { season, field }).transactions
   const t = totals(scoped)
   const shown = sortByDateDesc(scoped.filter((tx) => group === 'all' || getCategory(tx.category).group === group))
 
@@ -39,7 +42,7 @@ export default function Budget() {
     <main className="screen">
       <header className="topbar">
         <div className="grow">
-          <h1>Budget</h1>
+          <h1>Expenses & income</h1>
           <p>Talaan ng gastos at kita</p>
         </div>
         <button className="icon-btn solid" onClick={() => nav.open('tx')} aria-label="Add record">
@@ -47,15 +50,25 @@ export default function Budget() {
         </button>
       </header>
 
-      <div className="chips" role="group" aria-label="Season">
-        <Chip active={seasonId === 'all'} onClick={() => setSeasonId('all')}>All time</Chip>
-        {seasons.map((s) => (
-          <Chip key={s.id} active={seasonId === s.id} onClick={() => setSeasonId(s.id)}>
-            {s.name}
-          </Chip>
-        ))}
-        {state.transactions.some((tx) => !tx.seasonId) && (
-          <Chip active={seasonId === 'none'} onClick={() => setSeasonId('none')}>No season</Chip>
+      <div className="stack" style={{ gap: 8 }}>
+        <div className="chips" role="group" aria-label="Season">
+          <Chip active={season === 'all'} onClick={() => setSeason('all')}>All seasons</Chip>
+          {names.map((n) => (
+            <Chip key={n} active={season === n} onClick={() => setSeason(n)}>
+              {n}
+            </Chip>
+          ))}
+        </div>
+        {state.fields.length > 0 && (
+          <div className="chips" role="group" aria-label="Field">
+            <Chip active={field === 'all'} onClick={() => setField('all')}>All fields</Chip>
+            {state.fields.map((f) => (
+              <Chip key={f.id} active={field === f.id} onClick={() => setField(f.id)}>
+                {f.name}
+              </Chip>
+            ))}
+            <Chip active={field === 'none'} onClick={() => setField('none')}>Farm-wide</Chip>
+          </div>
         )}
       </div>
 
@@ -107,7 +120,7 @@ export default function Budget() {
                 </span>
               </div>
               {m.items.map((tx) => (
-                <TxRow key={tx.id} tx={tx} season={seasonId === 'all' ? seasonsById[tx.seasonId] : null} onClick={() => nav.open('tx', { tx })} />
+                <TxRow key={tx.id} tx={tx} where={seasonLabel(seasonsById[tx.seasonId], fieldsById) || 'Farm-wide'} onClick={() => nav.open('tx', { tx })} />
               ))}
             </div>
           ))}

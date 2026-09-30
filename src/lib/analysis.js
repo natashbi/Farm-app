@@ -1,4 +1,4 @@
-import { seasonStats } from './calc.js'
+import { seasonHarvest, seasonStats } from './calc.js'
 import { num } from './format.js'
 
 const round1 = (n) => Math.round(n * 10) / 10
@@ -9,12 +9,12 @@ const roundHalf = (n) => Math.round(n * 2) / 2
  * harvest. When every season has a field area, values are per hectare so
  * seasons with different field sizes are fair to compare.
  */
-export function analyzeSeasons(seasons, transactions, cropId) {
+export function analyzeSeasons(seasons, transactions, cropId, harvests = [], label = (season) => season.name) {
   const done = seasons.filter(
     (s) =>
       s.crop === cropId &&
       s.status === 'completed' &&
-      Number(s.harvestQty) > 0 &&
+      seasonHarvest(s, harvests).qty > 0 &&
       s.fertilizerBags !== '' &&
       s.fertilizerBags !== null &&
       s.fertilizerBags !== undefined &&
@@ -23,9 +23,10 @@ export function analyzeSeasons(seasons, transactions, cropId) {
 
   // Compare like with like: use the most common harvest unit.
   const unitCounts = {}
-  for (const s of done) unitCounts[s.harvestUnit || 'cavans'] = (unitCounts[s.harvestUnit || 'cavans'] || 0) + 1
+  const unitOf = (s) => seasonHarvest(s, harvests).unit
+  for (const s of done) unitCounts[unitOf(s)] = (unitCounts[unitOf(s)] || 0) + 1
   const unit = Object.keys(unitCounts).sort((a, b) => unitCounts[b] - unitCounts[a])[0] || 'cavans'
-  const usable = done.filter((s) => (s.harvestUnit || 'cavans') === unit)
+  const usable = done.filter((s) => unitOf(s) === unit)
   const skippedUnits = done.length - usable.length
 
   const perHa = usable.length > 0 && usable.every((s) => Number(s.area) > 0)
@@ -33,8 +34,8 @@ export function analyzeSeasons(seasons, transactions, cropId) {
     .map((s) => {
       const area = perHa ? Number(s.area) : 1
       const bags = Number(s.fertilizerBags)
-      const harvest = Number(s.harvestQty)
-      const stats = seasonStats(s, transactions)
+      const harvest = seasonHarvest(s, harvests).qty
+      const stats = seasonStats(s, transactions, harvests)
       return {
         season: s,
         fert: bags / area,
@@ -91,7 +92,7 @@ export function analyzeSeasons(seasons, transactions, cropId) {
     const { lo, hi } = worst
     result.insights.push({
       tone: 'warn',
-      text: `More fertilizer did not mean more harvest: ${hi.season.name} used ${bagsTxt(round1(hi.fert))}${rate} but harvested ${num(hi.yield)} ${unit}, while ${lo.season.name} used only ${bagsTxt(round1(lo.fert))} and harvested ${num(lo.yield)} ${unit}.`,
+      text: `More fertilizer did not mean more harvest: ${label(hi.season)} used ${bagsTxt(round1(hi.fert))}${rate} but harvested ${num(hi.yield)} ${unit}, while ${label(lo.season)} used only ${bagsTxt(round1(lo.fert))} and harvested ${num(lo.yield)} ${unit}.`,
     })
   }
 
@@ -101,7 +102,7 @@ export function analyzeSeasons(seasons, transactions, cropId) {
     if (latest.fert > best.fert * 1.15) {
       result.insights.push({
         tone: 'tip',
-        text: `Your latest season (${latest.season.name}) used ${bagsTxt(round1(latest.fert))}${rate}. Try going back to about ${bagsTxt(round1(best.fert))}${rate} — it saves money and gave your best harvest.`,
+        text: `Your latest season (${label(latest.season)}) used ${bagsTxt(round1(latest.fert))}${rate}. Try going back to about ${bagsTxt(round1(best.fert))}${rate} — it saves money and gave your best harvest.`,
       })
     } else if (latest.fert < best.fert * 0.85) {
       result.insights.push({
@@ -122,7 +123,7 @@ export function analyzeSeasons(seasons, transactions, cropId) {
     const eff = withBags.reduce((a, b) => (b.perBag > a.perBag ? b : a))
     result.insights.push({
       tone: 'good',
-      text: `Best return on fertilizer: ${eff.season.name} — ${num(eff.perBag)} ${unit} for every bag used.`,
+      text: `Best return on fertilizer: ${label(eff.season)} — ${num(eff.perBag)} ${unit} for every bag used.`,
     })
   }
 
@@ -130,7 +131,7 @@ export function analyzeSeasons(seasons, transactions, cropId) {
   const withProfit = points.filter((p) => p.profit !== null)
   if (withProfit.length >= 2) {
     const top = withProfit.reduce((a, b) => (b.profit > a.profit ? b : a))
-    result.insights.push({ tone: 'good', text: `Most profitable season: ${top.season.name}.`, profitSeason: top.season.id })
+    result.insights.push({ tone: 'good', text: `Most profitable season: ${label(top.season)}.`, profitSeason: top.season.id })
   }
 
   return result
