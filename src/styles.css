@@ -30,7 +30,7 @@
   --chart-band: rgba(154, 174, 63, 0.18);
   --shadow: 0 1px 0 rgba(31, 42, 36, 0.04), 0 8px 24px -12px rgba(31, 42, 36, 0.25);
   --radius: 22px;
-  --font: 'Fredoka', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
 }
 
@@ -112,11 +112,12 @@ body {
     radial-gradient(ellipse 50px 100px at 80% 10%, var(--outer-2) 60%, transparent 61%),
     radial-gradient(ellipse 70px 140px at 15% 85%, var(--outer-2) 60%, transparent 61%);
   background-attachment: fixed;
-  line-height: 1.4;
+  line-height: 1.45;
+  word-spacing: 0.06em;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
-button, input, select, textarea { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; word-spacing: inherit; letter-spacing: inherit; }
 button { cursor: pointer; }
 h1, h2, h3, h4, p { margin: 0; }
 img { max-width: 100%; display: block; }
@@ -187,7 +188,7 @@ img { max-width: 100%; display: block; }
 /* ---------- Header ---------- */
 .topbar { display: flex; align-items: center; gap: 12px; }
 .topbar .grow { flex: 1; min-width: 0; }
-.topbar h1 { font-size: 23px; font-weight: 600; letter-spacing: -0.01em; }
+.topbar h1 { font-size: 23px; font-weight: 600; letter-spacing: 0; }
 .topbar p { color: var(--muted); font-size: 14px; }
 .topbar.center h1 { text-align: center; font-size: 21px; }
 .icon-btn {
@@ -331,7 +332,7 @@ img { max-width: 100%; display: block; }
   min-width: 0;
 }
 .stat .label { font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-.stat .value { font-size: 21px; font-weight: 600; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.stat .value { font-size: 21px; font-weight: 600; letter-spacing: 0; overflow-wrap: anywhere; }
 .stat .hint { font-size: 12px; color: var(--muted); }
 .stat.neg .value { color: var(--bad); }
 .stat.pos .value { color: var(--good); }
@@ -662,7 +663,7 @@ table.data tr.best td { font-weight: 600; }
 .hstack { display: flex; align-items: center; gap: 10px; }
 .between { justify-content: space-between; }
 .wrap-gap { display: flex; flex-wrap: wrap; gap: 6px; }
-.big-number { font-size: 40px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; }
+.big-number { font-size: 40px; font-weight: 600; letter-spacing: 0; line-height: 1.05; }
 .divider { height: 1px; background: var(--line); margin: 4px 0; }
 .photo-thumb { width: 100%; border-radius: 16px; max-height: 240px; object-fit: cover; }
 .dialog-backdrop {

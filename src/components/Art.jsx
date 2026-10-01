@@ -28,7 +28,7 @@ export function HeroBudgetArt(props) {
       <path d="M70 60c10-8 60-8 70 0-10 6-60 6-70 0z" fill="#e2d9b3" />
       <path d="M86 52c6-10 32-10 38 0" stroke="#c9922a" strokeWidth="5" fill="none" strokeLinecap="round" />
       <rect x="82" y="92" width="46" height="34" rx="6" fill="#9aae3f" />
-      <text x="105" y="116" textAnchor="middle" fontSize="18" fontWeight="700" fill="#2e4a40" fontFamily="Arial, sans-serif">
+      <text x="105" y="116" textAnchor="middle" fontSize="18" fontWeight="700" fill="#2e4a40" fontFamily="'Plus Jakarta Sans', Arial, sans-serif">
         ₱
       </text>
       {/* sprout */}
@@ -46,7 +46,7 @@ export function HeroBudgetArt(props) {
       </g>
       <g className="anim-bob">
         <circle cx="168" cy="94" r="16" fill="#f26a1b" />
-        <text x="168" y="100" textAnchor="middle" fontSize="16" fontWeight="700" fill="#fff" fontFamily="Arial, sans-serif">
+        <text x="168" y="100" textAnchor="middle" fontSize="16" fontWeight="700" fill="#fff" fontFamily="'Plus Jakarta Sans', Arial, sans-serif">
           ₱
         </text>
       </g>
