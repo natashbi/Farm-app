@@ -88,7 +88,9 @@ export default function Reports() {
               {[
                 ['Expenses', peso(report.cost)],
                 ['Income', peso(report.income)],
-                ['Area planted', `${num(report.areaPlanted)} ha`],
+                season === 'all'
+                  ? [field === 'all' ? 'Farm size' : 'Field size', `${num(field === 'all' ? state.fields.reduce((x, f) => x + (Number(f.area) || 0), 0) : state.fields.find((f) => f.id === field)?.area || 0)} ha`]
+                  : ['Area planted', `${num(report.areaPlanted)} ha`],
               ].map(([label, v]) => (
                 <div key={label} style={{ borderColor: 'var(--green-3)', paddingLeft: 10 }}>
                   <span style={{ color: 'var(--on-green-2)' }}>{label}</span>
