@@ -11,6 +11,31 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      setTimeout(function () {
+        var root = document.getElementById('root')
+        if (root && !root.hasChildNodes()) {
+          root.innerHTML =
+            '<div style="max-width:420px;margin:15vh auto;padding:24px;background:#f4f0dc;border-radius:24px;font-family:system-ui,sans-serif;text-align:center;color:#1f2a24">' +
+            '<h2 style="margin:0 0 8px">Hindi nag-load ang app</h2>' +
+            '<p style="margin:0 0 16px;color:#4a564e">Luma ang naka-save na kopya. Pindutin ang button para kunin ang bagong bersyon. Hindi mabubura ang records mo.</p>' +
+            '<button id="sakahan-reload" style="font:inherit;font-size:16px;padding:12px 20px;border:0;border-radius:14px;background:#f26a1b;color:#fff">I-reload ang app</button></div>'
+          document.getElementById('sakahan-reload').onclick = function () {
+            var done = function () {
+              location.replace(location.pathname + '?v=' + Date.now().toString(36))
+            }
+            var clear = []
+            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+              clear.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister() })) }))
+            }
+            if (window.caches) {
+              clear.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k) })) }))
+            }
+            Promise.all(clear).then(done, done)
+          }
+        }
+      }, 6000)
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

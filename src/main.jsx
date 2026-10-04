@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import { StoreProvider } from './store.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { applyTheme, savedTheme } from './screens/Profile.jsx'
 // Font is bundled with the app (no internet needed). latin-ext carries the ₱ sign.
 import '@fontsource/plus-jakarta-sans/latin-400.css'
@@ -18,9 +19,11 @@ applyTheme(savedTheme())
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <StoreProvider>
-      <App />
-    </StoreProvider>
+    <ErrorBoundary>
+      <StoreProvider>
+        <App />
+      </StoreProvider>
+    </ErrorBoundary>
   </StrictMode>,
 )
 
