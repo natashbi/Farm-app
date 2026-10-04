@@ -127,7 +127,7 @@ export function CompareSeasons() {
                 <div className="small muted">
                   🧪 {num(round1(p.fert))} bags{ha}
                   {p.type ? ` · ${p.type}` : ''}
-                  {p.fertCost !== null ? ` · ${pesoCompact(p.fertCost)} on fertilizer` : ''}
+                  {p.fertCost !== null ? ` · ${pesoCompact(p.fertCost)} sa abono` : ''}
                 </div>
               </div>
             ))}
@@ -144,7 +144,7 @@ export function CompareSeasons() {
                 <tr>
                   <th>Fertilizer type</th>
                   <th className="num">Bags{ha}</th>
-                  <th className="num">Cost{ha}</th>
+                  <th className="num">₱ abono{ha}</th>
                   <th className="num">Harvest{ha}</th>
                 </tr>
               </thead>
