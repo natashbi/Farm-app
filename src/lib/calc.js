@@ -161,3 +161,22 @@ export function growingPlantings(seasons, cropDays = () => 115) {
   const expected = (s) => s.harvestDate || (s.startDate ? addDays(s.startDate, Number(s.maturityDays) || cropDays(s.crop)) : '9999')
   return seasons.filter((s) => s.status !== 'completed').sort((a, b) => expected(a).localeCompare(expected(b)))
 }
+
+/**
+ * Fertilizer used on a planting: its type and cost. The cost typed on the
+ * planting wins; otherwise it adds up the fertilizer expense records.
+ */
+export function seasonFertilizer(season, transactions = []) {
+  const ledgerCost = transactions
+    .filter((t) => t.seasonId === season.id && t.category === 'fertilizer')
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0)
+  const cost = isSet(season.fertilizerCost) ? Number(season.fertilizerCost) : ledgerCost
+  return { cost: cost > 0 ? cost : null, ledgerCost, costFromLedger: !isSet(season.fertilizerCost), type: (season.fertilizerType || '').trim() }
+}
+
+/** Season name from the planting date: Jun–Nov plantings are the wet season; Dec–May the dry season (named by harvest year). */
+export function seasonNameFor(startIso) {
+  if (!startIso) return `Planting ${new Date().getFullYear()}`
+  const [y, m] = startIso.split('-').map(Number)
+  return m >= 6 && m <= 11 ? `Wet Season ${y}` : `Dry Season ${m === 12 ? y + 1 : y}`
+}

@@ -219,7 +219,7 @@ export default function Reports() {
             <SectionHead title="Activity log" sub={`${activity.length} recorded activities`} />
             {activity.length ? (
               <div className="timeline">
-                {(showAll ? activity : activity.slice(0, 12)).map((e) => (
+                {(showAll ? activity : activity.slice(0, 5)).map((e) => (
                   <button key={e.id} className="tl-item" onClick={() => nav.open(e.open.sheet, e.open.props)}>
                     <span className={`tl-dot ${e.kind}`} aria-hidden="true">{e.emoji}</span>
                     <span className="grow">
@@ -235,7 +235,7 @@ export default function Reports() {
             ) : (
               <p className="small muted">No activity in this period.</p>
             )}
-            {!showAll && activity.length > 12 && (
+            {!showAll && activity.length > 5 && (
               <button className="btn ghost no-print" onClick={() => setShowAll(true)}>
                 Show all {activity.length}
               </button>

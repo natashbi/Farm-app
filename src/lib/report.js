@@ -1,5 +1,5 @@
 import { getCategory, getCrop } from '../data/categories.js'
-import { addDays, byCategory, fieldStats, seasonHarvest, seasonLabel, seasonStats, totals } from './calc.js'
+import { addDays, byCategory, fieldStats, seasonFertilizer, seasonHarvest, seasonLabel, seasonStats, totals } from './calc.js'
 import { fmtDate, num, peso } from './format.js'
 
 const isSet = (v) => v !== null && v !== undefined && v !== ''
@@ -211,11 +211,11 @@ export function reportCSV(state, report, scope, title) {
   }
   lines.push('', row('EXPENSES BY CATEGORY'), row('Category', 'Amount (PHP)'))
   for (const r of report.categories) lines.push(row(r.category.label, r.total))
-  lines.push('', row('PLANTINGS'), row('Field', 'Season', 'Crop', 'Area (ha)', 'Planted', 'Harvest date', 'Harvest', 'Unit', 'Fertilizer (bags)', 'Cost (PHP)', 'Income (PHP)', 'Profit (PHP)'))
+  lines.push('', row('PLANTINGS'), row('Field', 'Season', 'Crop', 'Area (ha)', 'Planted', 'Harvest date', 'Harvest', 'Unit', 'Fertilizer (bags)', 'Fertilizer type', 'Fertilizer cost (PHP)', 'Cost (PHP)', 'Income (PHP)', 'Profit (PHP)'))
   for (const p of report.plantings) {
     const s = p.season
     lines.push(
-      row(report.fieldsById[s.fieldId]?.name || '', s.name, getCrop(s.crop).label, s.area, s.startDate, s.harvestDate, p.harvest.qty || '', p.harvest.unit, s.fertilizerBags, p.stats.cost, p.stats.income, p.stats.profit),
+      row(report.fieldsById[s.fieldId]?.name || '', s.name, getCrop(s.crop).label, s.area, s.startDate, s.harvestDate, p.harvest.qty || '', p.harvest.unit, s.fertilizerBags, s.fertilizerType, seasonFertilizer(s, state.transactions).cost ?? '', p.stats.cost, p.stats.income, p.stats.profit),
     )
   }
   if (report.fieldRows.length) {

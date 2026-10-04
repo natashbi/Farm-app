@@ -894,6 +894,19 @@ table.data tr.best td { font-weight: 600; }
 }
 
 
+/* ---------- "More details" toggle in forms ---------- */
+details.more { border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; background: var(--surface); }
+details.more summary { cursor: pointer; font-weight: 600; font-size: 15px; color: var(--ink-2); list-style: none; display: flex; justify-content: space-between; }
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::after { content: '＋'; color: var(--muted); }
+details.more[open] summary::after { content: '－'; }
+
+/* ---------- Compare: fertilizer vs harvest bars ---------- */
+.fert-row { display: flex; flex-direction: column; gap: 6px; }
+.fert-bar { height: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.fert-bar > span { display: block; height: 100%; border-radius: 999px; background: var(--chart-muted); transform-origin: left center; animation: growX 0.8s var(--ease-out) backwards; }
+.fert-row.best .fert-bar > span { background: var(--chart-accent); }
+
 /* ---------- Plantings: date monitor ---------- */
 .card.planting { display: flex; flex-direction: column; gap: 12px; padding: 14px; }
 .monitor { display: flex; flex-direction: column; gap: 8px; border-top: 1px dashed var(--line); padding-top: 10px; }
