@@ -58,7 +58,7 @@ export default function Harvest({ params }) {
       )}
 
       {view === 'plantings' && <Plantings seasons={state.seasons.filter(inField)} fieldsById={fieldsById} />}
-      {view === 'log' && <HarvestLog harvests={state.harvests.filter(inField)} fieldsById={fieldsById} />}
+      {view === 'log' && <HarvestLog harvests={state.harvests.filter(inField)} seasons={state.seasons.filter(inField)} fieldsById={fieldsById} />}
       {view === 'compare' && <CompareSeasons />}
     </main>
   )
@@ -116,11 +116,25 @@ function Plantings({ seasons, fieldsById }) {
   )
 }
 
-function HarvestLog({ harvests, fieldsById }) {
+function HarvestLog({ harvests, seasons, fieldsById }) {
   const { state } = useStore()
   const nav = useNav()
   const seasonsById = Object.fromEntries(state.seasons.map((s) => [s.id, s]))
-  const list = sortByDateDesc(harvests)
+  // A planting marked harvested with its total typed in (no batches logged) is a harvest too.
+  const logged = new Set(state.harvests.map((h) => h.seasonId))
+  const typed = seasons
+    .filter((s) => s.status === 'completed' && Number(s.harvestQty) > 0 && !logged.has(s.id))
+    .map((s) => ({
+      id: `planting-${s.id}`,
+      planting: s,
+      seasonId: s.id,
+      fieldId: s.fieldId,
+      crop: s.crop,
+      date: s.harvestDate || s.startDate || '',
+      qty: Number(s.harvestQty),
+      unit: s.harvestUnit || 'cavans',
+    }))
+  const list = sortByDateDesc([...harvests, ...typed])
 
   // Totals per crop and unit, e.g. "Rice · 985 cavans".
   const totals = {}
@@ -181,7 +195,7 @@ function HarvestLog({ harvests, fieldsById }) {
               const s = seasonsById[h.seasonId]
               const f = fieldsById[h.fieldId]
               return (
-                <button key={h.id} className="row" onClick={() => nav.open('harvest', { harvest: h })}>
+                <button key={h.id} className="row" onClick={() => (h.planting ? nav.open('season', { season: h.planting }) : nav.open('harvest', { harvest: h }))}>
                   <span className="bubble" aria-hidden="true">{getCrop(h.crop).emoji}</span>
                   <span className="grow">
                     <span className="title" style={{ display: 'block' }}>
@@ -190,6 +204,7 @@ function HarvestLog({ harvests, fieldsById }) {
                     <span className="meta" style={{ display: 'block' }}>
                       {fmtDate(h.date, { month: 'short', day: 'numeric' })}
                       {s ? ` · ${s.name}` : ''}
+                      {h.planting ? ' · from planting' : ''}
                       {h.pricePerUnit ? ` · ${peso(h.pricePerUnit)}/${h.unit.replace(/s$/, '')}` : ''}
                       {h.buyer ? ` · ${h.buyer}` : ''}
                     </span>
