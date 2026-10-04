@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef } from 'react'
 import { ArrowLeft, X } from 'lucide-react'
 import { EmptyFieldArt } from './Art.jsx'
 import { AnimatedNumber } from './motion.jsx'
+import { useStore } from '../store.jsx'
 import { getCategory } from '../data/categories.js'
 import { fmtDate, peso } from '../lib/format.js'
 
@@ -43,10 +44,18 @@ export function Sheet({ title, onClose, onBack, children, footer, action, closeI
   )
 }
 
-export function Field({ label, hint, children }) {
+// A Tagalog explanation of what to fill in. Shown while "Tagalog guide" is on (Profile).
+export function TlGuide({ text }) {
+  const on = useStore()?.state.profile.tlGuide !== false
+  if (!on || !text) return null
+  return <em className="tl-guide">💬 {text}</em>
+}
+
+export function Field({ label, hint, tl, children }) {
   return (
     <label className="field">
       <span>{label}</span>
+      <TlGuide text={tl} />
       {children}
       {hint && <small>{hint}</small>}
     </label>

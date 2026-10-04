@@ -4,7 +4,7 @@ import { HARVEST_UNITS, getCrop } from '../data/categories.js'
 import { growingPlantings, seasonLabel } from '../lib/calc.js'
 import { num, peso, todayISO, toNumber } from '../lib/format.js'
 import { useStore } from '../store.jsx'
-import { Field, Sheet } from '../components/ui.jsx'
+import { Field, Sheet, TlGuide } from '../components/ui.jsx'
 
 // One harvest batch: crop, date and quantity, tied to the planting it came from.
 export default function HarvestForm({ harvest, preset, onClose }) {
@@ -103,7 +103,7 @@ export default function HarvestForm({ harvest, preset, onClose }) {
       }
     >
       <form className="stack" style={{ gap: 16 }} onSubmit={submit}>
-        <Field label="Planting (field · season)">
+        <Field label="Planting (field · season)" tl="Saang lote at tanim galing ang ani?">
           <select className="input" value={f.seasonId} onChange={pickSeason}>
             {!plantings.length && <option value="">No plantings yet</option>}
             {plantings.map((s) => (
@@ -121,15 +121,15 @@ export default function HarvestForm({ harvest, preset, onClose }) {
           </p>
         )}
 
-        <Field label="Harvest date">
+        <Field label="Harvest date" tl="Kailan inani?">
           <input className="input" type="date" value={f.date} onChange={set('date')} />
         </Field>
 
         <div className="field-row thirds">
-          <Field label="Quantity harvested">
+          <Field label="Quantity harvested" tl="Ilan ang naani? Hal. 250 (kaban).">
             <input className="input" inputMode="decimal" value={f.qty} onChange={set('qty')} placeholder="e.g. 250" />
           </Field>
-          <Field label="Unit">
+          <Field label="Unit" tl="Sukat: kaban, sako, kilo…">
             <select className="input" value={f.unit} onChange={set('unit')}>
               {HARVEST_UNITS.map((u) => (
                 <option key={u}>{u}</option>
@@ -140,13 +140,13 @@ export default function HarvestForm({ harvest, preset, onClose }) {
         {error && <div className="callout warn">{error}</div>}
 
         <div className="field-row">
-          <Field label={`Price per ${f.unit.replace(/s$/, '')} (optional)`}>
+          <Field label={`Price per ${f.unit.replace(/s$/, '')} (optional)`} tl="Magkano ang benta bawat isa?">
             <div className="input-prefix">
               <b>₱</b>
               <input className="input" inputMode="decimal" value={f.pricePerUnit} onChange={set('pricePerUnit')} placeholder="0" />
             </div>
           </Field>
-          <Field label="Buyer (optional)">
+          <Field label="Buyer (optional)" tl="Kanino ibinenta? Hal. rice mill.">
             <input className="input" value={f.buyer} onChange={set('buyer')} placeholder="e.g. rice mill" />
           </Field>
         </div>
@@ -156,12 +156,13 @@ export default function HarvestForm({ harvest, preset, onClose }) {
             <input type="checkbox" checked={f.addIncome} onChange={set('addIncome')} disabled={!saleTotal} />
             <span>
               Also record the sale as income
+              <TlGuide text="I-check kung naibenta na, para kusang maitala bilang kita." />
               <small>{saleTotal ? `${peso(saleTotal)} will be added under Expenses & Income` : 'Enter quantity and price to use this'}</small>
             </span>
           </label>
         )}
 
-        <Field label="Notes (optional)">
+        <Field label="Notes (optional)" tl="Iba pang detalye. Hal. basa o tuyo ang palay.">
           <textarea className="input" value={f.notes} onChange={set('notes')} placeholder="Moisture, quality, who harvested, etc." />
         </Field>
       </form>
