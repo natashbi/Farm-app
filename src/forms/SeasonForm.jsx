@@ -190,10 +190,10 @@ export default function SeasonForm({ season, preset, onClose }) {
           <Field label="Ilang sako ng abono?" tl="Ilang sako ng abono ang nagamit sa buong tanim." hint={ledgerBags ? `Nasa Expenses: ${num(ledgerBags)} sako` : '1 sako = 50 kg'}>
             <input className="input" inputMode="decimal" value={f.fertilizerBags} onChange={set('fertilizerBags')} placeholder="e.g. 10" />
           </Field>
-          <Field label="Magkano ang abono?" tl="Kabuuang halaga ng lahat ng abonong ginamit." hint={ledgerFert ? `Nasa Expenses: ${peso(ledgerFert)}` : 'Kung blangko, kukunin sa Expenses'}>
+          <Field label="Magkano ang abono?" tl="Iwan blangko kung nailista na sa Expenses. Lagyan lang kung lumang tanim." hint={ledgerFert ? `Kusang galing sa Expenses: ${peso(ledgerFert)}` : 'Blangko = kusang kukunin sa Expenses'}>
             <div className="input-prefix">
               <b>₱</b>
-              <input className="input" inputMode="decimal" value={f.fertilizerCost} onChange={set('fertilizerCost')} placeholder="auto" />
+              <input className="input" inputMode="decimal" value={f.fertilizerCost} onChange={set('fertilizerCost')} placeholder={ledgerFert ? num(ledgerFert) : 'Iwan blangko'} />
             </div>
           </Field>
         </div>
@@ -245,13 +245,13 @@ export default function SeasonForm({ season, preset, onClose }) {
               <Field label="Total cost" tl="Kabuuang gastos. Para sa lumang season na wala sa Expenses." hint={ledger ? `Blank = expenses (${peso(ledger.cost)})` : 'For old seasons'}>
                 <div className="input-prefix">
                   <b>₱</b>
-                  <input className="input" inputMode="decimal" value={f.totalCost} onChange={set('totalCost')} placeholder="auto" />
+                  <input className="input" inputMode="decimal" value={f.totalCost} onChange={set('totalCost')} placeholder={ledger ? num(ledger.cost) : 'Iwan blangko'} />
                 </div>
               </Field>
               <Field label="Total sales" tl="Kabuuang benta. Para sa lumang season." hint={ledger ? `Blank = income (${peso(ledger.income)})` : 'For old seasons'}>
                 <div className="input-prefix">
                   <b>₱</b>
-                  <input className="input" inputMode="decimal" value={f.totalIncome} onChange={set('totalIncome')} placeholder="auto" />
+                  <input className="input" inputMode="decimal" value={f.totalIncome} onChange={set('totalIncome')} placeholder={ledger ? num(ledger.income) : 'Iwan blangko'} />
                 </div>
               </Field>
             </div>
