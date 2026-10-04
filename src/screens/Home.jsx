@@ -1,14 +1,11 @@
-import { CATEGORIES, getCrop } from '../data/categories.js'
-import { addDays, byCategory, growingPlantings, totals } from '../lib/calc.js'
+import { getCrop } from '../data/categories.js'
+import { addDays, growingPlantings, totals } from '../lib/calc.js'
 import { fmtDate, greeting, num, peso } from '../lib/format.js'
 import { activityLog, scopeRecords } from '../lib/report.js'
 import { useStore } from '../store.jsx'
-import { BugLeafScene, FarmerAvatar, HeroBudgetArt, PaddyScene } from '../components/Art.jsx'
-import { CategoryBars } from '../components/Charts.jsx'
-import { Chip, Empty, SectionHead, Stat, useNav } from '../components/ui.jsx'
+import { FarmerAvatar, HeroBudgetArt } from '../components/Art.jsx'
+import { Empty, SectionHead, Stat, useNav } from '../components/ui.jsx'
 import { PlantingCard } from './Records.jsx'
-
-const QUICK = ['seeds', 'fertilizer', 'labor', 'pesticide', 'tool_buy', 'tool_rent', 'harvest_sale']
 
 export default function Home() {
   const { state } = useStore()
@@ -26,9 +23,7 @@ export default function Home() {
     ? state.transactions.filter((tx) => growingIds.has(tx.seasonId) || (!tx.seasonId && (!since || tx.date >= addDays(since, -30))))
     : state.transactions
   const t = totals(scopeTx)
-  const spend = byCategory(scopeTx).filter((r) => r.category.group !== 'income')
   const activity = activityLog(state, scopeRecords(state)).slice(0, 5)
-  const openProblems = state.anomalies.filter((a) => a.status !== 'resolved').length
 
   return (
     <main className="screen">
@@ -53,22 +48,6 @@ export default function Home() {
           <button className="pill-btn fill" onClick={() => nav.open('harvest')}>Log harvest</button>
         </div>
         <HeroBudgetArt className="hero-art" />
-      </section>
-
-      <section className="section">
-        <SectionHead title="Quick add" sub="Tap to record" />
-        <div className="chips">
-          <Chip emoji="🌾" onClick={() => nav.open('harvest')}>Harvest</Chip>
-          <Chip emoji="🌱" onClick={() => nav.open('season')}>New planting</Chip>
-          {QUICK.map((id) => {
-            const c = CATEGORIES.find((x) => x.id === id)
-            return (
-              <Chip key={id} emoji={c.emoji} onClick={() => nav.open('tx', { preset: { category: id } })}>
-                {c.label}
-              </Chip>
-            )
-          })}
-        </div>
       </section>
 
       <section className="section">
@@ -111,15 +90,6 @@ export default function Home() {
         </div>
       </section>
 
-      {spend.length > 0 && (
-        <section className="section">
-          <SectionHead title="Where your money goes" />
-          <div className="card">
-            <CategoryBars rows={spend} max={5} />
-          </div>
-        </section>
-      )}
-
       <section className="section">
         <SectionHead title="Recent activity" action="Reports" onAction={() => nav.setTab('reports')} />
         {activity.length ? (
@@ -142,21 +112,6 @@ export default function Home() {
         )}
       </section>
 
-      <section className="section">
-        <SectionHead title="Tools" />
-        <div className="tiles">
-          <button className="tile" onClick={() => nav.setTab('harvest', { view: 'compare' })}>
-            <span className="art"><PaddyScene /></span>
-            <strong>Compare seasons: the right fertilizer amount</strong>
-            <span>{state.seasons.filter((s) => s.status === 'completed').length} harvested plantings</span>
-          </button>
-          <button className="tile" onClick={() => nav.setTab('doctor')}>
-            <span className="art"><BugLeafScene /></span>
-            <strong>Crop Doctor: find what's wrong</strong>
-            <span>{openProblems ? `${openProblems} open problem${openProblems > 1 ? 's' : ''}` : 'Signs → fertilizer, tools & steps'}</span>
-          </button>
-        </div>
-      </section>
     </main>
   )
 }

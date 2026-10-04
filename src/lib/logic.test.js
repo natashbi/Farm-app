@@ -71,6 +71,15 @@ describe('analyzeSeasons', () => {
     expect(a.skippedUnits).toBe(1)
   })
 
+  it('compares fertilizer types and costs', () => {
+    const { seasons, transactions, harvests } = makeSampleData()
+    const a = analyzeSeasons(seasons, transactions, 'rice', harvests)
+    expect(a.byType[0].type).toBe('Complete 14-14-14 + Urea')
+    expect(a.byType).toHaveLength(3)
+    expect(a.points.every((p) => p.fertCost > 0)).toBe(true)
+    expect(a.insights.some((i) => /Best fertilizer type/.test(i.text))).toBe(true)
+  })
+
   it('works with the sample data (harvest logs count as the harvest)', () => {
     const { seasons, transactions, harvests } = makeSampleData()
     const a = analyzeSeasons(seasons, transactions, 'rice', harvests)

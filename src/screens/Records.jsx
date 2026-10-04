@@ -6,13 +6,19 @@ import { ledgerFertilizerBags, plantingProgress, seasonHarvest, seasonLabel, sea
 import { fmtDate, num, peso, pesoCompact, todayISO } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { HeroRecordsArt } from '../components/Art.jsx'
-import { FertilizerScatter } from '../components/Charts.jsx'
 import { Chip, Empty, Progress, SectionHead, useNav } from '../components/ui.jsx'
 import { AnimatedNumber } from '../components/motion.jsx'
 
 const TONE_ICON = { warn: AlertTriangle, tip: Lightbulb, good: CheckCircle2, info: Info }
 
-// Compare finished plantings of one crop: which fertilizer amount gave the best harvest.
+// Show only the three lessons that matter most, so the screen stays easy to read.
+const KEY_KINDS = ['more-not-better', 'type', 'cost']
+function keyInsights(insights) {
+  const key = KEY_KINDS.map((k) => insights.find((i) => i.kind === k)).filter(Boolean)
+  return key.length ? key : insights.slice(0, 3)
+}
+
+// Compare finished plantings of one crop: which fertilizer amount and type gave the best harvest.
 export function CompareSeasons() {
   const { state } = useStore()
   const nav = useNav()
@@ -25,14 +31,17 @@ export function CompareSeasons() {
   const crop = picked && crops.includes(picked) ? picked : crops[0]
 
   const fieldsById = useMemo(() => Object.fromEntries(state.fields.map((f) => [f.id, f])), [state.fields])
+  const label = (s) => seasonLabel(s, fieldsById)
   const analysis = useMemo(
     () => analyzeSeasons(state.seasons, state.transactions, crop, state.harvests, (s) => seasonLabel(s, fieldsById)),
     [state.seasons, state.transactions, crop, state.harvests, fieldsById],
   )
   const seasons = state.seasons.filter((s) => s.crop === crop)
   const activeArea = seasons.filter((s) => s.status === 'active').reduce((sum, s) => sum + (Number(s.area) || 0), 0)
-  const { best, perHa, unit, goodRange, sweetSpot, points } = analysis
-  const perHaTxt = perHa ? '/ha' : ''
+  const { best, perHa, unit, points, byType } = analysis
+  const ha = perHa ? '/ha' : ''
+  const short = unit === 'cavans' ? 'cav' : unit
+  const addPast = () => nav.open('season', { preset: { status: 'completed' } })
 
   if (!state.seasons.length) {
     return (
@@ -41,7 +50,7 @@ export function CompareSeasons() {
           <h2>Learn from your past harvests</h2>
           <p>Record each season's fertilizer and harvest. The app shows what amount gave the best result.</p>
           <div className="actions">
-            <button className="btn primary small" onClick={() => nav.open('season', { preset: { status: 'completed' } })}>Add a past season</button>
+            <button className="btn primary small" onClick={addPast}>Add a past season</button>
           </div>
           <HeroRecordsArt className="hero-art" />
         </section>
@@ -51,6 +60,9 @@ export function CompareSeasons() {
       </>
     )
   }
+
+  const newestFirst = [...points].reverse()
+  const topYield = Math.max(...points.map((p) => p.yield), 1)
 
   return (
     <>
@@ -69,21 +81,16 @@ export function CompareSeasons() {
           <>
             <p style={{ maxWidth: '64%' }}>Best fertilizer amount for {getCrop(crop).label}</p>
             <div className="big-number" style={{ position: 'relative', zIndex: 1 }}>
-              ≈ <AnimatedNumber value={round1(best.fert)} format={(n) => num(n)} /> <span style={{ fontSize: 20, fontWeight: 500 }}>bags{perHaTxt}</span>
+              ≈ <AnimatedNumber value={round1(best.fert)} format={(n) => num(n)} /> <span style={{ fontSize: 20, fontWeight: 500 }}>bags{ha}</span>
             </div>
+            <p>
+              Gave the biggest harvest: <strong style={{ color: 'var(--on-green)' }}>{num(best.yield)} {unit}{ha}</strong> in {label(best.season)}
+              {best.type ? ` (${best.type})` : ''}.
+            </p>
             {perHa && activeArea > 0 && (
               <p style={{ color: 'var(--on-green)' }}>
-                About <strong>{num(roundHalf(best.fert * activeArea))} bags</strong> for the {num(activeArea)} ha growing now
+                For the {num(activeArea)} ha growing now: about <strong>{num(roundHalf(best.fert * activeArea))} bags</strong>
               </p>
-            )}
-            <p>
-              Gave your best harvest: {num(best.yield)} {unit}
-              {perHaTxt} in {seasonLabel(best.season, fieldsById)}.
-            </p>
-            {goodRange && goodRange[1] - goodRange[0] >= 0.5 && (
-              <span className="badge" style={{ alignSelf: 'flex-start', position: 'relative', zIndex: 1 }}>
-                Good range: {num(goodRange[0])}–{num(goodRange[1])} bags{perHaTxt}
-              </span>
             )}
           </>
         ) : (
@@ -91,7 +98,7 @@ export function CompareSeasons() {
             <h2>Compare your seasons</h2>
             <p>Add finished seasons with fertilizer bags and harvest to see what works best.</p>
             <div className="actions">
-              <button className="btn primary small" onClick={() => nav.open('season', { preset: { status: 'completed' } })}>Add past season</button>
+              <button className="btn primary small" onClick={addPast}>Add past season</button>
             </div>
           </>
         )}
@@ -100,9 +107,66 @@ export function CompareSeasons() {
 
       {points.length >= 2 && (
         <section className="section">
-          <SectionHead title="Fertilizer vs harvest" sub={perHa ? 'Per hectare, so different field sizes compare fairly' : 'Totals per season'} />
-          <div className="card">
-            <FertilizerScatter analysis={analysis} labelOf={(x) => seasonLabel(x, fieldsById)} xLabel={`Fertilizer (bags${perHaTxt})`} yLabel={`Harvest (${unit}${perHaTxt})`} />
+          <SectionHead title="Fertilizer vs harvest" sub={`Each season: fertilizer used and harvest${perHa ? ' per hectare' : ''}. Longest bar = biggest harvest.`} />
+          <div className="card stack" style={{ gap: 14 }}>
+            {newestFirst.map((p) => (
+              <div key={p.season.id} className={`fert-row ${p === best ? 'best' : ''}`}>
+                <div className="hstack between">
+                  <strong className="small">
+                    {label(p.season)}
+                    {p === best ? ' ⭐' : ''}
+                  </strong>
+                  <span className="small">
+                    {num(p.yield)} {short}
+                    {ha}
+                  </span>
+                </div>
+                <div className="fert-bar">
+                  <span style={{ width: `${(p.yield / topYield) * 100}%` }} />
+                </div>
+                <div className="small muted">
+                  🧪 {num(round1(p.fert))} bags{ha}
+                  {p.type ? ` · ${p.type}` : ''}
+                  {p.fertCost !== null ? ` · ${pesoCompact(p.fertCost)} on fertilizer` : ''}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {byType.length >= 2 && (
+        <section className="section">
+          <SectionHead title="By fertilizer type" sub="Average of all seasons that used each type" />
+          <div className="card table-scroll">
+            <table className="data">
+              <thead>
+                <tr>
+                  <th>Fertilizer type</th>
+                  <th className="num">Bags{ha}</th>
+                  <th className="num">Cost{ha}</th>
+                  <th className="num">Harvest{ha}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {byType.map((t, i) => (
+                  <tr key={t.type} className={i === 0 ? 'best' : ''}>
+                    <td>
+                      {t.type}
+                      {i === 0 ? ' ⭐' : ''}
+                      <div className="small muted">
+                        {t.seasons} season{t.seasons === 1 ? '' : 's'}
+                      </div>
+                    </td>
+                    <td className="num">{num(round1(t.fert))}</td>
+                    <td className="num">{t.costPerArea !== null ? pesoCompact(t.costPerArea) : '—'}</td>
+                    <td className="num">
+                      {num(t.yield)} {short}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
       )}
@@ -111,7 +175,7 @@ export function CompareSeasons() {
         <section className="section">
           <SectionHead title="What your records say" />
           <div className="stack">
-            {analysis.insights.map((ins) => {
+            {keyInsights(analysis.insights).map((ins) => {
               const Icon = TONE_ICON[ins.tone] || Info
               return (
                 <div key={ins.text} className={`callout ${ins.tone}`}>
@@ -120,55 +184,12 @@ export function CompareSeasons() {
                 </div>
               )
             })}
-            {sweetSpot && (
-              <div className="callout info">
-                <Info size={18} />
-                <span>
-                  Trend estimate from all your seasons: the harvest peaks near <strong>{num(sweetSpot)} bags{perHaTxt}</strong>. Treat this as a
-                  guide — weather and pests also matter.
-                </span>
-              </div>
-            )}
             {analysis.skippedUnits > 0 && (
               <p className="small muted">{analysis.skippedUnits} season(s) use a different harvest unit and are not compared.</p>
             )}
           </div>
         </section>
       )}
-
-      {points.length >= 2 && (
-        <section className="section">
-          <SectionHead title="Side by side" />
-          <div className="card table-scroll">
-            <table className="data">
-              <thead>
-                <tr>
-                  <th>Season</th>
-                  <th className="num">Fertilizer</th>
-                  <th className="num">Harvest</th>
-                  <th className="num">Per bag</th>
-                  <th className="num">Profit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[...points].reverse().map((p) => (
-                  <tr key={p.season.id} className={p === best ? 'best' : ''}>
-                    <td>{seasonLabel(p.season, fieldsById)}{p === best ? ' ⭐' : ''}</td>
-                    <td className="num">{num(p.bags)}</td>
-                    <td className="num">{num(p.harvest)}</td>
-                    <td className="num">{p.perBag !== null ? num(p.perBag) : '—'}</td>
-                    <td className="num">{p.profit !== null ? pesoCompact(p.profit) : '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="small muted" style={{ marginTop: 8 }}>
-              Totals in bags and {unit}. “Per bag” = {unit} harvested for each bag of fertilizer.
-            </p>
-          </div>
-        </section>
-      )}
-
     </>
   )
 }

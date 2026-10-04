@@ -1,4 +1,4 @@
-import { seasonHarvest, seasonStats } from './calc.js'
+import { seasonFertilizer, seasonHarvest, seasonStats } from './calc.js'
 import { num } from './format.js'
 
 const round1 = (n) => Math.round(n * 10) / 10
@@ -36,12 +36,17 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
       const bags = Number(s.fertilizerBags)
       const harvest = seasonHarvest(s, harvests).qty
       const stats = seasonStats(s, transactions, harvests)
+      const fertilizer = seasonFertilizer(s, transactions)
       return {
         season: s,
         fert: bags / area,
         yield: harvest / area,
         bags,
         harvest,
+        type: fertilizer.type,
+        fertCost: fertilizer.cost,
+        fertCostPerArea: fertilizer.cost !== null ? fertilizer.cost / area : null,
+        fertCostPerUnit: fertilizer.cost !== null && harvest > 0 ? fertilizer.cost / harvest : null,
         perBag: bags > 0 ? harvest / bags : null,
         profit: stats.cost || stats.income ? stats.profit : null,
       }
@@ -54,6 +59,7 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     points,
     skippedUnits,
     best: null,
+    byType: [],
     goodRange: null,
     sweetSpot: null,
     insights: [],
@@ -92,6 +98,7 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     const { lo, hi } = worst
     result.insights.push({
       tone: 'warn',
+      kind: 'more-not-better',
       text: `More fertilizer did not mean more harvest: ${label(hi.season)} used ${bagsTxt(round1(hi.fert))}${rate} but harvested ${num(hi.yield)} ${unit}, while ${label(lo.season)} used only ${bagsTxt(round1(lo.fert))} and harvested ${num(lo.yield)} ${unit}.`,
     })
   }
@@ -123,11 +130,55 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     const eff = withBags.reduce((a, b) => (b.perBag > a.perBag ? b : a))
     result.insights.push({
       tone: 'good',
+      kind: 'per-bag',
       text: `Best return on fertilizer: ${label(eff.season)} — ${num(eff.perBag)} ${unit} for every bag used.`,
     })
   }
 
-  // 4. Most profitable.
+  // 4. Which fertilizer type gave the best harvest (average per season).
+  const groups = new Map()
+  for (const p of points) {
+    if (!p.type) continue
+    const key = p.type.toLowerCase().replace(/\s+/g, ' ')
+    if (!groups.has(key)) groups.set(key, { type: p.type, points: [] })
+    groups.get(key).points.push(p)
+  }
+  const avg = (list) => list.reduce((s, x) => s + x, 0) / list.length
+  result.byType = [...groups.values()]
+    .map((g) => {
+      const costs = g.points.filter((p) => p.fertCostPerArea !== null).map((p) => p.fertCostPerArea)
+      return {
+        type: g.type,
+        seasons: g.points.length,
+        fert: avg(g.points.map((p) => p.fert)),
+        yield: avg(g.points.map((p) => p.yield)),
+        costPerArea: costs.length ? avg(costs) : null,
+      }
+    })
+    .sort((a, b) => b.yield - a.yield)
+  if (result.byType.length >= 2) {
+    const [top, ...rest] = result.byType
+    const low = rest.at(-1)
+    result.insights.push({
+      tone: 'good',
+      kind: 'type',
+      text: `Best fertilizer type: ${top.type} — about ${num(top.yield)} ${unit}${rate} on average, compared with ${num(low.yield)} ${unit} using ${low.type}.`,
+    })
+  }
+
+  // 5. Cheapest fertilizer for each unit harvested.
+  const withCost = points.filter((p) => p.fertCostPerUnit !== null)
+  if (withCost.length >= 2) {
+    const cheap = withCost.reduce((a, b) => (b.fertCostPerUnit < a.fertCostPerUnit ? b : a))
+    const dear = withCost.reduce((a, b) => (b.fertCostPerUnit > a.fertCostPerUnit ? b : a))
+    result.insights.push({
+      tone: 'tip',
+      kind: 'cost',
+      text: `Fertilizer cost per ${unit.replace(/s$/, '')}: lowest in ${label(cheap.season)} (₱${num(cheap.fertCostPerUnit, 0)}), highest in ${label(dear.season)} (₱${num(dear.fertCostPerUnit, 0)}).`,
+    })
+  }
+
+  // 6. Most profitable.
   const withProfit = points.filter((p) => p.profit !== null)
   if (withProfit.length >= 2) {
     const top = withProfit.reduce((a, b) => (b.profit > a.profit ? b : a))

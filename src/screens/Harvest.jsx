@@ -41,7 +41,7 @@ export default function Harvest({ params }) {
         onChange={setView}
         options={[
           { value: 'plantings', label: 'Plantings' },
-          { value: 'log', label: 'Harvest log' },
+          { value: 'log', label: 'Harvests' },
           { value: 'compare', label: 'Compare' },
         ]}
       />
