@@ -182,13 +182,13 @@ export default function SeasonForm({ season, preset, onClose }) {
         )}
 
         <div className="divider" />
-        <h3 style={{ fontSize: 16, fontWeight: 600 }}>🧪 Fertilizer used</h3>
-        <p className="small muted" style={{ marginTop: -10 }}>Used in Harvest → Compare to find the best amount and type.</p>
+        <h3 style={{ fontSize: 16, fontWeight: 600 }}>🧪 Abonong ginamit</h3>
+        <p className="small muted" style={{ marginTop: -10 }}>Para makita sa Harvest → Compare kung ilang sako at anong abono ang pinakamabisa.</p>
         <div className="field-row">
-          <Field label="Bags" hint={ledgerBags ? `Expenses show ${num(ledgerBags)} bags` : '1 bag = 50 kg'}>
+          <Field label="Ilang sako ng abono?" hint={ledgerBags ? `Nasa Expenses: ${num(ledgerBags)} sako` : '1 sako = 50 kg'}>
             <input className="input" inputMode="decimal" value={f.fertilizerBags} onChange={set('fertilizerBags')} placeholder="e.g. 10" />
           </Field>
-          <Field label="Cost" hint={ledgerFert ? `Expenses show ${peso(ledgerFert)}` : 'Leave blank to use expenses'}>
+          <Field label="Magkano ang abono?" hint={ledgerFert ? `Nasa Expenses: ${peso(ledgerFert)}` : 'Kung blangko, kukunin sa Expenses'}>
             <div className="input-prefix">
               <b>₱</b>
               <input className="input" inputMode="decimal" value={f.fertilizerCost} onChange={set('fertilizerCost')} placeholder="auto" />
@@ -197,10 +197,10 @@ export default function SeasonForm({ season, preset, onClose }) {
         </div>
         {ledgerBags > 0 && String(f.fertilizerBags) !== String(ledgerBags) && (
           <button type="button" className="btn ghost small" style={{ alignSelf: 'flex-start' }} onClick={() => setF((x) => ({ ...x, fertilizerBags: ledgerBags }))}>
-            Use {num(ledgerBags)} bags from expenses
+            Gamitin ang {num(ledgerBags)} sako mula sa Expenses
           </button>
         )}
-        <Field label="Type">
+        <Field label="Anong klaseng abono?">
           <input className="input" value={f.fertilizerType} onChange={set('fertilizerType')} placeholder="e.g. Complete 14-14-14 + Urea" list="fertilizer-types" />
           <datalist id="fertilizer-types">
             {[...new Set(state.seasons.map((s) => s.fertilizerType).filter(Boolean))].map((t) => (
