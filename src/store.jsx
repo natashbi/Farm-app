@@ -7,7 +7,7 @@ const KEY = 'sakahan-farm-budget-v1'
 // seasons = plantings: one crop cycle on one field (planting → harvest).
 export const EMPTY = {
   version: 2,
-  profile: { name: '', farm: '', onboarded: false, pinHash: '', pinSalt: '' },
+  profile: { name: '', farm: '', onboarded: false, pinHash: '', pinSalt: '', tlGuide: true },
   fields: [],
   seasons: [],
   harvests: [],

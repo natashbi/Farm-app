@@ -894,6 +894,11 @@ table.data tr.best td { font-weight: 600; }
 }
 
 
+/* ---------- Tagalog guide under form labels ---------- */
+.tl-guide { font-style: normal; font-size: 12.5px; line-height: 1.35; color: var(--good); background: var(--good-soft); border-radius: 8px; padding: 4px 8px; align-self: flex-start; }
+legend + .tl-guide { display: inline-block; margin-bottom: 6px; }
+.check-row .tl-guide { display: block; margin-top: 4px; }
+
 /* ---------- "More details" toggle in forms ---------- */
 details.more { border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; background: var(--surface); }
 details.more summary { cursor: pointer; font-weight: 600; font-size: 15px; color: var(--ink-2); list-style: none; display: flex; justify-content: space-between; }

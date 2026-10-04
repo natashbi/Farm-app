@@ -54,7 +54,7 @@ export function savedTheme() {
 }
 
 export default function Profile() {
-  const { state, replaceAll, reset, loadSample, notify, ask, lock } = useStore()
+  const { state, replaceAll, reset, loadSample, notify, ask, lock, setProfile } = useStore()
   const nav = useNav()
   const [theme, setTheme] = useState(savedTheme)
   const { profile, seasons, transactions, harvests, fields } = state
@@ -223,6 +223,19 @@ export default function Profile() {
       </section>
 
       <section className="section">
+        <SectionHead title="Tagalog na paliwanag" sub="Maikling paliwanag sa ilalim ng bawat pupunan sa mga form" />
+        <Segmented
+          label="Tagalog guide"
+          value={profile.tlGuide === false ? 'off' : 'on'}
+          onChange={(v) => setProfile({ tlGuide: v === 'on' })}
+          options={[
+            { value: 'on', label: '💬 Ipakita' },
+            { value: 'off', label: 'Itago' },
+          ]}
+        />
+      </section>
+
+      <section className="section">
         <SectionHead title="Appearance" />
         <Segmented
           label="Theme"
@@ -312,10 +325,10 @@ export function ProfileForm({ onClose }) {
         <div className="profile-head">
           <FarmerAvatar size={96} />
         </div>
-        <Field label="Your name">
+        <Field label="Your name" tl="Pangalan mo.">
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Juan dela Cruz" />
         </Field>
-        <Field label="Farm location (optional)">
+        <Field label="Farm location (optional)" tl="Saan ang bukid mo? Hal. Zaragoza, Nueva Ecija.">
           <input className="input" value={farm} onChange={(e) => setFarm(e.target.value)} placeholder="e.g. Zaragoza, Nueva Ecija" />
         </Field>
       </form>
@@ -338,10 +351,10 @@ export function Onboarding() {
         <h2 style={{ maxWidth: 'none', fontSize: 26 }}>Welcome to Sakahan</h2>
         <p style={{ maxWidth: 'none' }}>Farm Expense and Harvest Record App — record expenses, harvests and income for every field in one place.</p>
       </div>
-      <Field label="What's your name?">
+      <Field label="What's your name?" tl="Ano ang pangalan mo?">
         <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Juan" autoFocus />
       </Field>
-      <Field label="Farm location (optional)">
+      <Field label="Farm location (optional)" tl="Saan ang bukid mo? Hal. Zaragoza, Nueva Ecija.">
         <input className="input" value={farm} onChange={(e) => setFarm(e.target.value)} placeholder="e.g. Zaragoza, Nueva Ecija" />
       </Field>
       <button className="btn primary block" onClick={() => start(false)}>Start my farm records</button>

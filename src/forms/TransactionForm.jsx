@@ -4,7 +4,7 @@ import { CATEGORIES, getCategory } from '../data/categories.js'
 import { activeSeason, seasonLabel } from '../lib/calc.js'
 import { todayISO, toNumber } from '../lib/format.js'
 import { useStore } from '../store.jsx'
-import { Field, Segmented, Sheet } from '../components/ui.jsx'
+import { Field, Segmented, Sheet, TlGuide } from '../components/ui.jsx'
 
 const UNITS = ['bags', 'kg', 'liters', 'cavans', 'sacks', 'pcs', 'days']
 const DEFAULT_UNIT = { fertilizer: 'bags', seeds: 'kg', pesticide: 'liters', harvest_sale: 'cavans', labor: 'days' }
@@ -86,6 +86,7 @@ export default function TransactionForm({ tx, preset, onClose }) {
       }
     >
       <form className="stack" style={{ gap: 16 }} onSubmit={submit}>
+        <TlGuide text="Piliin kung GASTOS (perang lumabas) o KITA (perang pumasok)." />
         <Segmented
           label="Record type"
           value={kind}
@@ -98,6 +99,7 @@ export default function TransactionForm({ tx, preset, onClose }) {
 
         <fieldset className="field">
           <legend>Category</legend>
+          <TlGuide text="Saan napunta ang pera? Hal. abono, binhi, trabahador, gamit." />
           <div className="cat-grid">
             {cats.map((c) => (
               <button
@@ -122,7 +124,7 @@ export default function TransactionForm({ tx, preset, onClose }) {
           </small>
         </fieldset>
 
-        <Field label="Amount (₱)">
+        <Field label="Amount (₱)" tl="Magkano ang binayad o natanggap?">
           <div className="input-prefix">
             <b>₱</b>
             <input className="input" inputMode="decimal" placeholder="0" value={form.amount} onChange={set('amount')} autoFocus={!editing} />
@@ -130,7 +132,7 @@ export default function TransactionForm({ tx, preset, onClose }) {
         </Field>
         {error && <div className="callout warn">{error}</div>}
 
-        <Field label="What was it? (optional)">
+        <Field label="What was it? (optional)" tl="Ano ang binili o ibinenta? Hal. Urea 46-0-0.">
           <input
             className="input"
             placeholder={kind === 'income' ? 'e.g. Sold 50 cavans palay' : 'e.g. Urea 46-0-0, knapsack sprayer'}
@@ -140,10 +142,10 @@ export default function TransactionForm({ tx, preset, onClose }) {
         </Field>
 
         <div className="field-row thirds">
-          <Field label="Quantity (optional)">
+          <Field label="Quantity (optional)" tl="Ilan? Hal. 4 (na sako).">
             <input className="input" inputMode="decimal" placeholder="0" value={form.qty} onChange={set('qty')} />
           </Field>
-          <Field label="Unit">
+          <Field label="Unit" tl="Sukat: sako, kilo, litro…">
             <select className="input" value={form.unit} onChange={set('unit')}>
               {UNITS.map((u) => (
                 <option key={u}>{u}</option>
@@ -152,10 +154,10 @@ export default function TransactionForm({ tx, preset, onClose }) {
           </Field>
         </div>
 
-        <Field label="Date">
+        <Field label="Date" tl="Kailan ito binili o natanggap?">
           <input className="input" type="date" value={form.date} onChange={set('date')} />
         </Field>
-        <Field label="Planting (field · season)" hint="Farm-wide costs like tools can stay without a field.">
+        <Field label="Planting (field · season)" hint="Farm-wide costs like tools can stay without a field." tl="Para saang lote ito? Piliin ang “Farm-wide” kung para sa buong bukid (hal. gamit).">
           <select className="input" value={form.seasonId} onChange={set('seasonId')}>
             <option value="">Farm-wide (no field)</option>
             {seasons.map((s) => (
@@ -167,7 +169,7 @@ export default function TransactionForm({ tx, preset, onClose }) {
           </select>
         </Field>
 
-        <Field label="Notes (optional)">
+        <Field label="Notes (optional)" tl="Iba pang detalye. Hal. saan binili, sino ang nagtrabaho.">
           <textarea className="input" value={form.note} onChange={set('note')} placeholder="Supplier, who worked, etc." />
         </Field>
       </form>

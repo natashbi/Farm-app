@@ -58,17 +58,17 @@ export default function FieldForm({ field, onClose }) {
       }
     >
       <form className="stack" style={{ gap: 16 }} onSubmit={submit}>
-        <Field label="Field name">
+        <Field label="Field name" tl="Pangalan ng lote. Hal. Lote 1.">
           <input className="input" value={f.name} onChange={set('name')} placeholder="e.g. Lote 1" />
         </Field>
-        <Field label="Location (optional)">
+        <Field label="Location (optional)" tl="Saan ito? Barangay at bayan.">
           <input className="input" value={f.location} onChange={set('location')} placeholder="e.g. Brgy. Batitang, Zaragoza" />
         </Field>
-        <Field label="Size (hectares)">
+        <Field label="Size (hectares)" tl="Gaano kalaki? Sa ektarya. Hal. 2.5.">
           <input className="input" inputMode="decimal" value={f.area} onChange={set('area')} placeholder="e.g. 2.5" />
         </Field>
         {error && <div className="callout warn">{error}</div>}
-        <Field label="Notes (optional)">
+        <Field label="Notes (optional)" tl="Iba pang detalye. Hal. may patubig.">
           <textarea className="input" value={f.notes} onChange={set('notes')} placeholder="Irrigated, soil type, tenant, etc." />
         </Field>
       </form>
