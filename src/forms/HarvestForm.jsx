@@ -27,6 +27,7 @@ export default function HarvestForm({ harvest, preset, onClose }) {
       buyer: harvest?.buyer || '',
       notes: harvest?.notes || '',
       addIncome: false,
+      finish: false,
     }
   })
   const [error, setError] = useState('')
@@ -58,6 +59,9 @@ export default function HarvestForm({ harvest, preset, onClose }) {
       buyer: f.buyer.trim(),
       notes: f.notes.trim(),
     })
+    // The last harvest of a planting closes it, so it moves to "Harvested" and joins Compare.
+    const finishing = f.finish && season.status === 'active'
+    if (finishing) save('seasons', { ...season, status: 'completed', harvestDate: f.date || todayISO(), harvestUnit: season.harvestUnit || f.unit })
     // Selling the harvest right away is common: record the income in one step.
     if (!editing && f.addIncome && saleTotal > 0) {
       save('transactions', {
@@ -72,8 +76,8 @@ export default function HarvestForm({ harvest, preset, onClose }) {
         note: '',
       })
       celebrate()
-    }
-    notify(editing ? 'Harvest updated' : f.addIncome && saleTotal > 0 ? 'Harvest and sale saved 🌾' : 'Harvest saved 🌾')
+    } else if (finishing) celebrate()
+    notify(editing ? 'Harvest updated' : finishing ? 'Harvest saved · planting marked Harvested 🌾' : f.addIncome && saleTotal > 0 ? 'Harvest and sale saved 🌾' : 'Harvest saved 🌾')
     onClose()
   }
 
@@ -158,6 +162,17 @@ export default function HarvestForm({ harvest, preset, onClose }) {
               Also record the sale as income
               <TlGuide text="I-check kung naibenta na, para kusang maitala bilang kita." />
               <small>{saleTotal ? `${peso(saleTotal)} will be added under Expenses & Income` : 'Enter quantity and price to use this'}</small>
+            </span>
+          </label>
+        )}
+
+        {season?.status === 'active' && (
+          <label className="check-row">
+            <input type="checkbox" checked={f.finish} onChange={set('finish')} />
+            <span>
+              Last harvest — mark planting as Harvested
+              <TlGuide text="I-check kung tapos na ang anihan sa lote. Lilipat ito sa Harvested at maisasama sa Compare." />
+              <small>Leave unchecked if more batches are coming</small>
             </span>
           </label>
         )}

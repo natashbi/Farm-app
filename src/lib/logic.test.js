@@ -71,6 +71,25 @@ describe('analyzeSeasons', () => {
     expect(a.skippedUnits).toBe(1)
   })
 
+  it('says why a finished planting is left out', () => {
+    const a = analyzeSeasons(
+      [season('a', 10, 150), season('bb', '', 140), season('ccc', 12, ''), season('dddd', 12, 3000, { harvestUnit: 'kg' })],
+      [],
+      'rice',
+    )
+    expect(Object.fromEntries(a.excluded.map((x) => [x.season.id, x.reason]))).toEqual({ bb: 'no-bags', ccc: 'no-harvest', dddd: 'unit' })
+  })
+
+  it('takes the bags from Expenses when the planting leaves them blank', () => {
+    const tx = [
+      { id: 't1', seasonId: 'bb', category: 'fertilizer', unit: 'bags', qty: 8, amount: 12800 },
+      { id: 't2', seasonId: 'bb', category: 'fertilizer', unit: 'bags', qty: 6, amount: 9600 },
+    ]
+    const a = analyzeSeasons([season('a', 10, 150), season('bb', '', 140)], tx, 'rice')
+    expect(a.points.find((p) => p.season.id === 'bb').bags).toBe(14)
+    expect(a.excluded).toHaveLength(0)
+  })
+
   it('compares fertilizer types and costs', () => {
     const { seasons, transactions, harvests } = makeSampleData()
     const a = analyzeSeasons(seasons, transactions, 'rice', harvests)

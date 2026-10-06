@@ -1,5 +1,5 @@
 import { getCategory, getCrop } from '../data/categories.js'
-import { addDays, byCategory, fieldStats, seasonFertilizer, seasonHarvest, seasonLabel, seasonStats, totals } from './calc.js'
+import { addDays, byCategory, fieldStats, seasonBags, seasonFertilizer, seasonHarvest, seasonLabel, seasonStats, totals } from './calc.js'
 import { fmtDate, num, peso } from './format.js'
 
 const isSet = (v) => v !== null && v !== undefined && v !== ''
@@ -215,7 +215,7 @@ export function reportCSV(state, report, scope, title) {
   for (const p of report.plantings) {
     const s = p.season
     lines.push(
-      row(report.fieldsById[s.fieldId]?.name || '', s.name, getCrop(s.crop).label, s.area, s.startDate, s.harvestDate, p.harvest.qty || '', p.harvest.unit, s.fertilizerBags, s.fertilizerType, seasonFertilizer(s, state.transactions).cost ?? '', p.stats.cost, p.stats.income, p.stats.profit),
+      row(report.fieldsById[s.fieldId]?.name || '', s.name, getCrop(s.crop).label, s.area, s.startDate, s.harvestDate, p.harvest.qty || '', p.harvest.unit, seasonBags(s, state.transactions) ?? '', s.fertilizerType, seasonFertilizer(s, state.transactions).cost ?? '', p.stats.cost, p.stats.income, p.stats.profit),
     )
   }
   if (report.fieldRows.length) {
