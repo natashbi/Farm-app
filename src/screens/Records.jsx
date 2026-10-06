@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Info, Lightbulb } from 'lucide-react'
 import { getCrop } from '../data/categories.js'
 import { analyzeSeasons, round1, roundHalf } from '../lib/analysis.js'
-import { ledgerFertilizerBags, plantingProgress, seasonHarvest, seasonLabel, seasonStats } from '../lib/calc.js'
+import { plantingProgress, seasonBags, seasonHarvest, seasonLabel, seasonStats } from '../lib/calc.js'
 import { fmtDate, num, peso, pesoCompact, todayISO } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { HeroRecordsArt } from '../components/Art.jsx'
@@ -10,6 +10,13 @@ import { Chip, Empty, Progress, SectionHead, useNav } from '../components/ui.jsx
 import { AnimatedNumber } from '../components/motion.jsx'
 
 const TONE_ICON = { warn: AlertTriangle, tip: Lightbulb, good: CheckCircle2, info: Info }
+
+// Why a finished planting is left out of the comparison, in words the farmer can act on.
+const MISSING = {
+  'no-harvest': () => 'Walang ani na nakalagay',
+  'no-bags': () => 'Walang “Ilang sako ng abono?”',
+  unit: (x) => `Ibang sukat ng ani (${x.unit})`,
+}
 
 // Show only the three lessons that matter most, so the screen stays easy to read.
 const KEY_KINDS = ['more-not-better', 'type', 'cost']
@@ -38,6 +45,7 @@ export function CompareSeasons() {
   )
   const seasons = state.seasons.filter((s) => s.crop === crop)
   const activeArea = seasons.filter((s) => s.status === 'active').reduce((sum, s) => sum + (Number(s.area) || 0), 0)
+  const growingCount = seasons.filter((s) => s.status === 'active').length
   const { best, perHa, unit, points, byType } = analysis
   const ha = perHa ? '/ha' : ''
   const short = unit === 'cavans' ? 'cav' : unit
@@ -184,10 +192,31 @@ export function CompareSeasons() {
                 </div>
               )
             })}
-            {analysis.skippedUnits > 0 && (
-              <p className="small muted">{analysis.skippedUnits} season(s) use a different harvest unit and are not compared.</p>
-            )}
           </div>
+        </section>
+      )}
+
+      {(analysis.excluded.length > 0 || growingCount > 0) && (
+        <section className="section">
+          <SectionHead title="Not compared yet" sub="Hindi pa kasama — i-tap para kumpletuhin" />
+          {analysis.excluded.length > 0 && (
+            <div className="list">
+              {analysis.excluded.map((x) => (
+                <button key={x.season.id} className="row" onClick={() => nav.open('season', { season: x.season })}>
+                  <span className="bubble" aria-hidden="true">{getCrop(x.season.crop).emoji}</span>
+                  <span className="grow">
+                    <span className="title" style={{ display: 'block' }}>{label(x.season)}</span>
+                    <span className="meta" style={{ display: 'block', color: 'var(--warn)' }}>⚠️ {MISSING[x.reason](x)}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+          {growingCount > 0 && (
+            <p className="small muted">
+              🌱 {growingCount} tanim ang tumutubo pa. Lalabas dito pag naka-✅ Already harvested na.
+            </p>
+          )}
         </section>
       )}
     </>
@@ -208,7 +237,7 @@ export function PlantingCard({ season, field, onClick, onLogHarvest }) {
   const crop = getCrop(season.crop)
   const stats = seasonStats(season, state.transactions, state.harvests)
   const harvest = seasonHarvest(season, state.harvests)
-  const ledgerBags = ledgerFertilizerBags(state.transactions, season.id)
+  const bags = seasonBags(season, state.transactions)
   const progress = plantingProgress(season, todayISO(), crop.days)
   const done = season.status === 'completed'
   const stage = STAGE[progress?.stage || (done ? 'harvested' : 'growing')]
@@ -230,7 +259,7 @@ export function PlantingCard({ season, field, onClick, onLogHarvest }) {
           </span>
           {done ? (
             <span className="small" style={{ color: 'var(--ink-2)' }}>
-              🧪 {season.fertilizerBags !== '' && season.fertilizerBags !== undefined ? `${num(season.fertilizerBags)} bags` : '—'} · 🌾{' '}
+              🧪 {bags !== null ? `${num(bags)} bags` : '—'} · 🌾{' '}
               {harvest.qty ? `${num(harvest.qty)} ${harvest.unit}` : '—'} ·{' '}
               <span style={{ color: stats.profit >= 0 ? 'var(--good)' : 'var(--bad)', fontWeight: 500 }}>
                 {stats.profit >= 0 ? 'Profit' : 'Loss'} {peso(Math.abs(stats.profit))}
@@ -238,7 +267,7 @@ export function PlantingCard({ season, field, onClick, onLogHarvest }) {
             </span>
           ) : (
             <span className="small" style={{ color: 'var(--ink-2)' }}>
-              🧪 {num(Number(season.fertilizerBags) || ledgerBags)} bags so far · Spent {peso(stats.cost)}
+              🧪 {num(bags || 0)} bags so far · Spent {peso(stats.cost)}
               {harvest.qty ? ` · 🌾 ${num(harvest.qty)} ${harvest.unit}` : ''}
             </span>
           )}

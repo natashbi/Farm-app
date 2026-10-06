@@ -1,4 +1,4 @@
-import { seasonFertilizer, seasonHarvest, seasonStats } from './calc.js'
+import { seasonBags, seasonFertilizer, seasonHarvest, seasonStats } from './calc.js'
 import { num } from './format.js'
 
 const round1 = (n) => Math.round(n * 10) / 10
@@ -10,16 +10,17 @@ const roundHalf = (n) => Math.round(n * 2) / 2
  * seasons with different field sizes are fair to compare.
  */
 export function analyzeSeasons(seasons, transactions, cropId, harvests = [], label = (season) => season.name) {
-  const done = seasons.filter(
-    (s) =>
-      s.crop === cropId &&
-      s.status === 'completed' &&
-      seasonHarvest(s, harvests).qty > 0 &&
-      s.fertilizerBags !== '' &&
-      s.fertilizerBags !== null &&
-      s.fertilizerBags !== undefined &&
-      Number(s.fertilizerBags) >= 0,
-  )
+  // Finished plantings missing what the comparison needs are listed with the reason,
+  // so the farmer knows what to fill in.
+  const excluded = []
+  const done = []
+  for (const s of seasons) {
+    if (s.crop !== cropId || s.status !== 'completed') continue
+    const bags = seasonBags(s, transactions)
+    if (!(seasonHarvest(s, harvests).qty > 0)) excluded.push({ season: s, reason: 'no-harvest' })
+    else if (bags === null || bags < 0) excluded.push({ season: s, reason: 'no-bags' })
+    else done.push(s)
+  }
 
   // Compare like with like: use the most common harvest unit.
   const unitCounts = {}
@@ -28,12 +29,13 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
   const unit = Object.keys(unitCounts).sort((a, b) => unitCounts[b] - unitCounts[a])[0] || 'cavans'
   const usable = done.filter((s) => unitOf(s) === unit)
   const skippedUnits = done.length - usable.length
+  for (const s of done) if (unitOf(s) !== unit) excluded.push({ season: s, reason: 'unit', unit: unitOf(s) })
 
   const perHa = usable.length > 0 && usable.every((s) => Number(s.area) > 0)
   const points = usable
     .map((s) => {
       const area = perHa ? Number(s.area) : 1
-      const bags = Number(s.fertilizerBags)
+      const bags = seasonBags(s, transactions)
       const harvest = seasonHarvest(s, harvests).qty
       const stats = seasonStats(s, transactions, harvests)
       const fertilizer = seasonFertilizer(s, transactions)
@@ -58,6 +60,7 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     perHa,
     points,
     skippedUnits,
+    excluded,
     best: null,
     byType: [],
     goodRange: null,

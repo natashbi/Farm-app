@@ -187,8 +187,8 @@ export default function SeasonForm({ season, preset, onClose }) {
         <h3 style={{ fontSize: 16, fontWeight: 600 }}>🧪 Abonong ginamit</h3>
         <p className="small muted" style={{ marginTop: -10 }}>Para makita sa Harvest → Compare kung ilang sako at anong abono ang pinakamabisa.</p>
         <div className="field-row">
-          <Field label="Ilang sako ng abono?" tl="Ilang sako ng abono ang nagamit sa buong tanim." hint={ledgerBags ? `Nasa Expenses: ${num(ledgerBags)} sako` : '1 sako = 50 kg'}>
-            <input className="input" inputMode="decimal" value={f.fertilizerBags} onChange={set('fertilizerBags')} placeholder="e.g. 10" />
+          <Field label="Ilang sako ng abono?" tl="Ilang sako ang nagamit sa buong tanim. Iwan blangko kung nailista na sa Expenses." hint={ledgerBags ? `Kusang galing sa Expenses: ${num(ledgerBags)} sako` : '1 sako = 50 kg'}>
+            <input className="input" inputMode="decimal" value={f.fertilizerBags} onChange={set('fertilizerBags')} placeholder={ledgerBags ? num(ledgerBags) : 'e.g. 10'} />
           </Field>
           <Field label="Magkano ang abono?" tl="Iwan blangko kung nailista na sa Expenses. Lagyan lang kung lumang tanim." hint={ledgerFert ? `Kusang galing sa Expenses: ${peso(ledgerFert)}` : 'Blangko = kusang kukunin sa Expenses'}>
             <div className="input-prefix">
@@ -197,11 +197,6 @@ export default function SeasonForm({ season, preset, onClose }) {
             </div>
           </Field>
         </div>
-        {ledgerBags > 0 && String(f.fertilizerBags) !== String(ledgerBags) && (
-          <button type="button" className="btn ghost small" style={{ alignSelf: 'flex-start' }} onClick={() => setF((x) => ({ ...x, fertilizerBags: ledgerBags }))}>
-            Gamitin ang {num(ledgerBags)} sako mula sa Expenses
-          </button>
-        )}
         <Field label="Anong klaseng abono?" tl="Pangalan ng abono. Hal. Complete 14-14-14 + Urea.">
           <input className="input" value={f.fertilizerType} onChange={set('fertilizerType')} placeholder="e.g. Complete 14-14-14 + Urea" list="fertilizer-types" />
           <datalist id="fertilizer-types">

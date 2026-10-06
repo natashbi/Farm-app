@@ -37,6 +37,13 @@ export function ledgerFertilizerBags(transactions, seasonId) {
 
 const isSet = (v) => v !== null && v !== undefined && v !== ''
 
+/** Fertilizer bags of a planting: the number typed in wins; blank = the bags recorded under Expenses. */
+export function seasonBags(season, transactions = []) {
+  if (isSet(season.fertilizerBags)) return Number(season.fertilizerBags)
+  const ledger = ledgerFertilizerBags(transactions, season.id)
+  return ledger > 0 ? ledger : null
+}
+
 /**
  * Cost & income for a season. Old seasons usually have totals typed in by hand;
  * seasons tracked in the app add up their budget records. A typed total wins.
