@@ -88,7 +88,7 @@ export default function App() {
     try {
       window.history.pushState({ sakahanSheet: true }, '')
     } catch {
-      /* history not available (sandboxed frame) — sheets still work */
+      /* history not available (sandboxed frame); sheets still work */
     }
     sheetSeq += 1
     setStack((s) => [...s, { type, props, key: sheetSeq }])

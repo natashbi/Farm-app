@@ -111,7 +111,7 @@ export function buildReport(state, scope) {
   }
 }
 
-/** A single dated feed of everything recorded — the farm's activity log. */
+/** A single dated feed of everything recorded: the farm's activity log. */
 export function activityLog(state, scope) {
   const fieldsById = Object.fromEntries(state.fields.map((f) => [f.id, f]))
   const seasonsById = Object.fromEntries(state.seasons.map((s) => [s.id, s]))

@@ -42,7 +42,7 @@ export default function Home() {
 
       <section className="hero">
         <h2>Farm expense & harvest records</h2>
-        <p>Gastos, ani at kita ng bawat lote — all in one place.</p>
+        <p>Gastos, ani at kita ng bawat lote, all in one place.</p>
         <div className="actions">
           <button className="pill-btn" onClick={() => nav.open('tx')}>Add expense</button>
           <button className="pill-btn fill" onClick={() => nav.open('harvest')}>Log harvest</button>

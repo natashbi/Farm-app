@@ -1,13 +1,13 @@
-# Sakahan — Farm Expense and Harvest Record App 🌾
+# Sakahan: Farm Expense and Harvest Record App 🌾
 
 A mobile-first app that helps **large-scale farmers** (developed for farms in Zaragoza, Nueva Ecija) record,
-organize and monitor farm expenses, harvests and income — replacing notebooks and loose sheets.
+organize and monitor farm expenses, harvests and income, replacing notebooks and loose sheets.
 
 | Module | What it does |
 | --- | --- |
 | **Home** | Farm summary (fields, hectares), plantings growing now with days to harvest, this season's money, recent activity |
 | **Expenses** | Record expenses (seeds, fertilizer, pesticide, labor, land prep, irrigation, fuel, rent, hauling, tools bought/rented/repairs) and income; totals and profit computed automatically; filter by season and field |
-| **Harvest** | *Plantings* — crop, field, planting date and expected harvest date with a days-after-planting monitor. *Harvest log* — each harvest batch with date, crop and quantity (optionally recorded as a sale). *Compare* — compares seasons to find the fertilizer amount that gave the best harvest |
+| **Harvest** | *Plantings*: crop, field, planting date and expected harvest date with a days-after-planting monitor. *Harvest log*: each harvest batch with date, crop and quantity (optionally recorded as a sale). *Compare*: compares seasons to find the fertilizer amount that gave the best harvest |
 | **Reports** | Summary report per season and field: expenses, income, net profit, harvest, yield per hectare, cost per cavan, field performance, plantings, expenses by category, activity log; export to Excel (CSV) or print / save as PDF |
 | **Profile** | Farm fields (lote), app lock with a 4-digit PIN, backup / restore, export, appearance |
 

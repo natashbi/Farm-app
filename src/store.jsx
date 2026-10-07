@@ -126,7 +126,7 @@ export function StoreProvider({ children }) {
     try {
       localStorage.setItem(KEY, JSON.stringify(state))
     } catch {
-      notify('Phone storage is full — export a backup and remove some photos.', 'bad')
+      notify('Phone storage is full. Export a backup and remove some photos.', 'bad')
     }
   }, [state, notify])
 

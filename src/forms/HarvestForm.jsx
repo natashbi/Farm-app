@@ -170,9 +170,9 @@ export default function HarvestForm({ harvest, preset, onClose }) {
           <label className="check-row">
             <input type="checkbox" checked={f.finish} onChange={set('finish')} />
             <span>
-              Last harvest — mark planting as Harvested
+              This is the last harvest
               <TlGuide text="I-check kung tapos na ang anihan sa lote. Lilipat ito sa Harvested at maisasama sa Compare." />
-              <small>Leave unchecked if more batches are coming</small>
+              <small>The planting moves to Harvested. Leave unchecked if more batches are coming.</small>
             </span>
           </label>
         )}

@@ -87,7 +87,7 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     return result
   }
 
-  // 1. More fertilizer but a smaller harvest — the clearest lesson in the data.
+  // 1. More fertilizer but a smaller harvest: the clearest lesson in the data.
   let worst = null
   for (const lo of points) {
     for (const hi of points) {
@@ -112,7 +112,7 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     if (latest.fert > best.fert * 1.15) {
       result.insights.push({
         tone: 'tip',
-        text: `Your latest season (${label(latest.season)}) used ${bagsTxt(round1(latest.fert))}${rate}. Try going back to about ${bagsTxt(round1(best.fert))}${rate} — it saves money and gave your best harvest.`,
+        text: `Your latest season (${label(latest.season)}) used ${bagsTxt(round1(latest.fert))}${rate}. Try going back to about ${bagsTxt(round1(best.fert))}${rate}. It saves money and gave your best harvest.`,
       })
     } else if (latest.fert < best.fert * 0.85) {
       result.insights.push({
@@ -134,7 +134,7 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     result.insights.push({
       tone: 'good',
       kind: 'per-bag',
-      text: `Best return on fertilizer: ${label(eff.season)} — ${num(eff.perBag)} ${unit} for every bag used.`,
+      text: `Best return on fertilizer: ${label(eff.season)}, with ${num(eff.perBag)} ${unit} for every bag used.`,
     })
   }
 
@@ -165,7 +165,7 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     result.insights.push({
       tone: 'good',
       kind: 'type',
-      text: `Best fertilizer type: ${top.type} — about ${num(top.yield)} ${unit}${rate} on average, compared with ${num(low.yield)} ${unit} using ${low.type}.`,
+      text: `Best fertilizer type: ${top.type}, about ${num(top.yield)} ${unit}${rate} on average, compared with ${num(low.yield)} ${unit} using ${low.type}.`,
     })
   }
 

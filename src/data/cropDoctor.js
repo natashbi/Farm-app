@@ -103,7 +103,7 @@ export const CONDITIONS = [
       { name: 'Hoe (asarol) to mix into soil', cat: 'tool_buy' },
     ],
     steps: [
-      'Phosphorus works best applied early — at land prep or planting.',
+      'Phosphorus works best applied early, at land prep or planting.',
       'Mix it into the soil near the roots, not just on top.',
       'Add compost or manure to help plants take up phosphorus.',
     ],
@@ -128,7 +128,7 @@ export const CONDITIONS = [
     ],
     steps: [
       'Apply potash at planting and again before flowering / panicle initiation.',
-      'Do not burn all the straw — plow it back in to return potassium.',
+      'Do not burn all the straw. Plow it back in to return potassium.',
       'Balance with nitrogen; too much N with low K makes plants fall over.',
     ],
     prevent: 'Include potassium in your fertilizer plan every season.',
@@ -152,7 +152,7 @@ export const CONDITIONS = [
       { name: 'Soil pH tester', cat: 'tool_buy' },
     ],
     steps: [
-      'Test soil pH first — the fix depends on it.',
+      'Test soil pH first because the fix depends on it.',
       'Spray foliar nutrients early morning or late afternoon, never at noon.',
       'For rice, drain the field briefly to let air into the soil.',
     ],
@@ -175,7 +175,7 @@ export const CONDITIONS = [
       'Add potassium to make stems stronger.',
       'Compare with your past records in the Records tab to find the right amount.',
     ],
-    prevent: 'Use only the amount that gave your best harvest before — see the Records tab.',
+    prevent: 'Use only the amount that gave your best harvest before. See Harvest → Compare.',
   },
   {
     id: 'rice_blast',
@@ -195,7 +195,7 @@ export const CONDITIONS = [
     steps: [
       'Spray at the first signs and again at booting / early heading if blast is common in your area.',
       'Avoid adding more nitrogen while the disease is active.',
-      'Keep the field flooded — dry fields make blast worse.',
+      'Keep the field flooded because dry fields make blast worse.',
     ],
     prevent: 'Plant resistant varieties, use clean seeds and destroy infected straw after harvest.',
   },
@@ -258,7 +258,7 @@ export const CONDITIONS = [
     ],
     steps: [
       'Pull out and bury infected hills right away (rogueing).',
-      'Control green leafhoppers — check with a sweep net or light trap.',
+      'Control green leafhoppers. Check with a sweep net or light trap.',
       'Tell neighbors so everyone controls leafhoppers at the same time.',
     ],
     prevent: 'Plant resistant varieties and plant at the same time as neighboring farms.',
@@ -355,7 +355,7 @@ export const CONDITIONS = [
       'Hang yellow sticky traps just above the plants.',
       'Blast small colonies off with a strong water spray.',
     ],
-    prevent: 'Protect natural enemies like lady beetles — avoid unnecessary spraying.',
+    prevent: 'Protect natural enemies like lady beetles and avoid unnecessary spraying.',
   },
   {
     id: 'planthopper',
@@ -373,8 +373,8 @@ export const CONDITIONS = [
       { name: 'Knapsack sprayer', cat: 'tool_buy' },
     ],
     steps: [
-      'Check the base of plants — tap them and look for hoppers on the water.',
-      'Drain the field for 3–4 days.',
+      'Check the base of plants. Tap them and look for hoppers on the water.',
+      'Drain the field for 3 to 4 days.',
       'Avoid early spraying of broad insecticides that kill spiders and other natural enemies.',
     ],
     prevent: 'Avoid too much nitrogen and plant resistant varieties.',
@@ -434,7 +434,7 @@ export const CONDITIONS = [
       { name: 'Plastic barrier for trap barrier system', cat: 'tool_buy' },
     ],
     steps: [
-      'Join or organize community-wide rat control — alone it does not work.',
+      'Join or organize community-wide rat control. It does not work if done alone.',
       'Clean bunds and nearby grass where rats nest.',
       'Set traps along rat runways and bunds.',
     ],
@@ -449,7 +449,7 @@ export const CONDITIONS = [
     signs: { snails: 5, cut_tillers: 2 },
     about: 'Snails eat young rice seedlings in the first weeks after transplanting. They lay bright pink egg masses.',
     items: [
-      { name: 'Molluscicide', note: 'Last resort — follow the label', cat: 'pesticide' },
+      { name: 'Molluscicide', note: 'Last resort, follow the label', cat: 'pesticide' },
     ],
     tools: [
       { name: 'Wire / mesh screens for water inlets', cat: 'tool_buy' },
@@ -481,7 +481,7 @@ export const CONDITIONS = [
     ],
     steps: [
       'Pull out and burn or bury wilted plants with their roots.',
-      'Improve drainage — make raised beds and canals.',
+      'Improve drainage with raised beds and canals.',
       'Clean tools after working on sick plants.',
     ],
     prevent: 'Rotate with rice or corn and avoid planting tomato, eggplant and pepper in the same spot every season.',
@@ -503,7 +503,7 @@ export const CONDITIONS = [
       { name: 'Knapsack sprayer', cat: 'tool_buy' },
     ],
     steps: [
-      'Remove and bury all rotten fruits — do not leave them on the ground.',
+      'Remove and bury all rotten fruits. Do not leave them on the ground.',
       'Spray protectant fungicide during rainy weeks.',
       'Harvest on time and handle fruits gently.',
     ],
@@ -526,7 +526,7 @@ export const CONDITIONS = [
     steps: [
       'Water early morning or late afternoon.',
       'Mulch around plants to keep moisture in.',
-      'For rice, keep water during flowering — that is the most sensitive stage.',
+      'For rice, keep water in the field during flowering, the most sensitive stage.',
     ],
     prevent: 'Plan planting dates around the rainy season and store water if you can.',
   },
@@ -564,11 +564,11 @@ export const CONDITIONS = [
       { name: 'Soil pH tester', cat: 'tool_buy' },
     ],
     steps: [
-      'Get a soil test — your Municipal Agriculture Office can help, often for free.',
-      'Apply lime 2–4 weeks before planting if the soil is acidic.',
+      'Get a soil test. Your Municipal Agriculture Office can help, often for free.',
+      'Apply lime 2 to 4 weeks before planting if the soil is acidic.',
       'Add compost every season and plant legumes (mongo, peanuts) in rotation.',
     ],
-    prevent: 'Test your soil every 2–3 years and return crop residues to the field.',
+    prevent: 'Test your soil every 2 to 3 years and return crop residues to the field.',
   },
   {
     id: 'weeds',
@@ -577,7 +577,7 @@ export const CONDITIONS = [
     type: 'soil',
     crops: 'all',
     signs: { weeds: 5, stunted: 1, yellow_old: 1 },
-    about: 'Weeds steal fertilizer, water and light — especially in the first 30–40 days.',
+    about: 'Weeds steal fertilizer, water and light, especially in the first 30 to 40 days.',
     items: [
       { name: 'Pre-emergence herbicide', note: 'Follow the label', cat: 'pesticide' },
     ],
@@ -587,7 +587,7 @@ export const CONDITIONS = [
       { name: 'Knapsack sprayer', cat: 'tool_buy' },
     ],
     steps: [
-      'Weed early — the first month matters most.',
+      'Weed early. The first month matters most.',
       'For rice, use a rotary weeder between rows and keep the field level.',
       'Mulch vegetable beds to block weeds.',
     ],
