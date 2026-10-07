@@ -234,7 +234,7 @@ export function DiagnoseSheet({ onClose, preset }) {
               </div>
             ) : (
               <p className="small muted">
-                {getCrop(crop).emoji} {getCrop(crop).label} · {picked.length} sign{picked.length > 1 ? 's' : ''} picked. Most likely first — tap{' '}
+                {getCrop(crop).emoji} {getCrop(crop).label} · {picked.length} sign{picked.length > 1 ? 's' : ''} picked. Most likely first. Tap{' '}
                 <strong>Record</strong> to add a purchase to your budget.
               </p>
             )}

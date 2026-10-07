@@ -167,7 +167,7 @@ export function CompareSeasons() {
                       </div>
                     </td>
                     <td className="num">{num(round1(t.fert))}</td>
-                    <td className="num">{t.costPerArea !== null ? pesoCompact(t.costPerArea) : '—'}</td>
+                    <td className="num">{t.costPerArea !== null ? pesoCompact(t.costPerArea) : 'Wala'}</td>
                     <td className="num">
                       {num(t.yield)} {short}
                     </td>
@@ -198,7 +198,7 @@ export function CompareSeasons() {
 
       {(analysis.excluded.length > 0 || growingCount > 0) && (
         <section className="section">
-          <SectionHead title="Not compared yet" sub="Hindi pa kasama — i-tap para kumpletuhin" />
+          <SectionHead title="Not compared yet" sub="Hindi pa kasama. I-tap para kumpletuhin." />
           {analysis.excluded.length > 0 && (
             <div className="list">
               {analysis.excluded.map((x) => (
@@ -231,7 +231,7 @@ const STAGE = {
   harvested: { label: 'Harvested', tone: 'dark' },
 }
 
-// A planting with its money, harvest and — while growing — its date monitor.
+// A planting with its money and harvest, plus its date monitor while growing.
 export function PlantingCard({ season, field, onClick, onLogHarvest }) {
   const { state } = useStore()
   const crop = getCrop(season.crop)
@@ -259,8 +259,8 @@ export function PlantingCard({ season, field, onClick, onLogHarvest }) {
           </span>
           {done ? (
             <span className="small" style={{ color: 'var(--ink-2)' }}>
-              🧪 {bags !== null ? `${num(bags)} bags` : '—'} · 🌾{' '}
-              {harvest.qty ? `${num(harvest.qty)} ${harvest.unit}` : '—'} ·{' '}
+              🧪 {bags !== null ? `${num(bags)} bags` : 'No bags yet'} · 🌾{' '}
+              {harvest.qty ? `${num(harvest.qty)} ${harvest.unit}` : 'No harvest yet'} ·{' '}
               <span style={{ color: stats.profit >= 0 ? 'var(--good)' : 'var(--bad)', fontWeight: 500 }}>
                 {stats.profit >= 0 ? 'Profit' : 'Loss'} {peso(Math.abs(stats.profit))}
               </span>

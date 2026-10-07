@@ -35,7 +35,7 @@ export function makeSampleData() {
     ...extra,
   })
 
-  // Lote 1 (6 ha) — four past rice seasons, one growing now.
+  // Lote 1 (6 ha): four past rice seasons, one growing now.
   const l1 = at(-110)
   const seasons = [
     planting('s-1a', 'f-1', 'rice', addDays(l1, -728), {
@@ -65,7 +65,7 @@ export function makeSampleData() {
     }),
     planting('s-2b', 'f-2', 'rice', at(-85), { status: 'active', fertilizerBags: '', seedKg: 180, budget: 165000 }),
 
-    // Lote 3 (3 ha) — corn in the dry season, rice now.
+    // Lote 3 (3 ha): corn in the dry season, rice now.
     planting('s-3a', 'f-3', 'corn', addDays(at(-40), -364), {
       harvestDate: addDays(at(-40), -254), fertilizerBags: 18, seedKg: 54, harvestQty: 160, fertilizerCost: 28800,
       budget: 95000, totalCost: 92000, totalIncome: 176000,
@@ -97,7 +97,7 @@ export function makeSampleData() {
     return { id, category, amount, date: addDays(s.startDate, daysAfterPlanting), item, seasonId, note: '', createdAt: now, ...extra }
   }
   const transactions = [
-    // Lote 1 — growing now
+    // Lote 1: growing now
     tx('t-1', 's-1e', 'seeds', 13600, -4, 'Certified seeds (8 bags)', { qty: 8, unit: 'bags' }),
     tx('t-2', 's-1e', 'landprep', 24000, -2, 'Plowing & harrowing'),
     tx('t-3', 's-1e', 'tool_rent', 12000, -2, 'Hand tractor rental'),
@@ -109,13 +109,13 @@ export function makeSampleData() {
     tx('t-9', 's-1e', 'fuel', 4800, 73, 'Diesel for water pump'),
     tx('t-10', 's-1e', 'labor', 8000, 94, 'Weeding'),
     tx('t-11', 's-1e', 'other_income', 1500, 99, 'Vegetables from dike'),
-    // Lote 2 — growing now
+    // Lote 2: growing now
     tx('t-12', 's-2b', 'seeds', 10200, -3, 'Certified seeds (6 bags)', { qty: 6, unit: 'bags' }),
     tx('t-13', 's-2b', 'landprep', 18000, -1, 'Plowing & harrowing'),
     tx('t-14', 's-2b', 'labor', 22500, 18, 'Transplanting (18 workers)'),
     tx('t-15', 's-2b', 'fertilizer', 30400, 21, 'Complete 14-14-14', { qty: 19, unit: 'bags' }),
     tx('t-16', 's-2b', 'water', 7200, 50, 'Irrigation fee (NIA)'),
-    // Lote 3 — growing now
+    // Lote 3: growing now
     tx('t-17', 's-3c', 'seeds', 6800, -3, 'Certified seeds (4 bags)', { qty: 4, unit: 'bags' }),
     tx('t-18', 's-3c', 'landprep', 12000, -1, 'Plowing & harrowing'),
     tx('t-19', 's-3c', 'labor', 15000, 16, 'Transplanting (12 workers)'),

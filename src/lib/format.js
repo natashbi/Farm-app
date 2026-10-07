@@ -57,7 +57,7 @@ export function greeting(date = new Date()) {
   return 'Good Evening'
 }
 
-// Parse a number typed by a farmer ("1,500", " 12.5 ") — empty stays null.
+// Parse a number typed by a farmer ("1,500", " 12.5 "); empty stays null.
 export function toNumber(value) {
   if (value === '' || value === null || value === undefined) return null
   const n = Number(String(value).replace(/,/g, '').trim())

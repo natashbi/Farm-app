@@ -104,7 +104,7 @@ function Plantings({ seasons, fieldsById }) {
       </section>
       {done.length > 0 && (
         <section className="section">
-          <SectionHead title="Harvested" sub="Past plantings — tap to see or edit" />
+          <SectionHead title="Harvested" sub="Past plantings. Tap to see or edit." />
           <div className="stack" style={{ gap: 12 }}>
             {done.map((s) => (
               <PlantingCard key={s.id} season={s} field={fieldsById[s.fieldId]} onClick={() => nav.open('season', { season: s })} />

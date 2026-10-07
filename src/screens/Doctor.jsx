@@ -33,7 +33,7 @@ export default function Doctor() {
 
       <section className="hero">
         <h2>Something wrong with your crops?</h2>
-        <p>Tell us what you see — get the fertilizer, tools and steps to fix it.</p>
+        <p>Tell us what you see and get the fertilizer, tools and steps to fix it.</p>
         <div className="actions">
           <button className="btn primary small" onClick={() => nav.open('diagnose')}>Check my crop</button>
         </div>

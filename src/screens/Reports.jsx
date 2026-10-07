@@ -35,7 +35,7 @@ export default function Reports() {
 
   const exportCSV = async () => {
     const result = await saveFile(`sakahan-report-${todayISO()}.csv`, reportCSV(state, report, scope, title), 'text/csv')
-    if (result === 'saved') notify('Report downloaded — open it in Excel or Google Sheets')
+    if (result === 'saved') notify('Report downloaded. Open it in Excel or Google Sheets.')
     else if (result === 'failed') notify('Saving files is not allowed here.', 'bad')
   }
 
@@ -51,7 +51,7 @@ export default function Reports() {
       </header>
 
       {empty ? (
-        <Empty title="Nothing to report yet">Record expenses, plantings and harvests first — the summary builds itself.</Empty>
+        <Empty title="Nothing to report yet">Record expenses, plantings and harvests first. The summary builds itself.</Empty>
       ) : (
         <>
           <div className="stack no-print" style={{ gap: 8 }}>
@@ -103,8 +103,8 @@ export default function Reports() {
           {unit && (
             <div className="stats-grid">
               <Stat label={`Harvest (${unit})`} value={num(report.harvestQty)} hint={`${report.byUnit[unit].plantings} planting(s) harvested`} />
-              <Stat label={`Yield per hectare`} value={report.yieldPerHa ? `${num(report.yieldPerHa)}` : '—'} hint={`${unit} per ha`} />
-              <Stat label={`Cost per ${unitOne}`} value={report.costPerUnit ? peso(Math.round(report.costPerUnit)) : '—'} hint="Expenses ÷ harvest" />
+              <Stat label={`Yield per hectare`} value={report.yieldPerHa ? `${num(report.yieldPerHa)}` : 'Wala'} hint={`${unit} per ha`} />
+              <Stat label={`Cost per ${unitOne}`} value={report.costPerUnit ? peso(Math.round(report.costPerUnit)) : 'Wala'} hint="Expenses ÷ harvest" />
               <Stat
                 label="Production cost"
                 value={pesoCompact(report.split.production + report.split.typed)}
@@ -146,7 +146,7 @@ export default function Reports() {
                           <div className="small muted">{f.plantings} planting{f.plantings === 1 ? '' : 's'}</div>
                         </td>
                         <td className="num">{num(f.field.area)} ha</td>
-                        <td className="num">{f.yieldPerHa ? `${num(f.yieldPerHa)} ${f.mainUnit === 'cavans' ? 'cav' : f.mainUnit}` : '—'}</td>
+                        <td className="num">{f.yieldPerHa ? `${num(f.yieldPerHa)} ${f.mainUnit === 'cavans' ? 'cav' : f.mainUnit}` : 'Wala'}</td>
                         <td className="num">{pesoCompact(f.cost)}</td>
                         <td className="num" style={{ color: f.profit >= 0 ? 'var(--good)' : 'var(--bad)' }}>
                           {pesoCompact(f.profit)}
@@ -178,16 +178,16 @@ export default function Reports() {
                       .map(({ season: s, stats, harvest }) => (
                         <tr key={s.id} onClick={() => nav.open('season', { season: s })} style={{ cursor: 'pointer' }}>
                           <td>
-                            {getCrop(s.crop).emoji} {report.fieldsById[s.fieldId]?.name || '—'}
+                            {getCrop(s.crop).emoji} {report.fieldsById[s.fieldId]?.name || 'No field'}
                             <div className="small muted">{s.name}</div>
                           </td>
                           <td className="small">
-                            {s.startDate ? fmtDate(s.startDate, { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
+                            {s.startDate ? fmtDate(s.startDate, { month: 'short', day: 'numeric', year: '2-digit' }) : 'No date'}
                             <div className="muted">
-                              → {s.harvestDate ? fmtDate(s.harvestDate, { month: 'short', day: 'numeric', year: '2-digit' }) : s.status === 'active' ? 'growing' : '—'}
+                              → {s.harvestDate ? fmtDate(s.harvestDate, { month: 'short', day: 'numeric', year: '2-digit' }) : s.status === 'active' ? 'growing' : 'No date'}
                             </div>
                           </td>
-                          <td className="num">{harvest.qty ? `${num(harvest.qty)} ${harvest.unit === 'cavans' ? 'cav' : harvest.unit}` : '—'}</td>
+                          <td className="num">{harvest.qty ? `${num(harvest.qty)} ${harvest.unit === 'cavans' ? 'cav' : harvest.unit}` : 'Wala'}</td>
                           <td className="num" style={{ color: stats.profit >= 0 ? 'var(--good)' : 'var(--bad)' }}>
                             {pesoCompact(stats.profit)}
                           </td>

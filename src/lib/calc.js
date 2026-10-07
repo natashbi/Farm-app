@@ -181,7 +181,7 @@ export function seasonFertilizer(season, transactions = []) {
   return { cost: cost > 0 ? cost : null, ledgerCost, costFromLedger: !isSet(season.fertilizerCost), type: (season.fertilizerType || '').trim() }
 }
 
-/** Season name from the planting date: Jun–Nov plantings are the wet season; Dec–May the dry season (named by harvest year). */
+/** Season name from the planting date: June to November plantings are the wet season; December to May the dry season (named by harvest year). */
 export function seasonNameFor(startIso) {
   if (!startIso) return `Planting ${new Date().getFullYear()}`
   const [y, m] = startIso.split('-').map(Number)

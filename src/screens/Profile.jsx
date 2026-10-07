@@ -38,7 +38,7 @@ export function applyTheme(theme) {
   try {
     localStorage.setItem('sakahan-theme', theme)
   } catch {
-    /* private mode — theme just won't be remembered */
+    /* private mode: theme just won't be remembered */
   }
   const value = theme === 'auto' ? hostTheme : theme
   if (value) document.documentElement.setAttribute('data-theme', value)
@@ -69,14 +69,14 @@ export default function Profile() {
     report(await saveFile(`sakahan-backup-${todayISO()}.json`, JSON.stringify(state, null, 2), 'application/json'), 'Backup downloaded')
   const saveCSV = async () => {
     const scope = scopeRecords(state)
-    const csv = reportCSV(state, buildReport(state, scope), scope, `${profile.farm || 'Farm'} — all records`)
+    const csv = reportCSV(state, buildReport(state, scope), scope, `${profile.farm || 'Farm'} (all records)`)
     report(await saveFile(`sakahan-records-${todayISO()}.csv`, csv, 'text/csv'), 'Spreadsheet downloaded')
   }
 
   const copyBackup = async () => {
     try {
       await navigator.clipboard.writeText(JSON.stringify(state))
-      notify('Backup copied — paste it somewhere safe')
+      notify('Backup copied. Paste it somewhere safe.')
     } catch {
       notify('Copy is not allowed here. Use Download backup instead.', 'bad')
     }
@@ -187,7 +187,7 @@ export default function Profile() {
             <>
               <button onClick={() => lock()}>
                 <Lock size={20} />
-                <span className="grow">Lock now<small>App lock is on — PIN needed to open</small></span>
+                <span className="grow">Lock now<small>App lock is on. PIN needed to open.</small></span>
                 <ChevronRight size={18} />
               </button>
               <button onClick={() => nav.open('pin', { mode: 'set' })}>
@@ -253,7 +253,7 @@ export default function Profile() {
       </section>
 
       <section className="section">
-        <SectionHead title="Your data" sub="Saved only on this phone — back it up often" />
+        <SectionHead title="Your data" sub="Saved only on this phone. Back it up often." />
         <div className="settings-list">
           <button onClick={saveBackup}>
             <Download size={20} />
@@ -273,7 +273,7 @@ export default function Profile() {
           </label>
           <button onClick={saveCSV}>
             <FileSpreadsheet size={20} />
-            <span className="grow">Export all records to Excel (CSV)<small>Expenses, income, plantings and harvests — for the cooperative or DA</small></span>
+            <span className="grow">Export all records to Excel (CSV)<small>Expenses, income, plantings and harvests for the cooperative or DA</small></span>
             <ChevronRight size={18} />
           </button>
           <button onClick={() => { loadSample(); notify('Sample data added') }}>
@@ -302,7 +302,7 @@ export default function Profile() {
       </section>
 
       <p className="small muted center">
-        <Database size={12} style={{ verticalAlign: -1 }} /> Sakahan works offline. Crop advice is a general guide — confirm with your Municipal
+        <Database size={12} style={{ verticalAlign: -1 }} /> Sakahan works offline. Crop advice is a general guide. Confirm with your Municipal
         Agriculture Office.
       </p>
     </main>
@@ -349,7 +349,7 @@ export function Onboarding() {
       <div className="hero" style={{ minHeight: 220, alignItems: 'center', textAlign: 'center' }}>
         <FarmerAvatar size={120} className="anim-bob" />
         <h2 style={{ maxWidth: 'none', fontSize: 26 }}>Welcome to Sakahan</h2>
-        <p style={{ maxWidth: 'none' }}>Farm Expense and Harvest Record App — record expenses, harvests and income for every field in one place.</p>
+        <p style={{ maxWidth: 'none' }}>Farm Expense and Harvest Record App. Record expenses, harvests and income for every field in one place.</p>
       </div>
       <Field label="What's your name?" tl="Ano ang pangalan mo?">
         <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Juan" autoFocus />

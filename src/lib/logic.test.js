@@ -46,7 +46,7 @@ describe('analyzeSeasons', () => {
     expect(a.best.fert).toBe(10)
     expect(a.insights[0].tone).toBe('warn')
     expect(a.insights[0].text).toMatch(/More fertilizer did not mean more harvest/)
-    // Latest season used too much — suggest going back down.
+    // Latest season used too much, so suggest going back down.
     expect(a.insights.some((i) => i.tone === 'tip' && /about 10 bags/.test(i.text))).toBe(true)
   })
 
