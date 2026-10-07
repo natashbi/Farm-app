@@ -1,20 +1,31 @@
+import { useId } from 'react'
+
 // Hand-made flat illustrations in the app palette (no external images needed).
 
 export function FarmerAvatar({ size = 44, bg = '#9aae3f', skin = '#b9784a', className }) {
+  // Keep the farmer inside the circle; each avatar needs its own clip id.
+  const clip = `avatar-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} className={className} aria-hidden="true">
-      <circle cx="50" cy="50" r="50" fill={bg} />
-      <path d="M18 100c2-20 16-30 32-30s30 10 32 30z" fill="#2e4a40" />
-      <path d="M40 70h20l-3 10h-14z" fill={skin} />
-      <circle cx="50" cy="54" r="19" fill={skin} />
-      <circle cx="43" cy="54" r="2.4" fill="#1f2a24" />
-      <circle cx="57" cy="54" r="2.4" fill="#1f2a24" />
-      <path d="M44 62c3 3 9 3 12 0" stroke="#1f2a24" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-      {/* salakot hat */}
-      <path d="M14 43L50 20l36 23c-10 4-24 6-36 6s-26-2-36-6z" fill="#f6c945" />
-      <path d="M14 43c10 4 24 6 36 6s26-2 36-6" stroke="#c9922a" strokeWidth="2.5" fill="none" />
-      <path d="M50 20l-12 26M50 20l12 26M50 20v28" stroke="#c9922a" strokeWidth="1.5" opacity="0.6" />
-      <circle cx="50" cy="20" r="3" fill="#c9922a" />
+      <defs>
+        <clipPath id={clip}>
+          <circle cx="50" cy="50" r="50" />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${clip})`}>
+        <circle cx="50" cy="50" r="50" fill={bg} />
+        <path d="M18 100c2-20 16-30 32-30s30 10 32 30z" fill="#3f6e8c" />
+        <path d="M40 70h20l-3 10h-14z" fill={skin} />
+        <circle cx="50" cy="54" r="19" fill={skin} />
+        <circle cx="43" cy="54" r="2.4" fill="#1f2a24" />
+        <circle cx="57" cy="54" r="2.4" fill="#1f2a24" />
+        <path d="M44 62c3 3 9 3 12 0" stroke="#1f2a24" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+        {/* salakot hat */}
+        <path d="M14 43L50 20l36 23c-10 4-24 6-36 6s-26-2-36-6z" fill="#f6c945" />
+        <path d="M14 43c10 4 24 6 36 6s26-2 36-6" stroke="#c9922a" strokeWidth="2.5" fill="none" />
+        <path d="M50 20l-12 26M50 20l12 26M50 20v28" stroke="#c9922a" strokeWidth="1.5" opacity="0.6" />
+        <circle cx="50" cy="20" r="3" fill="#c9922a" />
+      </g>
     </svg>
   )
 }
