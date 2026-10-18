@@ -7,10 +7,20 @@ import { useStore } from '../store.jsx'
 import { FarmerAvatar } from '../components/Art.jsx'
 import { Field, SectionHead, Segmented, Sheet, useNav } from '../components/ui.jsx'
 import { AnimatedNumber } from '../components/motion.jsx'
+import { isNative, matchSystemBars, shareFile } from '../lib/native.js'
 
-// Save a file to the phone. When the app runs inside a Claude artifact viewer,
-// downloads go through the viewer's own save prompt.
+// Save a file to the phone. In the installed app it goes through the share sheet; when the app runs
+// inside a Claude artifact viewer, downloads go through the viewer's own save prompt.
 export async function saveFile(filename, text, type) {
+  if (isNative) {
+    try {
+      await shareFile(filename, text)
+      return 'saved'
+    } catch (err) {
+      // Closing the share sheet without picking anything is not an error.
+      return /cancel/i.test(String(err?.message || err)) ? 'declined' : 'failed'
+    }
+  }
   const downloads = window.claude?.use ? await window.claude.use('downloads').catch(() => null) : null
   if (downloads) {
     try {
@@ -43,6 +53,7 @@ export function applyTheme(theme) {
   const value = theme === 'auto' ? hostTheme : theme
   if (value) document.documentElement.setAttribute('data-theme', value)
   else document.documentElement.removeAttribute('data-theme')
+  matchSystemBars(value || 'auto')
 }
 
 export function savedTheme() {
