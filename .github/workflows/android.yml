@@ -1,0 +1,57 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npx cap sync android
+      - name: Build APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk Sakahan.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Sakahan-apk
+          path: Sakahan.apk
+      # Each build becomes a release, so the newest APK is always at
+      # https://github.com/<owner>/<repo>/releases/latest/download/Sakahan.apk
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Sakahan v1.0.${{ github.run_number }}
+          make_latest: true
+          files: Sakahan.apk
+          body: |
+            Android app ng Sakahan (Farm Expense and Harvest Record App).
+
+            Paano i-install:
+            1. I-download ang Sakahan.apk sa Android phone.
+            2. Buksan ang file. Kapag nagtanong, payagan ang "Install unknown apps" para sa browser o Files.
+            3. Pindutin ang Install, tapos Open.
+
+            Pag may bagong version, i-install lang ito sa ibabaw ng luma. Hindi mabubura ang records.

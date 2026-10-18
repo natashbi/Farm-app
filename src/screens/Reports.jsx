@@ -7,11 +7,12 @@ import { useStore } from '../store.jsx'
 import { CategoryBars } from '../components/Charts.jsx'
 import { Chip, Empty, SectionHead, Stat, useNav } from '../components/ui.jsx'
 import { saveFile } from './Profile.jsx'
+import { isNative } from '../lib/native.js'
 
-// Printing is blocked inside embedded previews, so only offer it on the real app page.
+// Printing is blocked inside embedded previews and the Android app, so only offer it on the real web page.
 const canPrint = (() => {
   try {
-    return window.self === window.top
+    return !isNative && window.self === window.top
   } catch {
     return false
   }

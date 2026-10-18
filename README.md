@@ -25,6 +25,22 @@ npm run build      # production build in dist/
 npm run build:single  # one self-contained HTML file in dist-single/ (easy to share)
 ```
 
+## Android app (APK)
+
+The app is also packaged as an installable Android app with [Capacitor](https://capacitorjs.com/).
+All files ship inside the APK, so it works without internet from the first launch.
+
+- **Get the APK:** every push to `main` runs the *Build Android APK* workflow, which publishes
+  `Sakahan.apk` as a GitHub release. The newest one is always at
+  `https://github.com/<owner>/<repo>/releases/latest/download/Sakahan.apk`.
+- **Install:** open the APK on the phone, allow *Install unknown apps* when asked, then tap **Install**.
+  A newer APK installs over the old one and keeps the records.
+- **Build it yourself:** install Node.js 22 and Android Studio, then run
+  `npm install`, `npm run android:sync` and `npm run android:open`, and press **Run** in Android Studio.
+
+The APK is signed with the test key in `android/app/sakahan-debug.keystore` so every build can update
+the previous one. A Google Play release needs its own private key.
+
 ## Put it online (free)
 
 The included GitHub Actions workflow publishes the app to GitHub Pages on every push to `main`.
@@ -36,6 +52,7 @@ choose **Add to Home screen** to install it like an app.
 ```
 src/
   App.jsx               tabs, bottom nav, full-screen sheets (phone Back button closes them)
+  lib/native.js         Android app glue: back button, status bar, sharing files
   store.jsx             data + saving to phone storage
   data/categories.js    expense categories & crops (English + Tagalog, days to harvest)
   data/cropDoctor.js    crop problem knowledge base + diagnose()
@@ -47,6 +64,7 @@ src/
   screens/              Home, Budget (Expenses), Harvest, Reports, Profile, Doctor
   forms/                expense/income, planting, field, harvest log, PIN, Crop Doctor flow
   components/           UI pieces, charts, illustrations
+android/                Android project (Capacitor); assets/ holds the icon and splash sources
 ```
 
 > Crop Doctor advice is a general guide. Confirm with your Municipal Agriculture Office / DA technician and always follow product labels.

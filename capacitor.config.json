@@ -1,0 +1,13 @@
+{
+  "appId": "ph.sakahan.app",
+  "appName": "Sakahan",
+  "webDir": "dist",
+  "android": {
+    "backgroundColor": "#F3EFDF"
+  },
+  "plugins": {
+    "SystemBars": {
+      "initialViewportFitValueHint": "cover"
+    }
+  }
+}
