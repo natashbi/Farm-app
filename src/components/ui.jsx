@@ -6,11 +6,8 @@ import { useStore } from '../store.jsx'
 import { getCategory } from '../data/categories.js'
 import { fmtDate, peso } from '../lib/format.js'
 
-// Navigation: bottom tabs + a stack of full-screen sheets that the phone's
-// back button can close.
 export const NavContext = createContext(null)
 export const useNav = () => useContext(NavContext)
-// True while a sheet plays its closing animation.
 export const SheetClosing = createContext(false)
 
 export function Sheet({ title, onClose, onBack, children, footer, action, closeIcon = 'back', scrollKey }) {
@@ -44,7 +41,6 @@ export function Sheet({ title, onClose, onBack, children, footer, action, closeI
   )
 }
 
-// A Tagalog explanation of what to fill in. Shown while "Tagalog guide" is on (Profile).
 export function TlGuide({ text }) {
   const on = useStore()?.state.profile.tlGuide !== false
   if (!on || !text) return null
@@ -99,7 +95,6 @@ export function SectionHead({ title, sub, action, onAction }) {
   )
 }
 
-// `amount` + `format` count up; plain `value` is shown as is.
 export function Stat({ label, value, amount, format, hint, tone, dot }) {
   return (
     <div className={`stat ${tone || ''}`}>
@@ -158,7 +153,6 @@ export function TxRow({ tx, where, onClick }) {
 export function ConfirmDialog({ dialog }) {
   useEffect(() => {
     if (!dialog) return
-    // Capture phase so Escape closes only the dialog, not the sheet behind it.
     const onKey = (e) => {
       if (e.key !== 'Escape') return
       e.stopPropagation()

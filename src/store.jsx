@@ -4,7 +4,6 @@ import { uid } from './lib/format.js'
 
 const KEY = 'sakahan-farm-budget-v1'
 
-// seasons = plantings: one crop cycle on one field (planting → harvest).
 export const EMPTY = {
   version: 2,
   profile: { name: '', farm: '', onboarded: false, pinHash: '', pinSalt: '', tlGuide: true },
@@ -27,7 +26,6 @@ function load() {
   }
 }
 
-// Accept anything that looks like our data (also used for backup imports).
 export function normalize(data) {
   if (!data || typeof data !== 'object') throw new Error('Not a Sakahan backup file')
   const list = (v) => (Array.isArray(v) ? v.filter((x) => x && typeof x === 'object' && x.id) : [])
@@ -52,7 +50,6 @@ function reducer(state, action) {
       return { ...state, [action.kind]: upsert(state[action.kind], action.item) }
     case 'remove': {
       const next = { ...state, [action.kind]: state[action.kind].filter((x) => x.id !== action.id) }
-      // Records stay when their planting or field is deleted, just unlinked.
       if (action.kind === 'seasons') {
         for (const k of ['transactions', 'anomalies', 'harvests']) {
           next[k] = state[k].map((t) => (t.seasonId === action.id ? { ...t, seasonId: '' } : t))
@@ -89,8 +86,6 @@ export function StoreProvider({ children }) {
   const [toast, setToast] = useState(null)
   const [dialog, setDialog] = useState(null)
   const [burst, setBurst] = useState(null)
-  // App lock: records stay hidden until the PIN is entered (only for this visit).
-  // Starts unlocked when no PIN is set, so turning the lock on doesn't lock you out mid-visit.
   const [unlocked, setUnlocked] = useState(() => !state.profile.pinHash)
   const timer = useRef()
   const burstTimer = useRef()
@@ -101,7 +96,6 @@ export function StoreProvider({ children }) {
     burstTimer.current = setTimeout(() => setBurst(null), 1400)
   }, [])
 
-  // In-app "Are you sure?" dialog. Resolves true when the farmer confirms.
   const ask = useCallback(
     (options) =>
       new Promise((resolve) => {

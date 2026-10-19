@@ -26,7 +26,6 @@ export function Disclaimer() {
   )
 }
 
-// One likely problem with everything needed to fix it.
 export function ConditionCard({ condition, level, matched, onRecord }) {
   const type = PROBLEM_TYPES[condition.type]
   return (

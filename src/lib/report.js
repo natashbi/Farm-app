@@ -4,7 +4,6 @@ import { fmtDate, num, peso } from './format.js'
 
 const isSet = (v) => v !== null && v !== undefined && v !== ''
 
-/** Season names newest first (one name covers every field planted that season). */
 export function seasonNames(seasons) {
   const latest = new Map()
   for (const s of seasons) {
@@ -15,12 +14,6 @@ export function seasonNames(seasons) {
   return [...latest.entries()].sort((a, b) => b[1].localeCompare(a[1])).map(([name]) => name)
 }
 
-/**
- * The records inside a filter: a season name ('all' = every season) and a field
- * ('all' = every field, 'none' = farm-wide records not tied to a field).
- * Farm-wide costs (tools, repairs) count in "all fields" views; for one season
- * they count when dated inside that season.
- */
 export function scopeRecords(state, { season = 'all', field = 'all' } = {}) {
   const seasons = state.seasons.filter(
     (s) => (season === 'all' || s.name === season) && (field === 'all' || (field === 'none' ? !s.fieldId : s.fieldId === field)),
@@ -47,7 +40,6 @@ export function scopeRecords(state, { season = 'all', field = 'all' } = {}) {
   }
 }
 
-/** Everything the Reports screen shows, computed from one scope. */
 export function buildReport(state, scope) {
   const all = { transactions: state.transactions, harvests: state.harvests }
   const seasonIds = new Set(scope.seasons.map((s) => s.id))
@@ -59,8 +51,6 @@ export function buildReport(state, scope) {
   const typed = plantings.filter((p) => isSet(p.season.totalCost))
   const typedIds = new Set(typed.map((p) => p.season.id))
 
-  // Records that make up the money totals: farm-wide ones, plus those of plantings
-  // whose cost is added up from records (not typed as one total).
   const farmTx = scope.transactions.filter((tx) => !seasonIds.has(tx.seasonId))
   const countedTx = scope.transactions.filter((tx) => !seasonIds.has(tx.seasonId) || !typedIds.has(tx.seasonId))
   const farm = totals(farmTx)
@@ -75,7 +65,6 @@ export function buildReport(state, scope) {
   const split = { production: 0, tools: 0, typed: typedCost }
   for (const r of categories) if (r.category.id !== 'typed') split[r.category.group] += r.total
 
-  // Harvest in the main unit, with the area it came from.
   const byUnit = {}
   for (const p of plantings) {
     if (!p.harvest.qty) continue
@@ -111,7 +100,6 @@ export function buildReport(state, scope) {
   }
 }
 
-/** A single dated feed of everything recorded: the farm's activity log. */
 export function activityLog(state, scope) {
   const fieldsById = Object.fromEntries(state.fields.map((f) => [f.id, f]))
   const seasonsById = Object.fromEntries(state.seasons.map((s) => [s.id, s]))
@@ -191,9 +179,6 @@ export function activityLog(state, scope) {
   return events.sort((a, b) => (b.date || '').localeCompare(a.date || ''))
 }
 
-// ---------------------------------------------------------------------------
-// CSV export of a report (opens in Excel / Google Sheets)
-// ---------------------------------------------------------------------------
 const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
 const row = (...cells) => cells.map(esc).join(',')
 
@@ -235,6 +220,5 @@ export function reportCSV(state, report, scope, title) {
     const s = seasonsById[tx.seasonId]
     lines.push(row(tx.date, cat.group === 'income' ? 'Income' : 'Expense', cat.label, tx.item, tx.qty, tx.unit, tx.amount, report.fieldsById[s?.fieldId]?.name || (s ? '' : 'Farm-wide'), s?.name || '', tx.note))
   }
-  // BOM so Excel reads ñ and ₱ correctly.
   return '﻿' + lines.join('\n')
 }

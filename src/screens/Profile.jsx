@@ -9,25 +9,13 @@ import { Field, SectionHead, Segmented, Sheet, useNav } from '../components/ui.j
 import { AnimatedNumber } from '../components/motion.jsx'
 import { isNative, matchSystemBars, shareFile } from '../lib/native.js'
 
-// Save a file to the phone. In the installed app it goes through the share sheet; when the app runs
-// inside a Claude artifact viewer, downloads go through the viewer's own save prompt.
 export async function saveFile(filename, text, type) {
   if (isNative) {
     try {
       await shareFile(filename, text)
       return 'saved'
     } catch (err) {
-      // Closing the share sheet without picking anything is not an error.
       return /cancel/i.test(String(err?.message || err)) ? 'declined' : 'failed'
-    }
-  }
-  const downloads = window.claude?.use ? await window.claude.use('downloads').catch(() => null) : null
-  if (downloads) {
-    try {
-      await downloads.save({ filename, data: text })
-      return 'saved'
-    } catch (err) {
-      return err?.code === 'declined' ? 'declined' : 'failed'
     }
   }
   const url = URL.createObjectURL(new Blob([text], { type }))
@@ -41,16 +29,11 @@ export async function saveFile(filename, text, type) {
   return 'saved'
 }
 
-// A page host may already set data-theme; "Auto" goes back to whatever it set.
-const hostTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-theme') : null
-
 export function applyTheme(theme) {
   try {
     localStorage.setItem('sakahan-theme', theme)
-  } catch {
-    /* private mode: theme just won't be remembered */
-  }
-  const value = theme === 'auto' ? hostTheme : theme
+  } catch {}
+  const value = theme === 'auto' ? null : theme
   if (value) document.documentElement.setAttribute('data-theme', value)
   else document.documentElement.removeAttribute('data-theme')
   matchSystemBars(value || 'auto')

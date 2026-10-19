@@ -1,9 +1,6 @@
 import { useId } from 'react'
 
-// Hand-made flat illustrations in the app palette (no external images needed).
-
 export function FarmerAvatar({ size = 44, bg = '#9aae3f', skin = '#b9784a', className }) {
-  // Keep the farmer inside the circle; each avatar needs its own clip id.
   const clip = `avatar-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} className={className} aria-hidden="true">
@@ -20,7 +17,6 @@ export function FarmerAvatar({ size = 44, bg = '#9aae3f', skin = '#b9784a', clas
         <circle cx="43" cy="54" r="2.4" fill="#1f2a24" />
         <circle cx="57" cy="54" r="2.4" fill="#1f2a24" />
         <path d="M44 62c3 3 9 3 12 0" stroke="#1f2a24" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-        {/* salakot hat */}
         <path d="M14 43L50 20l36 23c-10 4-24 6-36 6s-26-2-36-6z" fill="#f6c945" />
         <path d="M14 43c10 4 24 6 36 6s26-2 36-6" stroke="#c9922a" strokeWidth="2.5" fill="none" />
         <path d="M50 20l-12 26M50 20l12 26M50 20v28" stroke="#c9922a" strokeWidth="1.5" opacity="0.6" />
@@ -34,7 +30,6 @@ export function HeroBudgetArt(props) {
   return (
     <svg viewBox="0 0 200 170" aria-hidden="true" {...props}>
       <ellipse cx="120" cy="160" rx="80" ry="10" fill="#000" opacity="0.12" />
-      {/* rice sack */}
       <path d="M70 60c-8 20-12 50-8 90h86c4-40 0-70-8-90z" fill="#f4f0dc" />
       <path d="M70 60c10-8 60-8 70 0-10 6-60 6-70 0z" fill="#e2d9b3" />
       <path d="M86 52c6-10 32-10 38 0" stroke="#c9922a" strokeWidth="5" fill="none" strokeLinecap="round" />
@@ -42,13 +37,11 @@ export function HeroBudgetArt(props) {
       <text x="105" y="116" textAnchor="middle" fontSize="18" fontWeight="700" fill="#2e4a40" fontFamily="'Plus Jakarta Sans', Arial, sans-serif">
         ₱
       </text>
-      {/* sprout */}
       <g className="anim-sway">
         <path d="M104 52V26" stroke="#9aae3f" strokeWidth="5" strokeLinecap="round" />
         <path d="M104 34c0-14 12-22 26-22 0 14-12 22-26 22z" fill="#9aae3f" />
         <path d="M104 40c0-12-10-18-22-18 0 12 10 18 22 18z" fill="#b8c957" />
       </g>
-      {/* coins */}
       <g className="anim-bob-slow">
         <ellipse cx="160" cy="150" rx="22" ry="7" fill="#c9922a" />
         <rect x="138" y="132" width="44" height="18" fill="#f6c945" />
@@ -73,7 +66,6 @@ export function HeroDoctorArt(props) {
   return (
     <svg viewBox="0 0 200 170" aria-hidden="true" {...props}>
       <ellipse cx="110" cy="160" rx="80" ry="10" fill="#000" opacity="0.12" />
-      {/* plant */}
       <g className="anim-sway">
         <path d="M100 160V70" stroke="#9aae3f" strokeWidth="6" strokeLinecap="round" />
         <path d="M100 100c0-26 20-40 46-40 0 26-20 40-46 40z" fill="#9aae3f" />
@@ -83,10 +75,8 @@ export function HeroDoctorArt(props) {
         <circle cx="116" cy="88" r="3" fill="#c2410c" />
         <circle cx="72" cy="100" r="3.5" fill="#f6c945" />
       </g>
-      {/* pot */}
       <path d="M72 140h56l-6 24H78z" fill="#f26a1b" />
       <rect x="68" y="134" width="64" height="10" rx="4" fill="#c9520e" />
-      {/* magnifier */}
       <g className="anim-scan">
         <circle cx="150" cy="112" r="22" fill="#f4f0dc" fillOpacity="0.25" stroke="#f4f0dc" strokeWidth="7" />
         <path d="M166 128l18 18" stroke="#f6c945" strokeWidth="10" strokeLinecap="round" />

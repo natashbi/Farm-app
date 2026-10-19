@@ -1,5 +1,3 @@
-// Budget categories. `group` decides which total an entry counts toward:
-//   production -> production cost, tools -> tools & equipment cost, income -> sales.
 export const CATEGORIES = [
   { id: 'seeds', label: 'Seeds', tl: 'Binhi', emoji: '🌱', group: 'production' },
   { id: 'fertilizer', label: 'Fertilizer', tl: 'Abono', emoji: '🧪', group: 'production', unit: 'bags' },
@@ -30,8 +28,6 @@ export function getCategory(id) {
   return byId[id] || { id, label: id, tl: '', emoji: '🧾', group: 'production' }
 }
 
-// `days` = typical days from planting to harvest, used to estimate the harvest
-// date when the farmer has not set one. Farmers can change it per planting.
 export const CROPS = [
   { id: 'rice', label: 'Rice', tl: 'Palay', emoji: '🌾', days: 115 },
   { id: 'corn', label: 'Corn', tl: 'Mais', emoji: '🌽', days: 110 },

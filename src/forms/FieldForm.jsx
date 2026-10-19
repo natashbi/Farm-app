@@ -4,7 +4,6 @@ import { toNumber } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { Field, Sheet } from '../components/ui.jsx'
 
-// A field (lote) the farmer plants: large farms track each one separately.
 export default function FieldForm({ field, onClose }) {
   const { state, save, remove, notify, ask } = useStore()
   const editing = !!field

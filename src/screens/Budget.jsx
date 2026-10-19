@@ -22,7 +22,6 @@ export default function Budget() {
   const t = totals(scoped)
   const shown = sortByDateDesc(scoped.filter((tx) => group === 'all' || getCategory(tx.category).group === group))
 
-  // Group rows by month with a subtotal.
   const months = []
   for (const tx of shown) {
     const key = (tx.date || '').slice(0, 7)

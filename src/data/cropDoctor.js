@@ -1,13 +1,3 @@
-// Crop Doctor knowledge base.
-//
-// A farmer picks the crop and the signs they see. `diagnose()` scores every
-// problem by how strongly its signs match and returns the likely causes with
-// the fertilizer / treatment, tools and steps needed to fix them.
-//
-// These are general field guides (PhilRice / DA / IRRI style practices), not a
-// lab diagnosis. The app always reminds farmers to confirm with their
-// Municipal Agriculture Office and to follow product labels.
-
 export const SYMPTOM_GROUPS = [
   { id: 'leaves', label: 'Leaves', tl: 'Dahon', emoji: '🍃' },
   { id: 'plant', label: 'Stem & whole plant', tl: 'Tangkay at buong halaman', emoji: '🌿' },
@@ -15,7 +5,6 @@ export const SYMPTOM_GROUPS = [
   { id: 'field', label: 'Field & soil', tl: 'Bukid at lupa', emoji: '🟫' },
 ]
 
-// `crops` limits a sign to the crops it applies to; omitted = every crop.
 export const SYMPTOMS = [
   { id: 'yellow_old', group: 'leaves', label: 'Older / lower leaves turning yellow', tl: 'Naninilaw ang lumang dahon' },
   { id: 'yellow_young', group: 'leaves', label: 'Young / top leaves turning yellow', tl: 'Naninilaw ang bagong dahon' },
@@ -57,8 +46,6 @@ export const PROBLEM_TYPES = {
   soil: { label: 'Soil / field problem', emoji: '🟫' },
 }
 
-// items: what to apply/buy. `cat` maps to a budget category so the farmer can
-// record the purchase in one tap.
 export const CONDITIONS = [
   {
     id: 'nitrogen_def',
@@ -603,10 +590,6 @@ function appliesTo(condition, cropId) {
   return condition.crops === 'all' || !cropId || condition.crops.includes(cropId)
 }
 
-/**
- * Rank likely problems for the given crop and selected symptom ids.
- * Returns [{ condition, score, matched: [symptomId], level: 'strong'|'possible' }]
- */
 export function diagnose(cropId, symptomIds) {
   const selected = new Set(symptomIds)
   if (!selected.size) return []
@@ -615,7 +598,6 @@ export function diagnose(cropId, symptomIds) {
       const matched = Object.keys(condition.signs).filter((s) => selected.has(s))
       const score = matched.reduce((sum, s) => sum + condition.signs[s], 0)
       const topSign = Math.max(...Object.values(condition.signs))
-      // Strong when the problem's main sign is present, or several signs agree.
       const hasMainSign = matched.some((s) => condition.signs[s] === topSign)
       const level = hasMainSign && score >= 4 ? 'strong' : 'possible'
       return { condition, score, matched, level }

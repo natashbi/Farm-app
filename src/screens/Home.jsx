@@ -15,8 +15,6 @@ export default function Home() {
   const totalArea = state.fields.reduce((s, f) => s + (Number(f.area) || 0), 0)
   const growing = growingPlantings(state.seasons, (c) => getCrop(c).days)
 
-  // Money for what is growing now: those plantings' records plus farm-wide
-  // costs (tools, repairs) since the first of them was planted.
   const growingIds = new Set(growing.map((s) => s.id))
   const since = growing.map((s) => s.startDate).filter(Boolean).sort()[0]
   const scopeTx = growing.length
