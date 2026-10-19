@@ -13,7 +13,6 @@ const ADD = {
   compare: { label: 'Add past season', sheet: 'season', props: { preset: { status: 'completed' } } },
 }
 
-// Harvest records: plantings with their planting/harvest dates, the harvest log, and season comparison.
 export default function Harvest({ params }) {
   const { state } = useStore()
   const nav = useNav()
@@ -120,7 +119,6 @@ function HarvestLog({ harvests, seasons, fieldsById }) {
   const { state } = useStore()
   const nav = useNav()
   const seasonsById = Object.fromEntries(state.seasons.map((s) => [s.id, s]))
-  // A planting marked harvested with its total typed in (no batches logged) is a harvest too.
   const logged = new Set(state.harvests.map((h) => h.seasonId))
   const typed = seasons
     .filter((s) => s.status === 'completed' && Number(s.harvestQty) > 0 && !logged.has(s.id))
@@ -136,7 +134,6 @@ function HarvestLog({ harvests, seasons, fieldsById }) {
     }))
   const list = sortByDateDesc([...harvests, ...typed])
 
-  // Totals per crop and unit, e.g. "Rice · 985 cavans".
   const totals = {}
   for (const h of list) {
     const key = `${h.crop}|${h.unit}`

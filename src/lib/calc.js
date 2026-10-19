@@ -15,7 +15,6 @@ export function forSeason(transactions, seasonId) {
   return transactions.filter((tx) => tx.seasonId === seasonId)
 }
 
-// Totals per category, largest first. `group` limits to one group.
 export function byCategory(transactions, group) {
   const map = new Map()
   for (const tx of transactions) {
@@ -28,7 +27,6 @@ export function byCategory(transactions, group) {
     .sort((a, b) => b.total - a.total)
 }
 
-// Fertilizer bags recorded in the budget for a season (entries with a qty).
 export function ledgerFertilizerBags(transactions, seasonId) {
   return forSeason(transactions, seasonId)
     .filter((tx) => tx.category === 'fertilizer' && tx.unit === 'bags')
@@ -37,17 +35,12 @@ export function ledgerFertilizerBags(transactions, seasonId) {
 
 const isSet = (v) => v !== null && v !== undefined && v !== ''
 
-/** Fertilizer bags of a planting: the number typed in wins; blank = the bags recorded under Expenses. */
 export function seasonBags(season, transactions = []) {
   if (isSet(season.fertilizerBags)) return Number(season.fertilizerBags)
   const ledger = ledgerFertilizerBags(transactions, season.id)
   return ledger > 0 ? ledger : null
 }
 
-/**
- * Cost & income for a season. Old seasons usually have totals typed in by hand;
- * seasons tracked in the app add up their budget records. A typed total wins.
- */
 export function seasonStats(season, transactions, harvests = []) {
   const ledger = totals(forSeason(transactions, season.id))
   const cost = isSet(season.totalCost) ? Number(season.totalCost) : ledger.cost
@@ -77,15 +70,6 @@ export function sortByDateDesc(items, key = 'date') {
   return [...items].sort((a, b) => (b[key] || '').localeCompare(a[key] || '') || (b.createdAt || 0) - (a.createdAt || 0))
 }
 
-// ---------------------------------------------------------------------------
-// Harvest logs, fields and planting-date monitoring
-// ---------------------------------------------------------------------------
-
-/**
- * Harvest of a planting. Large farms harvest a field in several batches, so
- * when harvest logs exist their total is the harvest; older seasons without
- * logs use the amount typed on the season.
- */
 export function seasonHarvest(season, harvests = []) {
   const logs = harvests.filter((h) => h.seasonId === season.id)
   if (logs.length) {
@@ -107,10 +91,6 @@ export function daysBetween(fromIso, toIso) {
   return Math.round((new Date(`${toIso}T00:00:00`) - new Date(`${fromIso}T00:00:00`)) / 864e5)
 }
 
-/**
- * Planting-date monitor: days after planting (DAP), the expected harvest date
- * (set by the farmer, else planting date + the crop's usual days) and how far along it is.
- */
 export function plantingProgress(season, today, cropDays = 115) {
   if (!season.startDate) return null
   const total = Number(season.maturityDays) || cropDays
@@ -132,7 +112,6 @@ export function seasonLabel(season, fieldsById = {}) {
   return field ? `${field.name} · ${season.name}` : season.name
 }
 
-/** Money, area and harvest for one field across the given plantings. */
 export function fieldStats(field, seasons, transactions, harvests = []) {
   const own = seasons.filter((s) => s.fieldId === field.id)
   let cost = 0
@@ -147,7 +126,6 @@ export function fieldStats(field, seasons, transactions, harvests = []) {
   }
   const area = Number(field.area) || 0
   const mainUnit = Object.entries(harvest).sort((a, b) => b[1] - a[1])[0]?.[0] || null
-  // Average harvest per hectare per planting, in the field's main unit.
   const yields = own
     .map((s) => ({ h: seasonHarvest(s, harvests), a: Number(s.area) || area }))
     .filter(({ h, a }) => h.qty > 0 && a > 0 && h.unit === mainUnit)
@@ -163,16 +141,11 @@ export function fieldStats(field, seasons, transactions, harvests = []) {
   }
 }
 
-/** Plantings still growing, the one closest to harvest first. */
 export function growingPlantings(seasons, cropDays = () => 115) {
   const expected = (s) => s.harvestDate || (s.startDate ? addDays(s.startDate, Number(s.maturityDays) || cropDays(s.crop)) : '9999')
   return seasons.filter((s) => s.status !== 'completed').sort((a, b) => expected(a).localeCompare(expected(b)))
 }
 
-/**
- * Fertilizer used on a planting: its type and cost. The cost typed on the
- * planting wins; otherwise it adds up the fertilizer expense records.
- */
 export function seasonFertilizer(season, transactions = []) {
   const ledgerCost = transactions
     .filter((t) => t.seasonId === season.id && t.category === 'fertilizer')
@@ -181,7 +154,6 @@ export function seasonFertilizer(season, transactions = []) {
   return { cost: cost > 0 ? cost : null, ledgerCost, costFromLedger: !isSet(season.fertilizerCost), type: (season.fertilizerType || '').trim() }
 }
 
-/** Season name from the planting date: June to November plantings are the wet season; December to May the dry season (named by harvest year). */
 export function seasonNameFor(startIso) {
   if (!startIso) return `Planting ${new Date().getFullYear()}`
   const [y, m] = startIso.split('-').map(Number)

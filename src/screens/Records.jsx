@@ -11,21 +11,18 @@ import { AnimatedNumber } from '../components/motion.jsx'
 
 const TONE_ICON = { warn: AlertTriangle, tip: Lightbulb, good: CheckCircle2, info: Info }
 
-// Why a finished planting is left out of the comparison, in words the farmer can act on.
 const MISSING = {
   'no-harvest': () => 'Walang ani na nakalagay',
   'no-bags': () => 'Walang “Ilang sako ng abono?”',
   unit: (x) => `Ibang sukat ng ani (${x.unit})`,
 }
 
-// Show only the three lessons that matter most, so the screen stays easy to read.
 const KEY_KINDS = ['more-not-better', 'type', 'cost']
 function keyInsights(insights) {
   const key = KEY_KINDS.map((k) => insights.find((i) => i.kind === k)).filter(Boolean)
   return key.length ? key : insights.slice(0, 3)
 }
 
-// Compare finished plantings of one crop: which fertilizer amount and type gave the best harvest.
 export function CompareSeasons() {
   const { state } = useStore()
   const nav = useNav()
@@ -231,7 +228,6 @@ const STAGE = {
   harvested: { label: 'Harvested', tone: 'dark' },
 }
 
-// A planting with its money and harvest, plus its date monitor while growing.
 export function PlantingCard({ season, field, onClick, onLogHarvest }) {
   const { state } = useStore()
   const crop = getCrop(season.crop)

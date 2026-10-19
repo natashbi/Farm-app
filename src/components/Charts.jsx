@@ -1,6 +1,5 @@
 import { num, peso } from '../lib/format.js'
 
-// Where the money goes: one series, one color, bars sorted largest first.
 export function CategoryBars({ rows, max = 6 }) {
   const shown = rows.slice(0, max)
   const rest = rows.slice(max).reduce((s, r) => s + r.total, 0)

@@ -17,7 +17,6 @@ import PinForm from './forms/PinForm.jsx'
 import { AnomalyDetail, ConditionSheet, DiagnoseSheet } from './forms/Doctor.jsx'
 import { LockScreen } from './components/Lock.jsx'
 
-// The five main modules of the Farm Expense and Harvest Record App.
 const TABS = [
   { id: 'home', label: 'Home', icon: HomeIcon, screen: Home },
   { id: 'budget', label: 'Expenses', icon: Wallet, screen: Budget },
@@ -25,7 +24,6 @@ const TABS = [
   { id: 'reports', label: 'Reports', icon: ClipboardList, screen: Reports },
   { id: 'profile', label: 'Profile', icon: UserRound, screen: Profile },
 ]
-// Extra screens opened from inside the app (not in the bottom bar).
 const EXTRA_SCREENS = { doctor: Doctor }
 
 const SHEETS = {
@@ -46,7 +44,6 @@ export default function App() {
   const { state, toast, dialog, burst, locked } = useStore()
   const [tab, setTabState] = useState('home')
   const [params, setParams] = useState(null)
-  // Which side the new tab slides in from.
   const [dir, setDir] = useState('right')
   const [stack, setStack] = useState([])
   const pendingBack = useRef(0)
@@ -54,7 +51,6 @@ export default function App() {
   const stackRef = useRef(stack)
   stackRef.current = stack
 
-  // Let the top sheet slide away, then remove it.
   const dismissTop = useCallback(() => {
     const top = [...stackRef.current].reverse().find((x) => !closingKeys.current.has(x.key))
     if (!top) return
@@ -69,8 +65,6 @@ export default function App() {
     )
   }, [])
 
-  // Each open sheet adds a browser history entry so the phone's Back button
-  // closes the sheet instead of leaving the app.
   useEffect(() => {
     const onPop = () => {
       if (pendingBack.current > 0) pendingBack.current -= 1
@@ -87,9 +81,7 @@ export default function App() {
   const open = useCallback((type, props = {}) => {
     try {
       window.history.pushState({ sakahanSheet: true }, '')
-    } catch {
-      /* history not available (sandboxed frame); sheets still work */
-    }
+    } catch {}
     sheetSeq += 1
     setStack((s) => [...s, { type, props, key: sheetSeq }])
   }, [])
@@ -98,10 +90,7 @@ export default function App() {
     pendingBack.current += 1
     try {
       window.history.back()
-    } catch {
-      /* ignore */
-    }
-    // Fallback if the browser never fires popstate.
+    } catch {}
     setTimeout(() => {
       if (pendingBack.current > 0) {
         pendingBack.current -= 1

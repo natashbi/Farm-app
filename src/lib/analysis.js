@@ -4,14 +4,7 @@ import { num } from './format.js'
 const round1 = (n) => Math.round(n * 10) / 10
 const roundHalf = (n) => Math.round(n * 2) / 2
 
-/**
- * Compare past seasons of one crop to find how much fertilizer gave the best
- * harvest. When every season has a field area, values are per hectare so
- * seasons with different field sizes are fair to compare.
- */
 export function analyzeSeasons(seasons, transactions, cropId, harvests = [], label = (season) => season.name) {
-  // Finished plantings missing what the comparison needs are listed with the reason,
-  // so the farmer knows what to fill in.
   const excluded = []
   const done = []
   for (const s of seasons) {
@@ -22,7 +15,6 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     else done.push(s)
   }
 
-  // Compare like with like: use the most common harvest unit.
   const unitCounts = {}
   const unitOf = (s) => seasonHarvest(s, harvests).unit
   for (const s of done) unitCounts[unitOf(s)] = (unitCounts[unitOf(s)] || 0) + 1
@@ -87,7 +79,6 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     return result
   }
 
-  // 1. More fertilizer but a smaller harvest: the clearest lesson in the data.
   let worst = null
   for (const lo of points) {
     for (const hi of points) {
@@ -106,7 +97,6 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     })
   }
 
-  // 2. Latest season vs the best one.
   const latest = points[points.length - 1]
   if (latest !== best) {
     if (latest.fert > best.fert * 1.15) {
@@ -127,7 +117,6 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     }
   }
 
-  // 3. Harvest per bag of fertilizer.
   const withBags = points.filter((p) => p.perBag !== null)
   if (withBags.length >= 2) {
     const eff = withBags.reduce((a, b) => (b.perBag > a.perBag ? b : a))
@@ -138,7 +127,6 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     })
   }
 
-  // 4. Which fertilizer type gave the best harvest (average per season).
   const groups = new Map()
   for (const p of points) {
     if (!p.type) continue
@@ -169,7 +157,6 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     })
   }
 
-  // 5. Cheapest fertilizer for each unit harvested.
   const withCost = points.filter((p) => p.fertCostPerUnit !== null)
   if (withCost.length >= 2) {
     const cheap = withCost.reduce((a, b) => (b.fertCostPerUnit < a.fertCostPerUnit ? b : a))
@@ -181,7 +168,6 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
     })
   }
 
-  // 6. Most profitable.
   const withProfit = points.filter((p) => p.profit !== null)
   if (withProfit.length >= 2) {
     const top = withProfit.reduce((a, b) => (b.profit > a.profit ? b : a))
@@ -191,8 +177,6 @@ export function analyzeSeasons(seasons, transactions, cropId, harvests = [], lab
   return result
 }
 
-// Least-squares fit harvest = a + b·fert + c·fert². When the curve bends down
-// inside the recorded range, its top is an estimated "sweet spot".
 export function quadraticPeak(points) {
   const xs = [...new Set(points.map((p) => round1(p.fert)))]
   if (points.length < 3 || xs.length < 3) return null

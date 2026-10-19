@@ -6,12 +6,10 @@ import { num, peso, todayISO, toNumber } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { Field, Sheet, TlGuide } from '../components/ui.jsx'
 
-// One harvest batch: crop, date and quantity, tied to the planting it came from.
 export default function HarvestForm({ harvest, preset, onClose }) {
   const { state, save, remove, notify, ask, celebrate } = useStore()
   const editing = !!harvest
   const fieldsById = Object.fromEntries(state.fields.map((f) => [f.id, f]))
-  // Growing plantings first (closest to harvest on top), then past ones.
   const growing = growingPlantings(state.seasons, (c) => getCrop(c).days)
   const past = state.seasons.filter((s) => s.status === 'completed').sort((a, b) => (b.startDate || '').localeCompare(a.startDate || ''))
   const plantings = [...growing, ...past]
@@ -59,10 +57,8 @@ export default function HarvestForm({ harvest, preset, onClose }) {
       buyer: f.buyer.trim(),
       notes: f.notes.trim(),
     })
-    // The last harvest of a planting closes it, so it moves to "Harvested" and joins Compare.
     const finishing = f.finish && season.status === 'active'
     if (finishing) save('seasons', { ...season, status: 'completed', harvestDate: f.date || todayISO(), harvestUnit: season.harvestUnit || f.unit })
-    // Selling the harvest right away is common: record the income in one step.
     if (!editing && f.addIncome && saleTotal > 0) {
       save('transactions', {
         category: 'harvest_sale',

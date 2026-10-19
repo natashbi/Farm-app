@@ -1,4 +1,3 @@
-// Shrink a camera photo so many of them fit in the phone's local storage.
 export function compressImage(file, maxSize = 720, quality = 0.62) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()

@@ -6,10 +6,6 @@ import { PinPad } from '../components/Lock.jsx'
 
 const newSalt = () => Math.random().toString(36).slice(2) + Date.now().toString(36)
 
-/**
- * Set, change or turn off the app lock. Changing or turning it off asks for the
- * current PIN first. Only a salted SHA-256 hash of the PIN is stored.
- */
 export default function PinForm({ mode = 'set', onClose }) {
   const { state, setProfile, notify } = useStore()
   const hasPin = !!state.profile.pinHash

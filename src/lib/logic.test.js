@@ -46,14 +46,13 @@ describe('analyzeSeasons', () => {
     expect(a.best.fert).toBe(10)
     expect(a.insights[0].tone).toBe('warn')
     expect(a.insights[0].text).toMatch(/More fertilizer did not mean more harvest/)
-    // Latest season used too much, so suggest going back down.
     expect(a.insights.some((i) => i.tone === 'tip' && /about 10 bags/.test(i.text))).toBe(true)
   })
 
   it('compares per hectare when every season has an area', () => {
     const a = analyzeSeasons([season('a', 10, 150, { area: 2 }), season('bb', 6, 100, { area: 1 })], [], 'rice')
     expect(a.perHa).toBe(true)
-    expect(a.best.season.id).toBe('bb') // 100/ha beats 75/ha
+    expect(a.best.season.id).toBe('bb')
   })
 
   it('ignores active seasons, other crops and other units', () => {
@@ -104,7 +103,7 @@ describe('analyzeSeasons', () => {
     const a = analyzeSeasons(seasons, transactions, 'rice', harvests)
     expect(a.points).toHaveLength(5)
     expect(a.perHa).toBe(true)
-    expect(a.best.bags).toBe(40) // Lote 1: 40 bags on 6 ha -> 600 cavans
+    expect(a.best.bags).toBe(40)
   })
 })
 
@@ -190,7 +189,7 @@ describe('reports', () => {
     const state = { ...data, profile: {} }
     const lote1 = scopeRecords(state, { field: 'f-1' })
     expect(lote1.seasons.every((s) => s.fieldId === 'f-1')).toBe(true)
-    expect(lote1.transactions.some((t) => !t.seasonId)).toBe(false) // farm-wide costs only in "all fields"
+    expect(lote1.transactions.some((t) => !t.seasonId)).toBe(false)
   })
 })
 

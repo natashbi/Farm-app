@@ -38,8 +38,6 @@ jobs:
         with:
           name: Sakahan-apk
           path: Sakahan.apk
-      # Each build becomes a release, so the newest APK is always at
-      # https://github.com/<owner>/<repo>/releases/latest/download/Sakahan.apk
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}

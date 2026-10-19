@@ -1,6 +1,3 @@
-// Offline support. Pages always come fresh from the network (never an old cached
-// copy that points at files a newer version removed); files fall back to the
-// last cached copy when there is no signal.
 const CACHE = 'sakahan-v2'
 
 self.addEventListener('install', () => self.skipWaiting())

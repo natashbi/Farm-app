@@ -7,7 +7,6 @@ import { ConfirmDialog } from './ui.jsx'
 
 export const PIN_LENGTH = 4
 
-// Number pad with dots, big enough for work-worn thumbs.
 export function PinPad({ onComplete, error, resetKey }) {
   const [digits, setDigits] = useState('')
   useEffect(() => setDigits(''), [resetKey])
@@ -55,7 +54,6 @@ export function PinPad({ onComplete, error, resetKey }) {
   )
 }
 
-/** Shown on app start when the farmer has turned on the app lock. */
 export function LockScreen() {
   const { state, unlock, reset, ask, dialog } = useStore()
   const [error, setError] = useState('')
@@ -78,7 +76,6 @@ export function LockScreen() {
     }
     const tries = attempt + 1
     setAttempt(tries)
-    // Slow down guessing after every 5 wrong tries.
     if (tries % 5 === 0) {
       setWaitUntil(Date.now() + 30000)
       setNow(Date.now())

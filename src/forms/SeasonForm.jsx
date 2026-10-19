@@ -6,8 +6,6 @@ import { fmtDate, num, peso, toNumber } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { Chip, Field, Segmented, Sheet, TlGuide } from '../components/ui.jsx'
 
-// A planting (season): one crop cycle on one field, from planting to harvest.
-// Only the few things every farmer knows are shown; the rest sits under "More details".
 export default function SeasonForm({ season, preset, onClose }) {
   const { state, save, remove, notify, ask } = useStore()
   const editing = !!season
@@ -44,7 +42,6 @@ export default function SeasonForm({ season, preset, onClose }) {
   const expected = f.startDate ? f.harvestDate || addDays(f.startDate, Number(f.maturityDays) || cropDays) : ''
   const autoName = seasonNameFor(f.startDate)
 
-  // Picking a field fills in its size so yields per hectare are right.
   const pickField = (e) => {
     const field = state.fields.find((x) => x.id === e.target.value)
     setF((x) => ({ ...x, fieldId: e.target.value, area: field ? field.area : x.area }))

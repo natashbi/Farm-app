@@ -8,10 +8,6 @@ export function prefersReducedMotion() {
   }
 }
 
-/**
- * A number that counts up to its value, and ticks from the old value to the
- * new one when a record changes a total.
- */
 export function AnimatedNumber({ value, format = (n) => n, duration = 750 }) {
   const target = Number(value) || 0
   const still = prefersReducedMotion()
@@ -44,7 +40,6 @@ export function AnimatedNumber({ value, format = (n) => n, duration = 750 }) {
 
 const PIECES = ['🌾', '🌿', '✨', '🌱', '💰', '🍃']
 
-// A short burst of leaves and coins for good moments (income saved, problem solved).
 export function Celebration({ burst }) {
   if (!burst || prefersReducedMotion()) return null
   return (

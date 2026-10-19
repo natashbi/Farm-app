@@ -7,19 +7,13 @@ android {
         applicationId "ph.sakahan.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // CI numbers each build so a new APK installs over the old one.
         versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1") as Integer
         versionName = "1.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
-             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
-             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
-    // One shared signing key for every build, so updates install over the previous APK
-    // without uninstalling it (which would erase the farm records on the phone).
-    // It is a test key kept in the repo; a Play Store release needs its own private key.
     signingConfigs {
         debug {
             storeFile file('sakahan-debug.keystore')
