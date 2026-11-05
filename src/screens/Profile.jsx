@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronRight, Copy, Database, Download, FileSpreadsheet, KeyRound, Lock, LockOpen, MapPin, Moon, Plus, Settings, Sparkles, Stethoscope, Trash2, Upload } from 'lucide-react'
 import { getCrop } from '../data/categories.js'
-import { num, todayISO } from '../lib/format.js'
+import { fmtDate, num, todayISO } from '../lib/format.js'
 import { buildReport, reportCSV, scopeRecords } from '../lib/report.js'
 import { useStore } from '../store.jsx'
 import { FarmerAvatar } from '../components/Art.jsx'
@@ -298,6 +298,9 @@ export default function Profile() {
       <p className="small muted center">
         <Database size={12} style={{ verticalAlign: -1 }} /> Sakahan works offline. Crop advice is a general guide. Confirm with your Municipal
         Agriculture Office.
+      </p>
+      <p className="small muted center">
+        Version {__BUILD__.commit} · built {fmtDate(__BUILD__.date)}
       </p>
     </main>
   )

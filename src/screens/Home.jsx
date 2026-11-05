@@ -1,11 +1,67 @@
+import { useMemo } from 'react'
+import { ChevronRight } from 'lucide-react'
 import { getCrop } from '../data/categories.js'
+import { fertilizerAdvice, roundHalf } from '../lib/analysis.js'
 import { addDays, growingPlantings, totals } from '../lib/calc.js'
 import { fmtDate, greeting, num, peso } from '../lib/format.js'
 import { activityLog, scopeRecords } from '../lib/report.js'
 import { useStore } from '../store.jsx'
 import { FarmerAvatar, HeroBudgetArt } from '../components/Art.jsx'
-import { Empty, SectionHead, Stat, useNav } from '../components/ui.jsx'
+import { Empty, SectionHead, Stat, TlGuide, useNav } from '../components/ui.jsx'
 import { PlantingCard } from './Records.jsx'
+
+function adviceCrops(seasons) {
+  const growing = [...new Set(seasons.filter((s) => s.status !== 'completed').map((s) => s.crop))]
+  if (growing.length) return growing
+  const count = {}
+  for (const s of seasons) count[s.crop] = (count[s.crop] || 0) + 1
+  return Object.keys(count).sort((a, b) => count[b] - count[a])
+}
+
+function FertilizerAdvice({ state, growing }) {
+  const nav = useNav()
+  const advice = useMemo(
+    () =>
+      adviceCrops(state.seasons)
+        .map((crop) => ({ crop, analysis: fertilizerAdvice(state, crop) }))
+        .filter((x) => x.analysis)
+        .slice(0, 2),
+    [state],
+  )
+  if (!advice.length) return null
+  return (
+    <section className="section">
+      <SectionHead title="Fertilizer advice" sub="Payo sa abono mula sa iyong records" />
+      <div className="stack">
+        {advice.map(({ crop, analysis }) => {
+          const rec = analysis.recommendation
+          const area = growing.filter((s) => s.crop === crop).reduce((sum, s) => sum + (Number(s.area) || 0), 0)
+          return (
+            <button key={crop} className="card advice-card" onClick={() => nav.setTab('harvest', { view: 'compare', crop })}>
+              <span className="thumb" aria-hidden="true">🧪</span>
+              <span className="grow">
+                <span className="kicker">
+                  {getCrop(crop).emoji} {getCrop(crop).label}
+                </span>
+                <strong className="title">{rec.text}</strong>
+                {analysis.perHa && area > 0 && (
+                  <span className="small">
+                    For the {num(area)} ha growing now: about {num(roundHalf(rec.fert * area))} bags{rec.brand ? ` of ${rec.brand}` : ''}.
+                  </span>
+                )}
+                {rec.reasons[0] && <span className="small muted">{rec.reasons[0].text}</span>}
+                <TlGuide text={rec.tl} />
+                <span className="go">
+                  See why <ChevronRight size={14} />
+                </span>
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
 
 export default function Home() {
   const { state } = useStore()
@@ -68,6 +124,8 @@ export default function Home() {
           </button>
         )}
       </section>
+
+      <FertilizerAdvice state={state} growing={growing} />
 
       <section className="section">
         <SectionHead

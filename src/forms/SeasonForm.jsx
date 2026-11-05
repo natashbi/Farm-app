@@ -1,10 +1,52 @@
-import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { AlertTriangle, Lightbulb, Trash2 } from 'lucide-react'
 import { CROPS, HARVEST_UNITS, getCrop } from '../data/categories.js'
+import { brandKey, fertilizerAdvice, round1, roundHalf } from '../lib/analysis.js'
 import { addDays, ledgerFertilizerBags, seasonFertilizer, seasonHarvest, seasonNameFor, seasonStats } from '../lib/calc.js'
 import { fmtDate, num, peso, toNumber } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { Chip, Field, Segmented, Sheet, TlGuide } from '../components/ui.jsx'
+
+function FertilizerTip({ advice, area, brand, onUseBrand }) {
+  const rec = advice.recommendation
+  return (
+    <div className="callout tip">
+      <Lightbulb size={18} />
+      <span className="stack" style={{ gap: 6 }}>
+        <span>
+          <strong>Payo ng app:</strong> {rec.text}
+          {advice.perHa && area > 0 ? ` For ${num(area)} ha, that is about ${num(roundHalf(rec.fert * area))} bags.` : ''}
+        </span>
+        <TlGuide text={rec.tl} />
+        {rec.brand && brandKey(brand) !== rec.brandKey && (
+          <button type="button" className="btn ghost small" style={{ alignSelf: 'flex-start' }} onClick={() => onUseBrand(rec.brand)}>
+            Use {rec.brand}
+          </button>
+        )}
+      </span>
+    </div>
+  )
+}
+
+function BrandWarning({ advice, brand }) {
+  const rec = advice.recommendation
+  const ha = advice.perHa ? '/ha' : ''
+  const chosen = brandKey(brand)
+  const worse = rec.brand && chosen && chosen !== rec.brandKey ? advice.brands.find((b) => b.key === chosen) : null
+  if (!worse || worse.peak.yield >= rec.point.yield * 0.9) return null
+  return (
+    <div className="callout warn" role="status" style={{ animationDelay: '0ms' }}>
+      <AlertTriangle size={18} />
+      <span className="stack" style={{ gap: 4 }}>
+        <span>
+          {worse.name} gave less before: at most {num(worse.peak.yield)} {advice.unit}
+          {ha} with {num(round1(worse.peak.fert))} bags{ha}, compared with {num(rec.peak.yield)} using {rec.brand}.
+        </span>
+        <TlGuide text={`Mas mababa ang ani sa ${worse.name} dati. Mas mabisa ang ${rec.brand}.`} />
+      </span>
+    </div>
+  )
+}
 
 export default function SeasonForm({ season, preset, onClose }) {
   const { state, save, remove, notify, ask } = useStore()
@@ -41,6 +83,15 @@ export default function SeasonForm({ season, preset, onClose }) {
   const cropDays = getCrop(f.crop).days
   const expected = f.startDate ? f.harvestDate || addDays(f.startDate, Number(f.maturityDays) || cropDays) : ''
   const autoName = seasonNameFor(f.startDate)
+  const advice = useMemo(() => fertilizerAdvice(state, f.crop), [state, f.crop])
+  const usedBrands = useMemo(() => {
+    const seen = new Map()
+    for (const s of [...state.seasons].sort((a, b) => (b.startDate || '').localeCompare(a.startDate || ''))) {
+      const name = (s.fertilizerType || '').trim()
+      if (brandKey(name) && !seen.has(brandKey(name))) seen.set(brandKey(name), name)
+    }
+    return [...seen.values()].slice(0, 6)
+  }, [state.seasons])
 
   const pickField = (e) => {
     const field = state.fields.find((x) => x.id === e.target.value)
@@ -182,7 +233,15 @@ export default function SeasonForm({ season, preset, onClose }) {
 
         <div className="divider" />
         <h3 style={{ fontSize: 16, fontWeight: 600 }}>🧪 Abonong ginamit</h3>
-        <p className="small muted" style={{ marginTop: -10 }}>Para makita sa Harvest → Compare kung ilang sako at anong abono ang pinakamabisa.</p>
+        <p className="small muted" style={{ marginTop: -10 }}>Para malaman ng app kung aling brand at ilang sako ang pinakamabisa (Harvest → Compare).</p>
+        {!done && advice && (
+          <FertilizerTip
+            advice={advice}
+            area={toNumber(f.area) || 0}
+            brand={f.fertilizerType}
+            onUseBrand={(name) => setF((x) => ({ ...x, fertilizerType: name }))}
+          />
+        )}
         <div className="field-row">
           <Field label="Ilang sako ng abono?" tl="Ilang sako ang nagamit sa buong tanim. Iwan blangko kung nailista na sa Expenses." hint={ledgerBags ? `Kusang galing sa Expenses: ${num(ledgerBags)} sako` : '1 sako = 50 kg'}>
             <input className="input" inputMode="decimal" value={f.fertilizerBags} onChange={set('fertilizerBags')} placeholder={ledgerBags ? num(ledgerBags) : 'e.g. 10'} />
@@ -194,14 +253,28 @@ export default function SeasonForm({ season, preset, onClose }) {
             </div>
           </Field>
         </div>
-        <Field label="Anong klaseng abono?" tl="Pangalan ng abono. Hal. Complete 14-14-14 + Urea.">
-          <input className="input" value={f.fertilizerType} onChange={set('fertilizerType')} placeholder="e.g. Complete 14-14-14 + Urea" list="fertilizer-types" />
+        <Field
+          label="Anong brand ng abono?"
+          tl="Isulat ang brand (at klase kung gusto). Pareho ang sulat bawat season para maikumpara ng app. Hal. Brand A Complete 14-14-14."
+          hint={usedBrands.length ? 'Tap a brand you used before, or type a new one.' : undefined}
+        >
+          <input className="input" value={f.fertilizerType} onChange={set('fertilizerType')} placeholder="e.g. Brand A Complete 14-14-14" list="fertilizer-types" />
           <datalist id="fertilizer-types">
-            {[...new Set(state.seasons.map((s) => s.fertilizerType).filter(Boolean))].map((t) => (
+            {usedBrands.map((t) => (
               <option key={t} value={t} />
             ))}
           </datalist>
         </Field>
+        {usedBrands.length > 0 && (
+          <div className="chips wrap" role="group" aria-label="Brands used before" style={{ marginTop: -6 }}>
+            {usedBrands.map((name) => (
+              <Chip key={name} active={brandKey(f.fertilizerType) === brandKey(name)} onClick={() => setF((x) => ({ ...x, fertilizerType: name }))}>
+                {name}
+              </Chip>
+            ))}
+          </div>
+        )}
+        {!done && advice && <BrandWarning advice={advice} brand={f.fertilizerType} />}
 
         <details className="more">
           <summary>More details (optional)</summary>

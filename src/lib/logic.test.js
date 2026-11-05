@@ -39,13 +39,73 @@ describe('seasonStats', () => {
   })
 })
 
+const year = (id, y, bags, harvest, brand, extra = {}) =>
+  season(id, bags, harvest, { name: `Year ${y}`, startDate: `${y}-06-01`, harvestDate: `${y}-09-25`, fertilizerType: brand, ...extra })
+
+describe('fertilizer brand and amount advice', () => {
+  const farmer = [year('y1', 2023, 10, 120, 'Brand A'), year('y2', 2024, 5, 80, 'Brand A'), year('y3', 2025, 10, 50, 'Brand B')]
+
+  it('tells the farmer to use Brand A, about 10 bags (10 A = 120, 5 A = 80, 10 B = 50)', () => {
+    const a = analyzeSeasons(farmer, [], 'rice')
+    expect(a.best.season.id).toBe('y1')
+    expect(a.recommendation).toMatchObject({ brand: 'Brand A', fert: 10, text: 'Use Brand A, about 10 bags.', tl: 'Gamitin ang Brand A, mga 10 sako.' })
+    expect(a.brands.map((b) => b.name)).toEqual(['Brand A', 'Brand B'])
+    const reasons = a.recommendation.reasons
+    expect(reasons.map((r) => r.kind)).toEqual(['brand-same', 'brand-less', 'amount-less'])
+    expect(reasons[0].text).toBe('With the same 10 bags, Brand A harvested 120 cavans but Brand B only 50.')
+    expect(reasons[1].text).toMatch(/5 bags gave 80 cavans, while 10 bags of Brand B gave only 50/)
+    expect(reasons[2].text).toMatch(/5 bags of Brand A gave only 80 cavans\. Stay near 10 bags/)
+  })
+
+  it('notices the latest season used the worse brand and does not blame the amount', () => {
+    const a = analyzeSeasons(farmer, [], 'rice')
+    expect(a.insights.find((i) => i.kind === 'latest').text).toMatch(/used Brand B and harvested 50 cavans\. Go back to Brand A, about 10 bags/)
+    expect(a.insights.some((i) => /More .*did not mean more harvest/.test(i.text))).toBe(false)
+  })
+
+  it('treats differently typed names of one brand as the same brand', () => {
+    const a = analyzeSeasons([year('y1', 2023, 10, 120, 'Brand A'), year('y2', 2024, 5, 80, ' brand  a'), year('y3', 2025, 10, 50, 'Brand-B')], [], 'rice')
+    expect(a.brands.map((b) => [b.name, b.seasons])).toEqual([['Brand A', 2], ['Brand-B', 1]])
+  })
+
+  it('recommends fewer bags when they gave almost the same harvest', () => {
+    const a = analyzeSeasons([year('y1', 2023, 10, 120, 'Brand A'), year('y2', 2024, 8, 118, 'Brand A'), year('y3', 2025, 10, 90, 'Brand B')], [], 'rice')
+    expect(a.recommendation).toMatchObject({ brand: 'Brand A', fert: 8 })
+    expect(a.recommendation.reasons.some((r) => r.kind === 'amount-more')).toBe(true)
+  })
+
+  it('points out a brand that came close with fewer bags or for less money', () => {
+    const bags = analyzeSeasons([year('y1', 2023, 20, 130, 'Brand A'), year('y2', 2024, 10, 125, 'Brand B')], [], 'rice')
+    expect(bags.recommendation.reasons.find((r) => r.kind === 'brand-close').text).toMatch(/Brand B came close with fewer bags/)
+    expect(bags.insights.some((i) => i.kind === 'latest')).toBe(false)
+    const money = analyzeSeasons(
+      [year('y1', 2023, 10, 120, 'Brand A', { fertilizerCost: 30000 }), year('y2', 2024, 10, 112, 'Brand B', { fertilizerCost: 15000 })],
+      [],
+      'rice',
+    )
+    expect(money.recommendation.reasons.find((r) => r.kind === 'brand-close').text).toMatch(/for less money: 112 cavans with ₱15,000/)
+  })
+
+  it('warns when seasons disagree about the better brand', () => {
+    const a = analyzeSeasons([year('y1', 2023, 10, 120, 'Brand A'), year('y2', 2024, 10, 70, 'Brand A'), year('y3', 2025, 10, 100, 'Brand B')], [], 'rice')
+    expect(a.recommendation.brand).toBe('Brand A')
+    expect(a.recommendation.reasons.find((r) => r.kind === 'brand-mixed').text).toMatch(/Brand B gave 100 cavans with 10 bags, more than Brand A/)
+  })
+
+  it('asks for the brand when it was not written down', () => {
+    const a = analyzeSeasons([season('a', 10, 150), season('bb', 20, 100)], [], 'rice')
+    expect(a.recommendation.brand).toBe('')
+    expect(a.insights.some((i) => i.kind === 'brand-missing')).toBe(true)
+  })
+})
+
 describe('analyzeSeasons', () => {
   it('finds the fertilizer amount behind the best harvest (10 bags -> 150 beats 20 bags -> 100)', () => {
     const a = analyzeSeasons([season('a', 10, 150), season('bb', 20, 100)], [], 'rice')
     expect(a.best.season.id).toBe('a')
     expect(a.best.fert).toBe(10)
-    expect(a.insights[0].tone).toBe('warn')
-    expect(a.insights[0].text).toMatch(/More fertilizer did not mean more harvest/)
+    expect(a.recommendation.reasons[0].tone).toBe('warn')
+    expect(a.recommendation.reasons[0].text).toMatch(/More fertilizer did not mean more harvest/)
     expect(a.insights.some((i) => i.tone === 'tip' && /about 10 bags/.test(i.text))).toBe(true)
   })
 
@@ -89,13 +149,14 @@ describe('analyzeSeasons', () => {
     expect(a.excluded).toHaveLength(0)
   })
 
-  it('compares fertilizer types and costs', () => {
+  it('compares fertilizer brands and costs', () => {
     const { seasons, transactions, harvests } = makeSampleData()
     const a = analyzeSeasons(seasons, transactions, 'rice', harvests)
-    expect(a.byType[0].type).toBe('Complete 14-14-14 + Urea')
-    expect(a.byType).toHaveLength(3)
+    expect(a.brands.map((b) => b.name)).toEqual(['Complete 14-14-14 + Urea', 'Complete 16-20-0 + Urea', 'Urea + Ammonium sulfate'])
+    expect(a.brands[0].costPerBag).toBe(1600)
+    expect(a.recommendation.brand).toBe('Complete 14-14-14 + Urea')
     expect(a.points.every((p) => p.fertCost > 0)).toBe(true)
-    expect(a.insights.some((i) => /Best fertilizer type/.test(i.text))).toBe(true)
+    expect(a.insights.some((i) => i.kind === 'cost')).toBe(true)
   })
 
   it('works with the sample data (harvest logs count as the harvest)', () => {

@@ -58,7 +58,7 @@ export default function Harvest({ params }) {
 
       {view === 'plantings' && <Plantings seasons={state.seasons.filter(inField)} fieldsById={fieldsById} />}
       {view === 'log' && <HarvestLog harvests={state.harvests.filter(inField)} seasons={state.seasons.filter(inField)} fieldsById={fieldsById} />}
-      {view === 'compare' && <CompareSeasons />}
+      {view === 'compare' && <CompareSeasons initialCrop={params?.crop} />}
     </main>
   )
 }
