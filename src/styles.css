@@ -846,6 +846,15 @@ details.more summary::-webkit-details-marker { display: none; }
 details.more summary::after { content: '＋'; color: var(--muted); }
 details.more[open] summary::after { content: '－'; }
 
+.hero .hero-brand { font-size: 24px; font-weight: 600; line-height: 1.2; max-width: 64%; overflow-wrap: anywhere; }
+.hero .tl-guide { position: relative; z-index: 1; max-width: 64%; background: rgba(244, 240, 220, 0.14); color: var(--on-green); }
+.advice-card { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; border: 0; border-left: 4px solid var(--orange); color: var(--ink); }
+.advice-card .thumb { width: 44px; height: 44px; border-radius: 14px; background: var(--orange-soft); display: grid; place-items: center; font-size: 22px; flex: none; }
+.advice-card .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.advice-card .kicker { font-size: 12.5px; color: var(--muted); }
+.advice-card .title { font-size: 16px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.advice-card .go { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 500; color: var(--good); }
+.advice-card:active { transform: scale(0.98); }
 .fert-row { display: flex; flex-direction: column; gap: 6px; }
 .fert-bar { height: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
 .fert-bar > span { display: block; height: 100%; border-radius: 999px; background: var(--chart-muted); transform-origin: left center; animation: growX 0.8s var(--ease-out) backwards; }

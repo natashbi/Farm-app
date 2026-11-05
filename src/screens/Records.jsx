@@ -6,7 +6,7 @@ import { plantingProgress, seasonBags, seasonHarvest, seasonLabel, seasonStats }
 import { fmtDate, num, peso, pesoCompact, todayISO } from '../lib/format.js'
 import { useStore } from '../store.jsx'
 import { HeroRecordsArt } from '../components/Art.jsx'
-import { Chip, Empty, Progress, SectionHead, useNav } from '../components/ui.jsx'
+import { Chip, Empty, Progress, SectionHead, TlGuide, useNav } from '../components/ui.jsx'
 import { AnimatedNumber } from '../components/motion.jsx'
 
 const TONE_ICON = { warn: AlertTriangle, tip: Lightbulb, good: CheckCircle2, info: Info }
@@ -17,13 +17,20 @@ const MISSING = {
   unit: (x) => `Ibang sukat ng ani (${x.unit})`,
 }
 
-const KEY_KINDS = ['more-not-better', 'type', 'cost']
-function keyInsights(insights) {
-  const key = KEY_KINDS.map((k) => insights.find((i) => i.kind === k)).filter(Boolean)
-  return key.length ? key : insights.slice(0, 3)
+export function Advice({ item }) {
+  const Icon = TONE_ICON[item.tone] || Info
+  return (
+    <div className={`callout ${item.tone}`}>
+      <Icon size={18} />
+      <span className="stack" style={{ gap: 4 }}>
+        <span>{item.text}</span>
+        <TlGuide text={item.tl} />
+      </span>
+    </div>
+  )
 }
 
-export function CompareSeasons() {
+export function CompareSeasons({ initialCrop }) {
   const { state } = useStore()
   const nav = useNav()
   const crops = useMemo(() => {
@@ -31,7 +38,7 @@ export function CompareSeasons() {
     for (const s of state.seasons) count[s.crop] = (count[s.crop] || 0) + 1
     return Object.keys(count).sort((a, b) => count[b] - count[a])
   }, [state.seasons])
-  const [picked, setPicked] = useState(null)
+  const [picked, setPicked] = useState(initialCrop || null)
   const crop = picked && crops.includes(picked) ? picked : crops[0]
 
   const fieldsById = useMemo(() => Object.fromEntries(state.fields.map((f) => [f.id, f])), [state.fields])
@@ -43,7 +50,7 @@ export function CompareSeasons() {
   const seasons = state.seasons.filter((s) => s.crop === crop)
   const activeArea = seasons.filter((s) => s.status === 'active').reduce((sum, s) => sum + (Number(s.area) || 0), 0)
   const growingCount = seasons.filter((s) => s.status === 'active').length
-  const { best, perHa, unit, points, byType } = analysis
+  const { best, perHa, unit, points, brands, recommendation: rec } = analysis
   const ha = perHa ? '/ha' : ''
   const short = unit === 'cavans' ? 'cav' : unit
   const addPast = () => nav.open('season', { preset: { status: 'completed' } })
@@ -53,14 +60,14 @@ export function CompareSeasons() {
       <>
         <section className="hero">
           <h2>Learn from your past harvests</h2>
-          <p>Record each season's fertilizer and harvest. The app shows what amount gave the best result.</p>
+          <p>Record each season's fertilizer brand, bags and harvest. The app tells you which brand and amount work best.</p>
           <div className="actions">
             <button className="btn primary small" onClick={addPast}>Add a past season</button>
           </div>
           <HeroRecordsArt className="hero-art" />
         </section>
         <Empty title="No plantings yet">
-          Example: 10 bags of fertilizer → 150 cavans, but 20 bags → 100 cavans. Recording this helps you use the right amount next time.
+          Example: 10 bags of Brand A gave 120 cavans, but 10 bags of Brand B gave only 50. The app will tell you to use Brand A and how many bags.
         </Empty>
       </>
     )
@@ -84,24 +91,36 @@ export function CompareSeasons() {
       <section className="hero" style={{ gap: 8 }}>
         {best ? (
           <>
-            <p style={{ maxWidth: '64%' }}>Best fertilizer amount for {getCrop(crop).label}</p>
+            <p style={{ maxWidth: '64%' }}>
+              {rec.brand ? 'Best fertilizer' : 'Best fertilizer amount'} for {getCrop(crop).label}
+            </p>
+            {rec.brand && <h2 className="hero-brand">{rec.brand}</h2>}
             <div className="big-number" style={{ position: 'relative', zIndex: 1 }}>
               ≈ <AnimatedNumber value={round1(best.fert)} format={(n) => num(n)} /> <span style={{ fontSize: 20, fontWeight: 500 }}>bags{ha}</span>
             </div>
             <p>
-              Gave the biggest harvest: <strong style={{ color: 'var(--on-green)' }}>{num(best.yield)} {unit}{ha}</strong> in {label(best.season)}
-              {best.type ? ` (${best.type})` : ''}.
+              {best === rec.peak ? 'Gave your biggest harvest' : 'Almost your biggest harvest, with fewer bags'}:{' '}
+              <strong style={{ color: 'var(--on-green)' }}>
+                {num(best.yield)} {unit}
+                {ha}
+              </strong>{' '}
+              in {label(best.season)}
+              {!rec.brand && best.type ? ` (${best.type})` : ''}.
             </p>
+            <TlGuide text={rec.tl} />
             {perHa && activeArea > 0 && (
               <p style={{ color: 'var(--on-green)' }}>
-                For the {num(activeArea)} ha growing now: about <strong>{num(roundHalf(best.fert * activeArea))} bags</strong>
+                For the {num(activeArea)} ha growing now: about{' '}
+                <strong>
+                  {num(roundHalf(best.fert * activeArea))} bags{rec.brand ? ` of ${rec.brand}` : ''}
+                </strong>
               </p>
             )}
           </>
         ) : (
           <>
             <h2>Compare your seasons</h2>
-            <p>Add finished seasons with fertilizer bags and harvest to see what works best.</p>
+            <p>Add finished seasons with the fertilizer brand, bags and harvest to see what works best.</p>
             <div className="actions">
               <button className="btn primary small" onClick={addPast}>Add past season</button>
             </div>
@@ -109,6 +128,61 @@ export function CompareSeasons() {
         )}
         <HeroRecordsArt className="hero-art" style={{ width: '34%' }} />
       </section>
+
+      {rec && rec.reasons.length > 0 && (
+        <section className="section">
+          <SectionHead title={rec.brand ? `Why ${rec.brand}?` : 'Why this amount?'} sub="Bakit ito ang payo? Galing sa sarili mong records." />
+          <div className="stack">
+            {rec.reasons.map((r) => (
+              <Advice key={r.text} item={r} />
+            ))}
+          </div>
+          <p className="small muted">{rec.note}</p>
+        </section>
+      )}
+
+      {brands.length >= 2 && (
+        <section className="section">
+          <SectionHead title="By fertilizer brand" sub={`Biggest harvest with each brand${perHa ? ' per hectare' : ''}, and harvest per bag`} />
+          <div className="card table-scroll">
+            <table className="data">
+              <thead>
+                <tr>
+                  <th>Brand</th>
+                  <th className="num">Best harvest</th>
+                  <th className="num">Per bag</th>
+                  <th className="num">₱ per bag</th>
+                </tr>
+              </thead>
+              <tbody>
+                {brands.map((b) => {
+                  const chosen = b.key === rec.brandKey
+                  return (
+                    <tr key={b.key} className={chosen ? 'best' : ''}>
+                      <td>
+                        {b.name}
+                        {chosen ? ' ⭐' : ''}
+                        <div className="small muted">
+                          {b.seasons} season{b.seasons === 1 ? '' : 's'}
+                        </div>
+                      </td>
+                      <td className="num">
+                        {num(b.peak.yield)} {short}
+                        {ha}
+                        <div className="small muted">
+                          {num(round1(b.peak.fert))} bags{ha}
+                        </div>
+                      </td>
+                      <td className="num">{b.perBag !== null ? `${num(b.perBag)} ${short}` : 'Wala'}</td>
+                      <td className="num">{b.costPerBag !== null ? peso(Math.round(b.costPerBag)) : 'Wala'}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {points.length >= 2 && (
         <section className="section">
@@ -140,55 +214,13 @@ export function CompareSeasons() {
         </section>
       )}
 
-      {byType.length >= 2 && (
-        <section className="section">
-          <SectionHead title="By fertilizer type" sub="Average of all seasons that used each type" />
-          <div className="card table-scroll">
-            <table className="data">
-              <thead>
-                <tr>
-                  <th>Fertilizer type</th>
-                  <th className="num">Bags{ha}</th>
-                  <th className="num">₱ abono{ha}</th>
-                  <th className="num">Harvest{ha}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {byType.map((t, i) => (
-                  <tr key={t.type} className={i === 0 ? 'best' : ''}>
-                    <td>
-                      {t.type}
-                      {i === 0 ? ' ⭐' : ''}
-                      <div className="small muted">
-                        {t.seasons} season{t.seasons === 1 ? '' : 's'}
-                      </div>
-                    </td>
-                    <td className="num">{num(round1(t.fert))}</td>
-                    <td className="num">{t.costPerArea !== null ? pesoCompact(t.costPerArea) : 'Wala'}</td>
-                    <td className="num">
-                      {num(t.yield)} {short}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-
       {analysis.insights.length > 0 && (
         <section className="section">
           <SectionHead title="What your records say" />
           <div className="stack">
-            {keyInsights(analysis.insights).map((ins) => {
-              const Icon = TONE_ICON[ins.tone] || Info
-              return (
-                <div key={ins.text} className={`callout ${ins.tone}`}>
-                  <Icon size={18} />
-                  <span>{ins.text}</span>
-                </div>
-              )
-            })}
+            {analysis.insights.map((ins) => (
+              <Advice key={ins.text} item={ins} />
+            ))}
           </div>
         </section>
       )}
