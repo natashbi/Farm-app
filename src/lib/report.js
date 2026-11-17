@@ -1,5 +1,5 @@
 import { getCategory, getCrop } from '../data/categories.js'
-import { addDays, byCategory, fieldStats, seasonBags, seasonFertilizer, seasonHarvest, seasonLabel, seasonStats, totals } from './calc.js'
+import { addDays, byCategory, fieldStats, growingPlantings, seasonBags, seasonFertilizer, seasonHarvest, seasonLabel, seasonStats, totals } from './calc.js'
 import { fmtDate, num, peso } from './format.js'
 
 const isSet = (v) => v !== null && v !== undefined && v !== ''
@@ -98,6 +98,18 @@ export function buildReport(state, scope) {
     fieldRows,
     fieldsById,
   }
+}
+
+export function moneySummary(state, view = 'all') {
+  const growing = growingPlantings(state.seasons, (crop) => getCrop(crop).days)
+  if (view === 'growing' && growing.length) {
+    const ids = new Set(growing.map((s) => s.id))
+    const since = growing.map((s) => s.startDate).filter(Boolean).sort()[0]
+    const t = totals(state.transactions.filter((tx) => ids.has(tx.seasonId) || (!tx.seasonId && (!since || tx.date >= addDays(since, -30)))))
+    return { view: 'growing', production: t.production, tools: t.tools, income: t.income, cost: t.cost, profit: t.profit, growing: growing.length }
+  }
+  const r = buildReport(state, scopeRecords(state))
+  return { view: 'all', production: r.split.production + r.split.typed, tools: r.split.tools, income: r.income, cost: r.cost, profit: r.profit, growing: growing.length }
 }
 
 export function activityLog(state, scope) {

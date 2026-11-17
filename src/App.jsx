@@ -133,9 +133,16 @@ export default function App() {
 
   return (
     <NavContext.Provider value={nav}>
-      <div className="app" data-dir={dir}>
+      <div className="app shell" data-dir={dir}>
         <Screen key={`${tab}-${params?.view || ''}`} params={params} />
         <nav className="nav" aria-label="Main">
+          <div className="nav-brand" aria-hidden="true">
+            <span className="logo">🌾</span>
+            <span className="name">
+              <strong>Sakahan</strong>
+              <small>{state.profile.farm || 'Farm records'}</small>
+            </span>
+          </div>
           {TABS.map((t) => {
             const Icon = t.icon
             return (

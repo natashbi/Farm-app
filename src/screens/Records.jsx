@@ -88,166 +88,171 @@ export function CompareSeasons({ initialCrop }) {
         </div>
       )}
 
-      <section className="hero" style={{ gap: 8 }}>
-        {best ? (
-          <>
-            <p style={{ maxWidth: '64%' }}>
-              {rec.brand ? 'Best fertilizer' : 'Best fertilizer amount'} for {getCrop(crop).label}
-            </p>
-            {rec.brand && <h2 className="hero-brand">{rec.brand}</h2>}
-            <div className="big-number" style={{ position: 'relative', zIndex: 1 }}>
-              ≈ <AnimatedNumber value={round1(best.fert)} format={(n) => num(n)} /> <span style={{ fontSize: 20, fontWeight: 500 }}>bags{ha}</span>
-            </div>
-            <p>
-              {best === rec.peak ? 'Gave your biggest harvest' : 'Almost your biggest harvest, with fewer bags'}:{' '}
-              <strong style={{ color: 'var(--on-green)' }}>
-                {num(best.yield)} {unit}
-                {ha}
-              </strong>{' '}
-              in {label(best.season)}
-              {!rec.brand && best.type ? ` (${best.type})` : ''}.
-            </p>
-            <TlGuide text={rec.tl} />
-            {perHa && activeArea > 0 && (
-              <p style={{ color: 'var(--on-green)' }}>
-                For the {num(activeArea)} ha growing now: about{' '}
-                <strong>
-                  {num(roundHalf(best.fert * activeArea))} bags{rec.brand ? ` of ${rec.brand}` : ''}
-                </strong>
-              </p>
-            )}
-          </>
-        ) : (
-          <>
-            <h2>Compare your seasons</h2>
-            <p>Add finished seasons with the fertilizer brand, bags and harvest to see what works best.</p>
-            <div className="actions">
-              <button className="btn primary small" onClick={addPast}>Add past season</button>
-            </div>
-          </>
-        )}
-        <HeroRecordsArt className="hero-art" style={{ width: '34%' }} />
-      </section>
-
-      {rec && rec.reasons.length > 0 && (
-        <section className="section">
-          <SectionHead title={rec.brand ? `Why ${rec.brand}?` : 'Why this amount?'} sub="Bakit ito ang payo? Galing sa sarili mong records." />
-          <div className="stack">
-            {rec.reasons.map((r) => (
-              <Advice key={r.text} item={r} />
-            ))}
-          </div>
-          <p className="small muted">{rec.note}</p>
-        </section>
-      )}
-
-      {brands.length >= 2 && (
-        <section className="section">
-          <SectionHead title="By fertilizer brand" sub={`Biggest harvest with each brand${perHa ? ' per hectare' : ''}, and harvest per bag`} />
-          <div className="card table-scroll">
-            <table className="data">
-              <thead>
-                <tr>
-                  <th>Brand</th>
-                  <th className="num">Best harvest</th>
-                  <th className="num">Per bag</th>
-                  <th className="num">₱ per bag</th>
-                </tr>
-              </thead>
-              <tbody>
-                {brands.map((b) => {
-                  const chosen = b.key === rec.brandKey
-                  return (
-                    <tr key={b.key} className={chosen ? 'best' : ''}>
-                      <td>
-                        {b.name}
-                        {chosen ? ' ⭐' : ''}
-                        <div className="small muted">
-                          {b.seasons} season{b.seasons === 1 ? '' : 's'}
-                        </div>
-                      </td>
-                      <td className="num">
-                        {num(b.peak.yield)} {short}
-                        {ha}
-                        <div className="small muted">
-                          {num(round1(b.peak.fert))} bags{ha}
-                        </div>
-                      </td>
-                      <td className="num">{b.perBag !== null ? `${num(b.perBag)} ${short}` : 'Wala'}</td>
-                      <td className="num">{b.costPerBag !== null ? peso(Math.round(b.costPerBag)) : 'Wala'}</td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-
-      {points.length >= 2 && (
-        <section className="section">
-          <SectionHead title="Fertilizer vs harvest" sub={`Each season: fertilizer used and harvest${perHa ? ' per hectare' : ''}. Longest bar = biggest harvest.`} />
-          <div className="card stack" style={{ gap: 14 }}>
-            {newestFirst.map((p) => (
-              <div key={p.season.id} className={`fert-row ${p === best ? 'best' : ''}`}>
-                <div className="hstack between">
-                  <strong className="small">
-                    {label(p.season)}
-                    {p === best ? ' ⭐' : ''}
-                  </strong>
-                  <span className="small">
-                    {num(p.yield)} {short}
+      <div className="cols even">
+        <div className="col-main">
+          <section className="hero" style={{ gap: 8 }}>
+            {best ? (
+              <>
+                <p style={{ maxWidth: '64%' }}>
+                  {rec.brand ? 'Best fertilizer' : 'Best fertilizer amount'} for {getCrop(crop).label}
+                </p>
+                {rec.brand && <h2 className="hero-brand">{rec.brand}</h2>}
+                <div className="big-number" style={{ position: 'relative', zIndex: 1 }}>
+                  ≈ <AnimatedNumber value={round1(best.fert)} format={(n) => num(n)} /> <span style={{ fontSize: 20, fontWeight: 500 }}>bags{ha}</span>
+                </div>
+                <p>
+                  {best === rec.peak ? 'Gave your biggest harvest' : 'Almost your biggest harvest, with fewer bags'}:{' '}
+                  <strong style={{ color: 'var(--on-green)' }}>
+                    {num(best.yield)} {unit}
                     {ha}
-                  </span>
+                  </strong>{' '}
+                  in {label(best.season)}
+                  {!rec.brand && best.type ? ` (${best.type})` : ''}.
+                </p>
+                <TlGuide text={rec.tl} />
+                {perHa && activeArea > 0 && (
+                  <p style={{ color: 'var(--on-green)' }}>
+                    For the {num(activeArea)} ha growing now: about{' '}
+                    <strong>
+                      {num(roundHalf(best.fert * activeArea))} bags{rec.brand ? ` of ${rec.brand}` : ''}
+                    </strong>
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <h2>Compare your seasons</h2>
+                <p>Add finished seasons with the fertilizer brand, bags and harvest to see what works best.</p>
+                <div className="actions">
+                  <button className="btn primary small" onClick={addPast}>Add past season</button>
                 </div>
-                <div className="fert-bar">
-                  <span style={{ width: `${(p.yield / topYield) * 100}%` }} />
-                </div>
-                <div className="small muted">
-                  🧪 {num(round1(p.fert))} bags{ha}
-                  {p.type ? ` · ${p.type}` : ''}
-                  {p.fertCost !== null ? ` · ${pesoCompact(p.fertCost)} sa abono` : ''}
-                </div>
+              </>
+            )}
+            <HeroRecordsArt className="hero-art" style={{ width: '34%' }} />
+          </section>
+
+          {rec && rec.reasons.length > 0 && (
+            <section className="section">
+              <SectionHead title={rec.brand ? `Why ${rec.brand}?` : 'Why this amount?'} sub="Bakit ito ang payo? Galing sa sarili mong records." />
+              <div className="stack">
+                {rec.reasons.map((r) => (
+                  <Advice key={r.text} item={r} />
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {analysis.insights.length > 0 && (
-        <section className="section">
-          <SectionHead title="What your records say" />
-          <div className="stack">
-            {analysis.insights.map((ins) => (
-              <Advice key={ins.text} item={ins} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {(analysis.excluded.length > 0 || growingCount > 0) && (
-        <section className="section">
-          <SectionHead title="Not compared yet" sub="Hindi pa kasama. I-tap para kumpletuhin." />
-          {analysis.excluded.length > 0 && (
-            <div className="list">
-              {analysis.excluded.map((x) => (
-                <button key={x.season.id} className="row" onClick={() => nav.open('season', { season: x.season })}>
-                  <span className="bubble" aria-hidden="true">{getCrop(x.season.crop).emoji}</span>
-                  <span className="grow">
-                    <span className="title" style={{ display: 'block' }}>{label(x.season)}</span>
-                    <span className="meta" style={{ display: 'block', color: 'var(--warn)' }}>⚠️ {MISSING[x.reason](x)}</span>
-                  </span>
-                </button>
-              ))}
-            </div>
+              <p className="small muted">{rec.note}</p>
+            </section>
           )}
-          {growingCount > 0 && (
-            <p className="small muted">
-              🌱 {growingCount} tanim ang tumutubo pa. Lalabas dito pag naka-✅ Already harvested na.
-            </p>
+
+          {analysis.insights.length > 0 && (
+            <section className="section">
+              <SectionHead title="What your records say" />
+              <div className="stack">
+                {analysis.insights.map((ins) => (
+                  <Advice key={ins.text} item={ins} />
+                ))}
+              </div>
+            </section>
           )}
-        </section>
-      )}
+        </div>
+        <div className="col-side">
+          {brands.length >= 2 && (
+            <section className="section">
+              <SectionHead title="By fertilizer brand" sub={`Biggest harvest with each brand${perHa ? ' per hectare' : ''}, and harvest per bag`} />
+              <div className="card table-scroll">
+                <table className="data">
+                  <thead>
+                    <tr>
+                      <th>Brand</th>
+                      <th className="num">Best harvest</th>
+                      <th className="num">Per bag</th>
+                      <th className="num">₱ per bag</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {brands.map((b) => {
+                      const chosen = b.key === rec.brandKey
+                      return (
+                        <tr key={b.key} className={chosen ? 'best' : ''}>
+                          <td>
+                            {b.name}
+                            {chosen ? ' ⭐' : ''}
+                            <div className="small muted">
+                              {b.seasons} season{b.seasons === 1 ? '' : 's'}
+                            </div>
+                          </td>
+                          <td className="num">
+                            {num(b.peak.yield)} {short}
+                            {ha}
+                            <div className="small muted">
+                              {num(round1(b.peak.fert))} bags{ha}
+                            </div>
+                          </td>
+                          <td className="num">{b.perBag !== null ? `${num(b.perBag)} ${short}` : 'Wala'}</td>
+                          <td className="num">{b.costPerBag !== null ? peso(Math.round(b.costPerBag)) : 'Wala'}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {points.length >= 2 && (
+            <section className="section">
+              <SectionHead title="Fertilizer vs harvest" sub={`Each season: fertilizer used and harvest${perHa ? ' per hectare' : ''}. Longest bar = biggest harvest.`} />
+              <div className="card stack" style={{ gap: 14 }}>
+                {newestFirst.map((p) => (
+                  <div key={p.season.id} className={`fert-row ${p === best ? 'best' : ''}`}>
+                    <div className="hstack between">
+                      <strong className="small">
+                        {label(p.season)}
+                        {p === best ? ' ⭐' : ''}
+                      </strong>
+                      <span className="small">
+                        {num(p.yield)} {short}
+                        {ha}
+                      </span>
+                    </div>
+                    <div className="fert-bar">
+                      <span style={{ width: `${(p.yield / topYield) * 100}%` }} />
+                    </div>
+                    <div className="small muted">
+                      🧪 {num(round1(p.fert))} bags{ha}
+                      {p.type ? ` · ${p.type}` : ''}
+                      {p.fertCost !== null ? ` · ${pesoCompact(p.fertCost)} sa abono` : ''}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {(analysis.excluded.length > 0 || growingCount > 0) && (
+            <section className="section">
+              <SectionHead title="Not compared yet" sub="Hindi pa kasama. I-tap para kumpletuhin." />
+              {analysis.excluded.length > 0 && (
+                <div className="list">
+                  {analysis.excluded.map((x) => (
+                    <button key={x.season.id} className="row" onClick={() => nav.open('season', { season: x.season })}>
+                      <span className="bubble" aria-hidden="true">{getCrop(x.season.crop).emoji}</span>
+                      <span className="grow">
+                        <span className="title" style={{ display: 'block' }}>{label(x.season)}</span>
+                        <span className="meta" style={{ display: 'block', color: 'var(--warn)' }}>⚠️ {MISSING[x.reason](x)}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {growingCount > 0 && (
+                <p className="small muted">
+                  🌱 {growingCount} tanim ang tumutubo pa. Lalabas dito pag naka-✅ Already harvested na.
+                </p>
+              )}
+            </section>
+          )}
+        </div>
+      </div>
     </>
   )
 }

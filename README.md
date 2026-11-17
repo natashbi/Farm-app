@@ -5,7 +5,7 @@ organize and monitor farm expenses, harvests and income, replacing notebooks and
 
 | Module | What it does |
 | --- | --- |
-| **Home** | Farm summary (fields, hectares), plantings growing now with days to harvest, fertilizer advice (which brand and how many bags), this season's money, recent activity |
+| **Home** | Farm summary (fields, hectares), plantings growing now with days to harvest, fertilizer advice (which brand and how many bags), money summary (Overall, or only the crops growing now), recent activity |
 | **Expenses** | Record expenses (seeds, fertilizer, pesticide, labor, land prep, irrigation, fuel, rent, hauling, tools bought/rented/repairs) and income; totals and profit computed automatically; filter by season and field |
 | **Harvest** | *Plantings*: crop, field, planting date and expected harvest date with a days-after-planting monitor. *Harvest log*: each harvest batch with date, crop and quantity (optionally recorded as a sale). *Compare*: compares seasons to find which fertilizer brand and how many bags gave the best harvest, and explains why |
 | **Reports** | Summary report per season and field: expenses, income, net profit, harvest, yield per hectare, cost per cavan, field performance, plantings, expenses by category, activity log; export to Excel (CSV) or print / save as PDF |
@@ -31,6 +31,9 @@ weaker brand is picked). If fewer bags gave almost the same harvest (97% or more
 Extra tool: **Crop Doctor** (Profile → Extra tools) suggests fertilizer, tools and steps for common crop problems.
 
 Everything is saved on the phone (works offline, no account). Back up / restore from the Profile tab.
+
+Works on phones and laptops: on a wide screen (960px and up) the menu moves to a sidebar on the left,
+planting cards and harvest logs use the extra space, and from 1180px the main pages show two columns.
 
 ## Run it
 

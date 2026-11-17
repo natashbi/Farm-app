@@ -86,7 +86,7 @@ function Plantings({ seasons, fieldsById }) {
       <section className="section">
         <SectionHead title="Growing now" sub={`${growing.length} planting${growing.length === 1 ? '' : 's'} · days after planting and expected harvest`} />
         {growing.length ? (
-          <div className="stack" style={{ gap: 12 }}>
+          <div className="stack plantings" style={{ gap: 12 }}>
             {growing.map((s) => (
               <PlantingCard
                 key={s.id}
@@ -104,7 +104,7 @@ function Plantings({ seasons, fieldsById }) {
       {done.length > 0 && (
         <section className="section">
           <SectionHead title="Harvested" sub="Past plantings. Tap to see or edit." />
-          <div className="stack" style={{ gap: 12 }}>
+          <div className="stack plantings" style={{ gap: 12 }}>
             {done.map((s) => (
               <PlantingCard key={s.id} season={s} field={fieldsById[s.fieldId]} onClick={() => nav.open('season', { season: s })} />
             ))}
@@ -182,7 +182,7 @@ function HarvestLog({ harvests, seasons, fieldsById }) {
           </div>
         ))}
       </div>
-      <div className="list">
+      <div className="list months">
         {months.map((m) => (
           <div key={m.key} className="list">
             <div className="month-head">

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { analyzeSeasons, quadraticPeak } from './analysis.js'
 import { plantingProgress, seasonHarvest, seasonStats, totals } from './calc.js'
-import { buildReport, scopeRecords } from './report.js'
+import { buildReport, moneySummary, scopeRecords } from './report.js'
 import { hashPin, sha256 } from './sha256.js'
 import { diagnose } from '../data/cropDoctor.js'
 import { normalize } from '../store.jsx'
@@ -231,6 +231,33 @@ describe('planting and harvest date monitoring', () => {
     const p = plantingProgress({ startDate: '2026-06-01', harvestDate: '2026-09-10', status: 'active' }, '2026-09-15', 115)
     expect(p.estimated).toBe(false)
     expect(p.stage).toBe('overdue')
+  })
+})
+
+describe('home money summary', () => {
+  it('shows the overall money by default, the same totals as Reports', () => {
+    const state = { ...makeSampleData(), profile: {} }
+    const all = moneySummary(state)
+    const report = buildReport(state, scopeRecords(state))
+    expect(all.view).toBe('all')
+    expect(all.cost).toBe(report.cost)
+    expect(all.income).toBe(report.income)
+    expect(all.production + all.tools).toBe(report.cost)
+  })
+  it('can show only the crops growing now', () => {
+    const state = { ...makeSampleData(), profile: {} }
+    const growing = moneySummary(state, 'growing')
+    const all = moneySummary(state)
+    expect(growing.view).toBe('growing')
+    expect(growing.growing).toBe(3)
+    expect(growing.cost).toBeGreaterThan(0)
+    expect(growing.cost).toBeLessThan(all.cost)
+    expect(growing.income).toBeLessThan(all.income)
+  })
+  it('falls back to overall when nothing is growing', () => {
+    const data = makeSampleData()
+    const state = { ...data, seasons: data.seasons.map((s) => ({ ...s, status: 'completed' })), profile: {} }
+    expect(moneySummary(state, 'growing').view).toBe('all')
   })
 })
 
