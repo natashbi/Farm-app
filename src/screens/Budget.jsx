@@ -49,99 +49,93 @@ export default function Budget() {
         </button>
       </header>
 
-      <div className="cols rev">
-        <aside className="col-side sticky">
-          <div className="stack" style={{ gap: 8 }}>
-            <div className="chips" role="group" aria-label="Season">
-              <Chip active={season === 'all'} onClick={() => setSeason('all')}>All seasons</Chip>
-              {names.map((n) => (
-                <Chip key={n} active={season === n} onClick={() => setSeason(n)}>
-                  {n}
-                </Chip>
-              ))}
-            </div>
-            {state.fields.length > 0 && (
-              <div className="chips" role="group" aria-label="Field">
-                <Chip active={field === 'all'} onClick={() => setField('all')}>All fields</Chip>
-                {state.fields.map((f) => (
-                  <Chip key={f.id} active={field === f.id} onClick={() => setField(f.id)}>
-                    {f.name}
-                  </Chip>
-                ))}
-                <Chip active={field === 'none'} onClick={() => setField('none')}>Farm-wide</Chip>
-              </div>
-            )}
-          </div>
-
-          <section className="hero" style={{ minHeight: 0, gap: 14 }}>
-            <div>
-              <p style={{ maxWidth: 'none' }}>{t.profit >= 0 ? 'Profit' : 'Loss so far'} · Tubo</p>
-              <div className="big-number">
-                <AnimatedNumber value={t.profit} format={peso} />
-              </div>
-            </div>
-            <div className="stats-row" style={{ textAlign: 'left' }}>
-              {[
-                ['Production', t.production],
-                ['Tools', t.tools],
-                ['Income', t.income],
-              ].map(([label, v]) => (
-                <div key={label} style={{ borderColor: 'var(--green-3)', paddingLeft: 10 }}>
-                  <span style={{ color: 'var(--on-green-2)' }}>{label}</span>
-                  <strong style={{ fontSize: 16 }}>
-                    <AnimatedNumber value={v} format={peso} />
-                  </strong>
-                </div>
-              ))}
-            </div>
-          </section>
-        </aside>
-
-        <div className="col-main">
-          <Segmented
-            label="Filter records"
-            value={group}
-            onChange={setGroup}
-            options={[
-              { value: 'all', label: 'All' },
-              { value: 'production', label: 'Production' },
-              { value: 'tools', label: 'Tools' },
-              { value: 'income', label: 'Income' },
-            ]}
-          />
-
-          {months.length ? (
-            <div className="list">
-              {months.map((m) => (
-                <div key={m.key} className="list">
-                  <div className="month-head">
-                    <span>{monthLabel(m.key)}</span>
-                    <span>
-                      {m.out > 0 && `−${peso(m.out)}`}
-                      {m.out > 0 && m.in > 0 && ' · '}
-                      {m.in > 0 && `+${peso(m.in)}`}
-                    </span>
-                  </div>
-                  {m.items.map((tx) => (
-                    <TxRow key={tx.id} tx={tx} where={seasonLabel(seasonsById[tx.seasonId], fieldsById) || 'Farm-wide'} onClick={() => nav.open('tx', { tx })} />
-                  ))}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Empty
-              title="Nothing recorded here yet"
-              action={
-                <button className="btn primary" onClick={() => nav.open('tx')}>
-                  <Plus size={18} /> Add record
-                </button>
-              }
-            >
-              Record seeds, fertilizer, labor, tools and harvest sales to see your real profit.
-            </Empty>
-          )}
+      <div className="stack" style={{ gap: 8 }}>
+        <div className="chips" role="group" aria-label="Season">
+          <Chip active={season === 'all'} onClick={() => setSeason('all')}>All seasons</Chip>
+          {names.map((n) => (
+            <Chip key={n} active={season === n} onClick={() => setSeason(n)}>
+              {n}
+            </Chip>
+          ))}
         </div>
+        {state.fields.length > 0 && (
+          <div className="chips" role="group" aria-label="Field">
+            <Chip active={field === 'all'} onClick={() => setField('all')}>All fields</Chip>
+            {state.fields.map((f) => (
+              <Chip key={f.id} active={field === f.id} onClick={() => setField(f.id)}>
+                {f.name}
+              </Chip>
+            ))}
+            <Chip active={field === 'none'} onClick={() => setField('none')}>Farm-wide</Chip>
+          </div>
+        )}
       </div>
+
+      <section className="hero" style={{ minHeight: 0, gap: 14 }}>
+        <div>
+          <p style={{ maxWidth: 'none' }}>{t.profit >= 0 ? 'Profit' : 'Loss so far'} · Tubo</p>
+          <div className="big-number">
+            <AnimatedNumber value={t.profit} format={peso} />
+          </div>
+        </div>
+        <div className="stats-row" style={{ textAlign: 'left' }}>
+          {[
+            ['Production', t.production],
+            ['Tools', t.tools],
+            ['Income', t.income],
+          ].map(([label, v]) => (
+            <div key={label} style={{ borderColor: 'var(--green-3)', paddingLeft: 10 }}>
+              <span style={{ color: 'var(--on-green-2)' }}>{label}</span>
+              <strong style={{ fontSize: 16 }}>
+                <AnimatedNumber value={v} format={peso} />
+              </strong>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <Segmented
+        label="Filter records"
+        value={group}
+        onChange={setGroup}
+        options={[
+          { value: 'all', label: 'All' },
+          { value: 'production', label: 'Production' },
+          { value: 'tools', label: 'Tools' },
+          { value: 'income', label: 'Income' },
+        ]}
+      />
+
+      {months.length ? (
+        <div className="list">
+          {months.map((m) => (
+            <div key={m.key} className="list">
+              <div className="month-head">
+                <span>{monthLabel(m.key)}</span>
+                <span>
+                  {m.out > 0 && `−${peso(m.out)}`}
+                  {m.out > 0 && m.in > 0 && ' · '}
+                  {m.in > 0 && `+${peso(m.in)}`}
+                </span>
+              </div>
+              {m.items.map((tx) => (
+                <TxRow key={tx.id} tx={tx} where={seasonLabel(seasonsById[tx.seasonId], fieldsById) || 'Farm-wide'} onClick={() => nav.open('tx', { tx })} />
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <Empty
+          title="Nothing recorded here yet"
+          action={
+            <button className="btn primary" onClick={() => nav.open('tx')}>
+              <Plus size={18} /> Add record
+            </button>
+          }
+        >
+          Record seeds, fertilizer, labor, tools and harvest sales to see your real profit.
+        </Empty>
+      )}
     </main>
   )
 }

@@ -118,128 +118,123 @@ export default function Reports() {
             )}
           </div>
 
-          <div className="cols">
-            <div className="col-main">
-              {report.fieldRows.length > 1 && (
-                <section className="section">
-                  <SectionHead title="Field performance" sub="Compare your fields side by side" />
-                  <div className="card table-scroll">
-                    <table className="data">
-                      <thead>
-                        <tr>
-                          <th>Field</th>
-                          <th className="num">Area</th>
-                          <th className="num">Yield/ha</th>
-                          <th className="num">Cost</th>
-                          <th className="num">Profit</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {report.fieldRows.map((f) => (
-                          <tr key={f.field.id}>
-                            <td>
-                              {f.field.name}
-                              <div className="small muted">{f.plantings} planting{f.plantings === 1 ? '' : 's'}</div>
-                            </td>
-                            <td className="num">{num(f.field.area)} ha</td>
-                            <td className="num">{f.yieldPerHa ? `${num(f.yieldPerHa)} ${f.mainUnit === 'cavans' ? 'cav' : f.mainUnit}` : 'Wala'}</td>
-                            <td className="num">{pesoCompact(f.cost)}</td>
-                            <td className="num" style={{ color: f.profit >= 0 ? 'var(--good)' : 'var(--bad)' }}>
-                              {pesoCompact(f.profit)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </section>
-              )}
-
-              {report.plantings.length > 0 && (
-                <section className="section">
-                  <SectionHead title="Plantings" sub="Planting and harvest dates, harvest and profit" />
-                  <div className="card table-scroll">
-                    <table className="data">
-                      <thead>
-                        <tr>
-                          <th>Planting</th>
-                          <th>Dates</th>
-                          <th className="num">Harvest</th>
-                          <th className="num">Profit</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[...report.plantings]
-                          .sort((a, b) => (b.season.startDate || '').localeCompare(a.season.startDate || ''))
-                          .map(({ season: s, stats, harvest }) => (
-                            <tr key={s.id} onClick={() => nav.open('season', { season: s })} style={{ cursor: 'pointer' }}>
-                              <td>
-                                {getCrop(s.crop).emoji} {report.fieldsById[s.fieldId]?.name || 'No field'}
-                                <div className="small muted">{s.name}</div>
-                              </td>
-                              <td className="small">
-                                {s.startDate ? fmtDate(s.startDate, { month: 'short', day: 'numeric', year: '2-digit' }) : 'No date'}
-                                <div className="muted">
-                                  → {s.harvestDate ? fmtDate(s.harvestDate, { month: 'short', day: 'numeric', year: '2-digit' }) : s.status === 'active' ? 'growing' : 'No date'}
-                                </div>
-                              </td>
-                              <td className="num">{harvest.qty ? `${num(harvest.qty)} ${harvest.unit === 'cavans' ? 'cav' : harvest.unit}` : 'Wala'}</td>
-                              <td className="num" style={{ color: stats.profit >= 0 ? 'var(--good)' : 'var(--bad)' }}>
-                                {pesoCompact(stats.profit)}
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </section>
-              )}
-            </div>
-            <div className="col-side">
-              {report.categories.length > 0 && (
-                <section className="section">
-                  <SectionHead title="Expenses by category" sub={`Total ${peso(report.cost)}`} />
-                  <div className="card stack">
-                    {report.categories.some((r) => r.category.id !== 'typed') && (
-                      <CategoryBars rows={report.categories.filter((r) => r.category.id !== 'typed')} max={8} />
-                    )}
-                    {report.split.typed > 0 && (
-                      <p className="small muted">
-                        Plus {peso(report.split.typed)} from older seasons entered as one total (no category breakdown).
-                      </p>
-                    )}
-                  </div>
-                </section>
-              )}
-
-              <section className="section">
-                <SectionHead title="Activity log" sub={`${activity.length} recorded activities`} />
-                {activity.length ? (
-                  <div className="timeline">
-                    {(showAll ? activity : activity.slice(0, 5)).map((e) => (
-                      <button key={e.id} className="tl-item" onClick={() => nav.open(e.open.sheet, e.open.props)}>
-                        <span className={`tl-dot ${e.kind}`} aria-hidden="true">{e.emoji}</span>
-                        <span className="grow">
-                          <span className="title">{e.title}</span>
-                          <span className="meta">
-                            {fmtDate(e.date, { month: 'short', day: 'numeric', year: 'numeric' })} · {e.meta}
-                          </span>
-                        </span>
-                        {e.amount && <span className={`amount ${e.tone}`}>{e.amount}</span>}
-                      </button>
+          {report.fieldRows.length > 1 && (
+            <section className="section">
+              <SectionHead title="Field performance" sub="Compare your fields side by side" />
+              <div className="card table-scroll">
+                <table className="data">
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th className="num">Area</th>
+                      <th className="num">Yield/ha</th>
+                      <th className="num">Cost</th>
+                      <th className="num">Profit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.fieldRows.map((f) => (
+                      <tr key={f.field.id}>
+                        <td>
+                          {f.field.name}
+                          <div className="small muted">{f.plantings} planting{f.plantings === 1 ? '' : 's'}</div>
+                        </td>
+                        <td className="num">{num(f.field.area)} ha</td>
+                        <td className="num">{f.yieldPerHa ? `${num(f.yieldPerHa)} ${f.mainUnit === 'cavans' ? 'cav' : f.mainUnit}` : 'Wala'}</td>
+                        <td className="num">{pesoCompact(f.cost)}</td>
+                        <td className="num" style={{ color: f.profit >= 0 ? 'var(--good)' : 'var(--bad)' }}>
+                          {pesoCompact(f.profit)}
+                        </td>
+                      </tr>
                     ))}
-                  </div>
-                ) : (
-                  <p className="small muted">No activity in this period.</p>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {report.plantings.length > 0 && (
+            <section className="section">
+              <SectionHead title="Plantings" sub="Planting and harvest dates, harvest and profit" />
+              <div className="card table-scroll">
+                <table className="data">
+                  <thead>
+                    <tr>
+                      <th>Planting</th>
+                      <th>Dates</th>
+                      <th className="num">Harvest</th>
+                      <th className="num">Profit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...report.plantings]
+                      .sort((a, b) => (b.season.startDate || '').localeCompare(a.season.startDate || ''))
+                      .map(({ season: s, stats, harvest }) => (
+                        <tr key={s.id} onClick={() => nav.open('season', { season: s })} style={{ cursor: 'pointer' }}>
+                          <td>
+                            {getCrop(s.crop).emoji} {report.fieldsById[s.fieldId]?.name || 'No field'}
+                            <div className="small muted">{s.name}</div>
+                          </td>
+                          <td className="small">
+                            {s.startDate ? fmtDate(s.startDate, { month: 'short', day: 'numeric', year: '2-digit' }) : 'No date'}
+                            <div className="muted">
+                              → {s.harvestDate ? fmtDate(s.harvestDate, { month: 'short', day: 'numeric', year: '2-digit' }) : s.status === 'active' ? 'growing' : 'No date'}
+                            </div>
+                          </td>
+                          <td className="num">{harvest.qty ? `${num(harvest.qty)} ${harvest.unit === 'cavans' ? 'cav' : harvest.unit}` : 'Wala'}</td>
+                          <td className="num" style={{ color: stats.profit >= 0 ? 'var(--good)' : 'var(--bad)' }}>
+                            {pesoCompact(stats.profit)}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {report.categories.length > 0 && (
+            <section className="section">
+              <SectionHead title="Expenses by category" sub={`Total ${peso(report.cost)}`} />
+              <div className="card stack">
+                {report.categories.some((r) => r.category.id !== 'typed') && (
+                  <CategoryBars rows={report.categories.filter((r) => r.category.id !== 'typed')} max={8} />
                 )}
-                {!showAll && activity.length > 5 && (
-                  <button className="btn ghost no-print" onClick={() => setShowAll(true)}>
-                    Show all {activity.length}
+                {report.split.typed > 0 && (
+                  <p className="small muted">
+                    Plus {peso(report.split.typed)} from older seasons entered as one total (no category breakdown).
+                  </p>
+                )}
+              </div>
+            </section>
+          )}
+
+          <section className="section">
+            <SectionHead title="Activity log" sub={`${activity.length} recorded activities`} />
+            {activity.length ? (
+              <div className="timeline">
+                {(showAll ? activity : activity.slice(0, 5)).map((e) => (
+                  <button key={e.id} className="tl-item" onClick={() => nav.open(e.open.sheet, e.open.props)}>
+                    <span className={`tl-dot ${e.kind}`} aria-hidden="true">{e.emoji}</span>
+                    <span className="grow">
+                      <span className="title">{e.title}</span>
+                      <span className="meta">
+                        {fmtDate(e.date, { month: 'short', day: 'numeric', year: 'numeric' })} · {e.meta}
+                      </span>
+                    </span>
+                    {e.amount && <span className={`amount ${e.tone}`}>{e.amount}</span>}
                   </button>
-                )}
-              </section>
-            </div>
-          </div>
+                ))}
+              </div>
+            ) : (
+              <p className="small muted">No activity in this period.</p>
+            )}
+            {!showAll && activity.length > 5 && (
+              <button className="btn ghost no-print" onClick={() => setShowAll(true)}>
+                Show all {activity.length}
+              </button>
+            )}
+          </section>
         </>
       )}
     </main>

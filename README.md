@@ -32,9 +32,6 @@ Extra tool: **Crop Doctor** (Profile → Extra tools) suggests fertilizer, tools
 
 Everything is saved on the phone (works offline, no account). Back up / restore from the Profile tab.
 
-Works on phones and laptops: on a wide screen (960px and up) the menu moves to a sidebar on the left,
-planting cards and harvest logs use the extra space, and from 1180px the main pages show two columns.
-
 ## Run it
 
 ```bash

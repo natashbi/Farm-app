@@ -70,6 +70,7 @@ export default function Home() {
   const fieldsById = Object.fromEntries(state.fields.map((f) => [f.id, f]))
   const totalArea = state.fields.reduce((s, f) => s + (Number(f.area) || 0), 0)
   const growing = growingPlantings(state.seasons, (c) => getCrop(c).days)
+
   const money = moneySummary(state, growing.length ? state.profile.homeMoney || 'all' : 'all')
   const activity = activityLog(state, scopeRecords(state)).slice(0, 5)
 
@@ -88,100 +89,95 @@ export default function Home() {
         </button>
       </header>
 
-      <div className="cols">
-        <div className="col-main">
-          <section className="hero">
-            <h2>Farm expense & harvest records</h2>
-            <p>Gastos, ani at kita ng bawat lote, all in one place.</p>
-            <div className="actions">
-              <button className="pill-btn" onClick={() => nav.open('tx')}>Add expense</button>
-              <button className="pill-btn fill" onClick={() => nav.open('harvest')}>Log harvest</button>
-            </div>
-            <HeroBudgetArt className="hero-art" />
-          </section>
+      <section className="hero">
+        <h2>Farm expense & harvest records</h2>
+        <p>Gastos, ani at kita ng bawat lote, all in one place.</p>
+        <div className="actions">
+          <button className="pill-btn" onClick={() => nav.open('tx')}>Add expense</button>
+          <button className="pill-btn fill" onClick={() => nav.open('harvest')}>Log harvest</button>
+        </div>
+        <HeroBudgetArt className="hero-art" />
+      </section>
 
-          <section className="section">
-            <SectionHead title="Growing now" sub="Days after planting and expected harvest" action="View all" onAction={() => nav.setTab('harvest')} />
-            {growing.length ? (
-              <div className="stack plantings" style={{ gap: 12 }}>
-                {growing.slice(0, 3).map((s) => (
-                  <PlantingCard
-                    key={s.id}
-                    season={s}
-                    field={fieldsById[s.fieldId]}
-                    onClick={() => nav.open('season', { season: s })}
-                    onLogHarvest={() => nav.open('harvest', { preset: { seasonId: s.id } })}
-                  />
-                ))}
-              </div>
-            ) : (
-              <button className="btn ghost" onClick={() => nav.open('season')}>
-                🌱 Add what you planted
+      <section className="section">
+        <SectionHead title="Growing now" sub="Days after planting and expected harvest" action="View all" onAction={() => nav.setTab('harvest')} />
+        {growing.length ? (
+          <div className="stack" style={{ gap: 12 }}>
+            {growing.slice(0, 3).map((s) => (
+              <PlantingCard
+                key={s.id}
+                season={s}
+                field={fieldsById[s.fieldId]}
+                onClick={() => nav.open('season', { season: s })}
+                onLogHarvest={() => nav.open('harvest', { preset: { seasonId: s.id } })}
+              />
+            ))}
+          </div>
+        ) : (
+          <button className="btn ghost" onClick={() => nav.open('season')}>
+            🌱 Add what you planted
+          </button>
+        )}
+      </section>
+
+      <FertilizerAdvice state={state} growing={growing} />
+
+      <section className="section">
+        <SectionHead
+          title={money.view === 'growing' ? 'Money for growing crops' : 'Overall money'}
+          sub={
+            money.view === 'growing'
+              ? `Gastos at kita ng ${money.growing} tanim na tumutubo ngayon`
+              : 'Lahat ng gastos at kita, lahat ng season at lote'
+          }
+        />
+        {growing.length > 0 && (
+          <Segmented
+            label="Money to show"
+            value={money.view}
+            onChange={(v) => setProfile({ homeMoney: v })}
+            options={[
+              { value: 'all', label: 'Overall' },
+              { value: 'growing', label: 'Growing now' },
+            ]}
+          />
+        )}
+        <div className="stats-grid">
+          <Stat label="Production cost" amount={money.production} format={peso} hint="Seeds, abono, labor…" />
+          <Stat label="Tools & equipment" amount={money.tools} format={peso} hint="Bought, rented, repairs" />
+          <Stat label="Income" amount={money.income} format={peso} hint="Harvest sales" />
+          <Stat
+            label={money.profit >= 0 ? 'Profit' : 'Profit so far'}
+            amount={money.profit}
+            format={peso}
+            tone={money.profit >= 0 ? 'pos' : 'neg'}
+            hint={money.profit < 0 && growing.length ? 'Normal before harvest' : 'Income − all costs'}
+          />
+        </div>
+      </section>
+
+      <section className="section">
+        <SectionHead title="Recent activity" action="Reports" onAction={() => nav.setTab('reports')} />
+        {activity.length ? (
+          <div className="timeline">
+            {activity.map((e) => (
+              <button key={e.id} className="tl-item" onClick={() => nav.open(e.open.sheet, e.open.props)}>
+                <span className={`tl-dot ${e.kind}`} aria-hidden="true">{e.emoji}</span>
+                <span className="grow">
+                  <span className="title">{e.title}</span>
+                  <span className="meta">
+                    {fmtDate(e.date, { month: 'short', day: 'numeric' })} · {e.meta}
+                  </span>
+                </span>
+                {e.amount && <span className={`amount ${e.tone}`}>{e.amount}</span>}
               </button>
-            )}
-          </section>
+            ))}
+          </div>
+        ) : (
+          <Empty title="No records yet">Tap “Add expense” or “Log harvest” to start.</Empty>
+        )}
+      </section>
 
-          <FertilizerAdvice state={state} growing={growing} />
-        </div>
-
-        <div className="col-side">
-          <section className="section">
-            <SectionHead
-              title={money.view === 'growing' ? 'Money for growing crops' : 'Overall money'}
-              sub={
-                money.view === 'growing'
-                  ? `Gastos at kita ng ${money.growing} tanim na tumutubo ngayon`
-                  : 'Lahat ng gastos at kita, lahat ng season at lote'
-              }
-            />
-            {growing.length > 0 && (
-              <Segmented
-                label="Money to show"
-                value={money.view}
-                onChange={(v) => setProfile({ homeMoney: v })}
-                options={[
-                  { value: 'all', label: 'Overall' },
-                  { value: 'growing', label: 'Growing now' },
-                ]}
-              />
-            )}
-            <div className="stats-grid">
-              <Stat label="Production cost" amount={money.production} format={peso} hint="Seeds, abono, labor…" />
-              <Stat label="Tools & equipment" amount={money.tools} format={peso} hint="Bought, rented, repairs" />
-              <Stat label="Income" amount={money.income} format={peso} hint="Harvest sales" />
-              <Stat
-                label={money.profit >= 0 ? 'Profit' : 'Profit so far'}
-                amount={money.profit}
-                format={peso}
-                tone={money.profit >= 0 ? 'pos' : 'neg'}
-                hint={money.profit < 0 && growing.length ? 'Normal before harvest' : 'Income − all costs'}
-              />
-            </div>
-          </section>
-
-          <section className="section">
-            <SectionHead title="Recent activity" action="Reports" onAction={() => nav.setTab('reports')} />
-            {activity.length ? (
-              <div className="timeline">
-                {activity.map((e) => (
-                  <button key={e.id} className="tl-item" onClick={() => nav.open(e.open.sheet, e.open.props)}>
-                    <span className={`tl-dot ${e.kind}`} aria-hidden="true">{e.emoji}</span>
-                    <span className="grow">
-                      <span className="title">{e.title}</span>
-                      <span className="meta">
-                        {fmtDate(e.date, { month: 'short', day: 'numeric' })} · {e.meta}
-                      </span>
-                    </span>
-                    {e.amount && <span className={`amount ${e.tone}`}>{e.amount}</span>}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <Empty title="No records yet">Tap “Add expense” or “Log harvest” to start.</Empty>
-            )}
-          </section>
-        </div>
-      </div>
     </main>
   )
 }
